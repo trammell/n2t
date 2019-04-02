@@ -9,6 +9,8 @@
  *                            {0, in, 0, 0, 0, 0, 0, 0} if sel == 001
  *                            etc.
  *                            {0, 0, 0, 0, 0, 0, 0, in} if sel == 111
+ * As with DMux4Way, the input is a single bit. Logic here is the same, but
+ * with three layers instead of two.
  */
 
 CHIP DMux8Way {
@@ -16,5 +18,17 @@ CHIP DMux8Way {
     OUT a, b, c, d, e, f, g, h;
 
     PARTS:
-    // Put your code here:
+
+    /* first level */
+    DMux(in=in,sel=sel[2],a=selabcd,b=selefgh);
+
+    /* second level */
+    DMux(in=selabcd,sel=sel[1],a=selab,b=selcd);
+    DMux(in=selefgh,sel=sel[1],a=selef,b=selgh);
+
+    /* third level */
+    DMux(in=selab,sel=sel[0],a=a,b=b);
+    DMux(in=selcd,sel=sel[0],a=c,b=d);
+    DMux(in=selef,sel=sel[0],a=e,b=f);
+    DMux(in=selgh,sel=sel[0],a=g,b=h);
 }
