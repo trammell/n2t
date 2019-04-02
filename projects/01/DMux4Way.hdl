@@ -9,6 +9,7 @@
  *                {0, in, 0, 0} if sel == 01
  *                {0, 0, in, 0} if sel == 10
  *                {0, 0, 0, in} if sel == 11
+ * NOTE: "in" is a single bit.
  */
 
 CHIP DMux4Way {
@@ -16,5 +17,11 @@ CHIP DMux4Way {
     OUT a, b, c, d;
 
     PARTS:
-    // Put your code here:
+
+    /* first level */
+    DMux(in=in,sel=sel[1],a=selab,b=selcd);
+
+    /* second level */
+    DMux(in=selab,sel=sel[0],a=a,b=b);
+    DMux(in=selcd,sel=sel[0],a=c,b=d);
 }
