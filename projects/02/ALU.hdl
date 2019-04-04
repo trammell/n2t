@@ -1,46 +1,81 @@
-// This file is part of www.nand2tetris.org
-// and the book "The Elements of Computing Systems"
-// by Nisan and Schocken, MIT Press.
-// File name: projects/02/ALU.hdl
-
-/**
+/* vim: set ft=cpp background=dark nofoldenable :
+ *
+ * This file is part of www.nand2tetris.org
+ * and the book "The Elements of Computing Systems"
+ * by Nisan and Schocken, MIT Press.
+ * File name: projects/02/ALU.hdl
+ *
  * The ALU (Arithmetic Logic Unit).
  * Computes one of the following functions:
  * x+y, x-y, y-x, 0, 1, -1, x, y, -x, -y, !x, !y,
- * x+1, y+1, x-1, y-1, x&y, x|y on two 16-bit inputs, 
+ * x+1, y+1, x-1, y-1, x&y, x|y on two 16-bit inputs,
  * according to 6 input bits denoted zx,nx,zy,ny,f,no.
  * In addition, the ALU computes two 1-bit outputs:
  * if the ALU output == 0, zr is set to 1; otherwise zr is set to 0;
  * if the ALU output < 0, ng is set to 1; otherwise ng is set to 0.
+ *
+ * Implementation: the ALU logic manipulates the x and y inputs
+ * and operates on the resulting values, as follows:
+ * if (zx == 1) set x = 0        // 16-bit constant
+ * if (nx == 1) set x = !x       // bitwise not
+ * if (zy == 1) set y = 0        // 16-bit constant
+ * if (ny == 1) set y = !y       // bitwise not
+ * if (f == 1)  set out = x + y  // integer 2's complement addition
+ * if (f == 0)  set out = x & y  // bitwise and
+ * if (no == 1) set out = !out   // bitwise not
+ * if (out == 0) set zr = 1
+ * if (out < 0) set ng = 1
  */
 
-// Implementation: the ALU logic manipulates the x and y inputs
-// and operates on the resulting values, as follows:
-// if (zx == 1) set x = 0        // 16-bit constant
-// if (nx == 1) set x = !x       // bitwise not
-// if (zy == 1) set y = 0        // 16-bit constant
-// if (ny == 1) set y = !y       // bitwise not
-// if (f == 1)  set out = x + y  // integer 2's complement addition
-// if (f == 0)  set out = x & y  // bitwise and
-// if (no == 1) set out = !out   // bitwise not
-// if (out == 0) set zr = 1
-// if (out < 0) set ng = 1
-
 CHIP ALU {
-    IN  
-        x[16], y[16],  // 16-bit inputs        
-        zx, // zero the x input?
-        nx, // negate the x input?
-        zy, // zero the y input?
-        ny, // negate the y input?
-        f,  // compute out = x + y (if 1) or x & y (if 0)
-        no; // negate the out output?
+    IN x[16], y[16],  // 16-bit inputs
+       zx, // zero the x input?
+       nx, // negate the x input?
+       zy, // zero the y input?
+       ny, // negate the y input?
+       f,  // compute out = x + y (if 1) or x & y (if 0)
+       no; // negate the out output?
 
-    OUT 
-        out[16], // 16-bit output
+    OUT out[16], // 16-bit output
         zr, // 1 if (out == 0), 0 otherwise
         ng; // 1 if (out < 0),  0 otherwise
 
     PARTS:
-   // Put you code here:
+    Not16(in=y, out=noty);
+
+    /* Process x input. First we zero, then negate. */
+    Mux16(a=x, b[0..15]=true, sel=zx, out=xbustmp);
+    Not16(in=xbustmp, out=notxbustmp);
+    Mux16(a=xbustmp, b=xbustmp, sel=nx, out=xbus);
+
+    /* Process y input. First we zero, then negate. */
+    Mux16(a=y, b[0..15]=true, sel=zy, out=ybustmp);
+    Not16(in=ybustmp, out=notybustmp);
+    Mux16(a=ybustmp, b=notybustmp, sel=ny, out=ybus);
+
+    /* calculate sum & bitwise-and */
+    And16(a=xbus, b=ybus, out=outand);
+    Add16(a=xbus, b=ybus, out=outsum);
+    Mux16(a=outand, b=outsum, sel=f, out=result);
+
+    /* apply optional "not" to output */
+    Not16(in=result, out=notresult);
+    Mux16(a=result, b=notresult, sel=no, out=outtmp);
+
+    /* Set zr register.
+     * Or together all the bits in 'out', if any of them are true then 'out'
+     * is not zero.
+     */
+   /* Or8Way(in=outtmp[0..7],  out=or1);
+    Or8Way(in=outtmp[8..15], out=or2);
+    Or(a=or1, b=or2, out=or3);
+    Not(in=or3, out=zr);
+*/
+
+
+//    /* set ng register, true if ng[15] is true */
+//   And(a=true, b=outtmp[15], out=ng);
+
+    /* finally set the out bus */
+    Or16(a[0..15]=false, b=outtmp, out=out);
 }
