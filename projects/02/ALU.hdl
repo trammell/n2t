@@ -61,21 +61,17 @@ CHIP ALU {
     /* apply optional "not" to output */
     Not16(in=result, out=notresult);
     Mux16(a=result, b=notresult, sel=no, out=out);
+    Mux16(a=result, b=notresult, sel=no, out=outtmp);
+    Mux16(a=result, b=notresult, sel=no, out[15]=ng);
 
     /* Set zr register.
-     * Or together all the bits in 'out', if any of them are true then 'out'
+     * Or together all the bits in 'out'. If any of them are true then 'out'
      * is not zero.
      */
-   /* Or8Way(in=outtmp[0..7],  out=or1);
-    Or8Way(in=outtmp[8..15], out=or2);
+    Or16(a[0..15]=false, b=outtmp, out[0..7]=out1);    // first 8 bits
+    Or16(a[0..15]=false, b=outtmp, out[8..15]=out2);   // last 8 bits
+    Or8Way(in=out1, out=or1);
+    Or8Way(in=out2, out=or2);
     Or(a=or1, b=or2, out=or3);
     Not(in=or3, out=zr);
-*/
-
-
-//    /* set ng register, true if ng[15] is true */
-//   And(a=true, b=outtmp[15], out=ng);
-
-    /* finally set the out bus */
-    //Or16(a[0..15]=false, b=outtmp, out=out);
 }
