@@ -43,15 +43,15 @@ CHIP ALU {
     PARTS:
     Not16(in=y, out=noty);
 
-    /* Process x input. First we zero, then negate. */
-    Mux16(a=x, b[0..15]=true, sel=zx, out=xbustmp);
-    Not16(in=xbustmp, out=notxbustmp);
-    Mux16(a=xbustmp, b=xbustmp, sel=nx, out=xbus);
+    /* Process x input. First zero, then negate. */
+    Mux16(a=x, b[0..15]=false, sel=zx, out=xbus0);
+    Not16(in=xbus0, out=notxbus0);
+    Mux16(a=xbus0, b=notxbus0, sel=nx, out=xbus);
 
-    /* Process y input. First we zero, then negate. */
-    Mux16(a=y, b[0..15]=true, sel=zy, out=ybustmp);
-    Not16(in=ybustmp, out=notybustmp);
-    Mux16(a=ybustmp, b=notybustmp, sel=ny, out=ybus);
+    /* Process y input. First zero, then negate. */
+    Mux16(a=y, b[0..15]=false, sel=zy, out=ybus0);
+    Not16(in=ybus0, out=notybus0);
+    Mux16(a=ybus0, b=notybus0, sel=ny, out=ybus);
 
     /* calculate sum & bitwise-and */
     And16(a=xbus, b=ybus, out=outand);
@@ -60,7 +60,7 @@ CHIP ALU {
 
     /* apply optional "not" to output */
     Not16(in=result, out=notresult);
-    Mux16(a=result, b=notresult, sel=no, out=outtmp);
+    Mux16(a=result, b=notresult, sel=no, out=out);
 
     /* Set zr register.
      * Or together all the bits in 'out', if any of them are true then 'out'
@@ -77,5 +77,5 @@ CHIP ALU {
 //   And(a=true, b=outtmp[15], out=ng);
 
     /* finally set the out bus */
-    Or16(a[0..15]=false, b=outtmp, out=out);
+    //Or16(a[0..15]=false, b=outtmp, out=out);
 }
