@@ -18,6 +18,8 @@ CHIP PC {
     PARTS:
 
 
+    DFF(in, latch, out);
+
 
 
 }
