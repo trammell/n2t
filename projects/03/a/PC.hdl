@@ -17,9 +17,6 @@ CHIP PC {
 
     PARTS:
 
-
-    DFF(in, latch, out);
-
-
-
+    DFF(in, latch, out=out);
+    Mux(load, inc, reset);
 }
