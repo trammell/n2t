@@ -1,7 +1,9 @@
-// This file is part of www.nand2tetris.org
-// and the book "The Elements of Computing Systems"
-// by Nisan and Schocken, MIT Press.
-// File name: projects/03/b/RAM16K.hdl
+/*
+ This file is part of www.nand2tetris.org
+ and the book "The Elements of Computing Systems"
+ by Nisan and Schocken, MIT Press.
+ File name: projects/03/b/RAM16K.hdl
+*/
 
 /**
  * Memory of 16K registers, each 16 bit-wide. Out holds the value
@@ -15,5 +17,17 @@ CHIP RAM16K {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    /* Use a DMux to choose which of the 4 RAM4K modules we want to address. */
+    DMux8Way(in=load, sel[0..1]=address[12..13], sel[2]=false,
+             a=loada, b=loadb, c=loadc, d=loadd);
+
+    /* under the hood we use 8x RAM4K modules */
+    RAM4K(in=in, load=loada, address=address[0..11], out=outa);
+    RAM4K(in=in, load=loadb, address=address[0..11], out=outb);
+    RAM4K(in=in, load=loadc, address=address[0..11], out=outc);
+    RAM4K(in=in, load=loadd, address=address[0..11], out=outd);
+
+    /* Gather the outputs via a multiplexer. */
+    Mux8Way16(a=outa, b=outb, c=outc, d=outd,
+              sel[0..1]=address[12..13], sel[2]=false, out=out);
 }
