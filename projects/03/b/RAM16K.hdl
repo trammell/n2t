@@ -18,8 +18,7 @@ CHIP RAM16K {
 
     PARTS:
     /* Use a DMux to choose which of the 4 RAM4K modules we want to address. */
-    DMux8Way(in=load, sel[0..1]=address[12..13], sel[2]=false,
-             a=loada, b=loadb, c=loadc, d=loadd);
+    DMux4Way(in=load, sel=address[12..13], a=loada, b=loadb, c=loadc, d=loadd);
 
     /* under the hood we use 8x RAM4K modules */
     RAM4K(in=in, load=loada, address=address[0..11], out=outa);
@@ -28,6 +27,5 @@ CHIP RAM16K {
     RAM4K(in=in, load=loadd, address=address[0..11], out=outd);
 
     /* Gather the outputs via a multiplexer. */
-    Mux8Way16(a=outa, b=outb, c=outc, d=outd,
-              sel[0..1]=address[12..13], sel[2]=false, out=out);
+    Mux4Way16(a=outa, b=outb, c=outc, d=outd, sel=address[12..13], out=out);
 }
