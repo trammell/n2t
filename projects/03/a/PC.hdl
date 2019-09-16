@@ -19,7 +19,15 @@ CHIP PC {
 
     PARTS:
 
-    DFF(in, latch, out=out);
+
+    Inc16(
+
+
+    Mux16(a=
+    Mux16(a=regout, b[0..15]=false, sel=reset, out=out1    );
+
+
+    Inc16();
     Register(in = ??, load = ?, out = ??);
     Mux(load, inc, reset);
 }
