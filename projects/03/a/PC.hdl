@@ -19,16 +19,19 @@ CHIP PC {
 
     PARTS:
 
+    /* we need an incremented version of the output */
+    Inc16(in=regout, out=incbus);
 
-    Inc16(
+    /* first mux: choose between "nil" and "inc" */
+    Mux16(a=regout, b=incbus, sel=inc, out=mux1out);
 
+    /* second mux: choose between "nil/inc" and "load" */
+    Mux16(a=mux1out, b=in, sel=load, out=mux2out);
 
-    Mux16(a=
-    Mux16(a=regout, b[0..15]=false, sel=reset, out=out1    );
+    /* third mux: choose between "nil/inc/load" and "reset" */
+    Mux16(a=mux2out, b[0..15]=false, sel=reset, out=mux3out);
 
-
-    Inc16();
-    Register(in = ??, load = ?, out = ??);
-    Mux(load, inc, reset);
+    /* same "load" as in second mux */
+    Register(in=mux3out, load=load, out=regout, out=out);
 }
 
