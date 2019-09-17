@@ -20,19 +20,20 @@ CHIP PC {
     PARTS:
 
     /* we need an incremented version of the output */
-    Inc16(in=regout, out=incbus);
+    Inc16(in=regout, out=reginc);
 
-    /* first mux: choose between "nil" and "inc" */
-    Mux16(a=regout, b=incbus, sel=inc, out=x);
+    /* we only need to load the register if "load", "inc", or "reset" is true */
+    Or(a=load,b=inc,out=w);
+    Or(a=w,b=reset,out=loadreg);
 
-    /* second mux: choose between "nil+inc" and "load" */
-    Mux16(a=x, b=in, sel=load, out=y);
+    /* first mux: choose between "inc" and "load" */
+    Mux16(a=reginc, b=in, sel=load, out=y);
 
-    /* third mux: choose between "nil+inc+load" and "reset" */
+    /* third mux: choose between "inc+load" and "reset" */
     Mux16(a=y, b[0..15]=false, sel=reset, out=z);
 
     /* not the same "load" as in second mux (if it was, then the
      * register output would only change on load events)
      */
-    Register(in=z, load=true, out=regout, out=out);
+    Register(in=z, load=loadreg, out=regout, out=out);
 }
