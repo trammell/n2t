@@ -16,7 +16,7 @@
     @R0
     D=M
     @END
-    D;JGT
+    D;JEQ
 
     // R2 = R2 + R1
     @R1
