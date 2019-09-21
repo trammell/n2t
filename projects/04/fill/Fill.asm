@@ -30,28 +30,29 @@
 //        set M[@addr] to @color
 //        @col = @col + 1
 
-// initialize symbol @white to 0
-@white
-M=0
 
-// initialize symbol @black to 65535 (0xffff)
+// initialize symbol R0 (black) to 65535 (0xffff)
 @32767
 D=A
 D=D+A
 D=D+1
-@black
+@R0
 M=D
 
-// initialize symbol @color to @black
-@black
+// initialize symbol R1 (white) to 0
+@R1
+M=0
+
+// initialize symbol R2 (color) to white (R1)
+@R1
 D=M
-@color
+@R2
 M=D
 
-// initialize symbol @addr to @SCREEN
+// initialize symbol R3 (address) to @SCREEN
 @SCREEN
 D=A
-@addr
+@R3
 M=D
 
 // outer infinite loop
@@ -59,19 +60,18 @@ M=D
 
 // testing with just first two rows
 
-// if @addr > 24575, then @addr=@SCREEN
-@addr
+// if address > 24575, then @addr=@SCREEN
+@R3
 D=M
-@16448
+@24575
 D=D-A
 @ADDR_RANGE_OK
 D;JLE   // jump if @addr <= 24575
 @SCREEN
 D=A
-@addr
+@R3
 M=D
 (ADDR_RANGE_OK)
-
 
 // if @KBD is true then set @color to @black
 // else set @color to @white
@@ -92,9 +92,14 @@ D=M
 M=D
 (KEYPRESS_END)
 
+// set @addr to @color
+@color
+D=M
+@R3
+M=D
 
 // increment @addr
-@addr
+@R3
 M=M+1
 
 // infinite loop
