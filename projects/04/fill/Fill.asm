@@ -17,12 +17,18 @@
 // Each row has 32 16-bit words.
 // There are 8192 words in total for the screen.
 
-// initialize screen to white
-// loop forever over screen addresses?
-// in loop, if any key is pressed put black pixel
-// otherwise put white pixel
-// need to use array syntax?
-
+// pseudocode:
+//    initalize @black=65535, @white=0, @row=0, @col=0
+//    initalize @color=@white
+//    while true:
+//        if @col > 32, set @col=0 and @row=@row+1
+//        if @row > 256, set @row=0
+//        read @kbd
+//        if @kbd is true, set @color=@black
+//            else set @color=@white
+//        calculate @addr = @screen + 32 * @row + @col
+//        set M[@addr] to @color
+//        @col = @col + 1
 
 // set symbol @white to 0
 @white
@@ -35,6 +41,12 @@ D=D+A
 D=D+1
 @black
 M=D
+
+// set symbols @row and @col to 0
+@row
+M=0
+@col
+M=0
 
 // set symbol @word to 0
 @word
