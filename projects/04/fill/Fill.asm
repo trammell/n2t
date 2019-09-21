@@ -30,11 +30,11 @@
 //        set M[@addr] to @color
 //        @col = @col + 1
 
-// set symbol @white to 0
+// initialize symbol @white to 0
 @white
 M=0
 
-// set symbol @black to 65535 (0xffff)
+// initialize symbol @black to 65535 (0xffff)
 @32767
 D=A
 D=D+A
@@ -42,72 +42,62 @@ D=D+1
 @black
 M=D
 
-// set symbols @row and @col to 0
-@row
-M=0
-@col
-M=0
+// initialize symbol @color to @black
+@black
+D=M
+@color
+M=D
 
-// set symbol @word to 0
-@word
-M=0
+// initialize symbol @addr to @SCREEN
+@SCREEN
+D=A
+@addr
+M=D
 
-// increment @word
-@word
+// outer infinite loop
+(OUTERLOOP)
+
+// testing with just first two rows
+
+// if @addr > 24575, then @addr=@SCREEN
+@addr
+D=M
+@16448
+D=D-A
+@ADDR_RANGE_OK
+D;JLE   // jump if @addr <= 24575
+@SCREEN
+D=A
+@addr
+M=D
+(ADDR_RANGE_OK)
+
+
+// if @KBD is true then set @color to @black
+// else set @color to @white
+@KBD
+D=M
+@KEYPRESS_TRUE
+D; JGT
+@WHITE
+D=M
+@color
+M=D
+@KEYPRESS_END
+0; JMP
+(KEYPRESS_TRUE)
+@black
+D=M
+@color
+M=D
+(KEYPRESS_END)
+
+
+// increment @addr
+@addr
 M=M+1
 
-// set @SCREEN[@word] = @color
-@SCREEN
-M=D
+// infinite loop
+@OUTERLOOP
+0;JMP
 
-@SCREEN
-A=A+1
-M=D
-
-
-// KBD is 0 when no key is pressed
-// if KBD is 0, then set R0 to R1
-//     else set R0 to R2
-
-@KBD
-
-//D=D+1
-//A=D
-//M=1
-
-
-//    @R2
-//    M=0
-//
-//
-//    @SCREEN
-//    D=A
-//    @R0
-//    M=0
-//
-//(LOOP)
-//
-//    // jump to end if R0 is at the end of the screen (@SCREEN + 8192)
-//    @R0
-//    D=M
-//    @END
-//    D;JEQ
-//
-//    // R2 = R2 + R1
-//    @R1
-//    D=M
-//    @R2
-//    M=D+M
-//
-//    // R0 = R0 - 1
-//    @R0
-//    M=M-1
-//
-//    // jump to top of loop
-//    @LOOP
-//    0;JMP
-//
-
-(END)
-    @END
-    0;JMP
