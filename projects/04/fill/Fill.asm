@@ -30,6 +30,13 @@
 //        set M[@addr] to @color
 //        @col = @col + 1
 
+// Notes on program speed
+// ======================
+// I am having a hard time getting this to run fast enough to show the desired
+// behavior, so I modified the requirements to instead scan through the SCREEN
+// buffer, putting black pixels when any key is pressed, and white pixels
+// otherwise.
+
 // notes on SCREEN layout
 // ======================
 // There are 256 rows.
@@ -55,7 +62,6 @@
 //    @R1 is a constant, 0, denoting the color "white"
 //    @R2 contains the current selected color, either white or black
 //    @R3 contains the current screen RAM address being updated
-
 
 // initialize symbol R0 (black) to 65535 (0xffff)
 @32767
@@ -85,15 +91,15 @@ M=D
 (INFINITE_LOOP)
 
 // make sure we don't pass our loop boundary
-// if address >= 24576, then @addr=@SCREEN (production code)
-// if address >= 16416, then @addr=@SCREEN (test code)
+// if @addr >= 24576, then @addr := @SCREEN (production code)
+// if @addr >= 16416, then @addr := @SCREEN (test code)
 @R3
 D=M
 @24576
-@16416
+// @16416   // uncomment this line for shorter test loop
 D=D-A
 @ADDR_RANGE_OK
-D;JLE   // jump if @addr is in bounds
+D;JLT   // jump if @addr is in bounds (does not change @addr)
 @SCREEN
 D=A
 @R3
@@ -120,7 +126,7 @@ M=D
 (KEYPRESS_END)
 
 // Apply @color to the current SCREEN RAM address. Need to dereference the
-// contents of R3.
+// contents of R3, which is an address somewhere in the screen buffer.
 @R2
 D=M
 @R3     // A := 3
