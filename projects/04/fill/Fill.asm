@@ -30,6 +30,32 @@
 //        set M[@addr] to @color
 //        @col = @col + 1
 
+// notes on SCREEN layout
+// ======================
+// There are 256 rows.
+// Each row has 512 pixels (32 16-bit words)
+// 256 rows x 32 words / row = 8192 words in RAM (8192 = 0x2000)
+//
+// SCREEN RAM looks like this:
+//         16384 (0x4000)   start of top row
+//         16385 (0x4001)   second word in top row
+//         16386 (0x4002)
+//         ...
+//         16447 (0x401f)   end of top row
+//         16448 (0x4020)   start of second row
+//         16448 (0x4021)   second word in second row
+//         ...
+//         24574 (0x5ffe)
+//         24575 (0x5fff)
+//
+// KBD RAM is just one word at 24576 (0x6000)
+
+// Variables used:
+//    @R0 is a constant, 65535 (0xffff), denoting the color "black"
+//    @R1 is a constant, 0, denoting the color "white"
+//    @R2 contains the current selected color, either white or black
+//    @R3 contains the current screen RAM address being updated
+
 
 // initialize symbol R0 (black) to 65535 (0xffff)
 @32767
@@ -58,7 +84,7 @@ M=D
 // outer infinite loop
 (OUTERLOOP)
 
-// testing with just first two rows
+// testing with just first few screen addresses
 
 // if address > 24575, then @addr=@SCREEN
 @R3
