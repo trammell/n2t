@@ -4,43 +4,32 @@
 // by Nisan and Schocken, MIT Press.
 // File name: projects/04/Fill.asm
 
-// Runs an infinite loop that listens to the keyboard input.
-// When a key is pressed (any key), the program blackens the screen,
-// i.e. writes "black" in every pixel;
-// the screen should remain fully black as long as the key is pressed. 
-// When no key is pressed, the program clears the screen, i.e. writes
-// "white" in every pixel;
-// the screen should remain fully clear as long as no key is pressed.
+// Runs an infinite loop that listens to the keyboard input. When a key is
+// pressed (any key), the program blackens the screen, i.e. writes "black" in
+// every pixel; the screen should remain fully black as long as the key is
+// pressed. When no key is pressed, the program clears the screen, i.e. writes
+// "white" in every pixel; the screen should remain fully clear as long as no
+// key is pressed.
 
-// the screen has 256 rows and 512 columns.
-// The address of the first 16-bit word is @SCREEN (16384)
-// Each row has 32 16-bit words.
-// There are 8192 words in total for the screen.
 
-// pseudocode:
-//    initalize @black=65535, @white=0, @row=0, @col=0
-//    initalize @color=@white
-//    while true:
-//        if @col > 32, set @col=0 and @row=@row+1
-//        if @row > 256, set @row=0
-//        read @kbd
-//        if @kbd is true, set @color=@black
-//            else set @color=@white
-//        calculate @addr = @screen + 32 * @row + @col
-//        set M[@addr] to @color
-//        @col = @col + 1
-
-// Notes on program speed
-// ======================
-// I am having a hard time getting this to run fast enough to show the desired
-// behavior, so I modified the requirements to instead scan through the SCREEN
-// buffer, putting black pixels when any key is pressed, and white pixels
-// otherwise.
+// Pseudocode
+// ==========
+// @black := 65535
+// @white := 0
+// @color := @white
+// @addr := @SCREEN
+// while true:
+//     if @addr >= 24576, @addr := @SCREEN
+//     if @kbd is true, @color := @black
+//         else @color := @white
+//     M[@addr] := @color
+//     @addr += 1
 
 // notes on SCREEN layout
 // ======================
-// There are 256 rows.
-// Each row has 512 pixels (32 16-bit words)
+// The screen has 256 rows and 512 columns.
+// The address of the first 16-bit word is @SCREEN (16384)
+// Each row having 512 pixels == 32 16-bit words.
 // 256 rows x 32 words / row = 8192 words in RAM (8192 = 0x2000)
 //
 // SCREEN RAM looks like this:
