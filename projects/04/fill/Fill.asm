@@ -41,9 +41,9 @@
 //         16385 (0x4001)   second word in top row
 //         16386 (0x4002)
 //         ...
-//         16447 (0x401f)   end of top row
-//         16448 (0x4020)   start of second row
-//         16448 (0x4021)   second word in second row
+//         16415 (0x401f)   end of top row
+//         16416 (0x4020)   start of second row
+//         16417 (0x4021)   second word in second row
 //         ...
 //         24574 (0x5ffe)
 //         24575 (0x5fff)
@@ -75,24 +75,25 @@ D=M
 @R2
 M=D
 
-// initialize symbol R3 (address) to @SCREEN
+// initialize symbol R3 (addr) to @SCREEN
 @SCREEN
 D=A
 @R3
 M=D
 
-// outer infinite loop
-(OUTERLOOP)
+// start of infinite loop
+(INFINITE_LOOP)
 
-// testing with just first few screen addresses
-
-// if address > 24575, then @addr=@SCREEN
+// make sure we don't pass our loop boundary
+// if address >= 24576, then @addr=@SCREEN (production code)
+// if address >= 16416, then @addr=@SCREEN (test code)
 @R3
 D=M
-@24575
+@24576
+@16416
 D=D-A
 @ADDR_RANGE_OK
-D;JLE   // jump if @addr <= 24575
+D;JLE   // jump if @addr is in bounds
 @SCREEN
 D=A
 @R3
@@ -105,21 +106,22 @@ M=D
 D=M
 @KEYPRESS_TRUE
 D; JGT
-@WHITE
+@R1
 D=M
-@color
+@R2
 M=D
 @KEYPRESS_END
 0; JMP
 (KEYPRESS_TRUE)
-@black
+@R0
 D=M
-@color
+@R2
 M=D
 (KEYPRESS_END)
 
-// set @addr to @color
-@color
+// apply @color to the current SCREEN RAM address
+// FIXME double check this
+@R2
 D=M
 @R3
 M=D
@@ -128,7 +130,7 @@ M=D
 @R3
 M=M+1
 
-// infinite loop
-@OUTERLOOP
+// go back to top of infinite loop
+@INFINITE_LOOP
 0;JMP
 
