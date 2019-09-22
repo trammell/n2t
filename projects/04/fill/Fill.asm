@@ -119,12 +119,13 @@ D=M
 M=D
 (KEYPRESS_END)
 
-// apply @color to the current SCREEN RAM address
-// FIXME double check this
+// Apply @color to the current SCREEN RAM address. Need to dereference the
+// contents of R3.
 @R2
 D=M
-@R3
-M=D
+@R3     // A := 3
+A=M     // A := M[3]
+M=D     // M[3] := D
 
 // increment @addr
 @R3
