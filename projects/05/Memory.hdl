@@ -23,7 +23,25 @@
  * - Access to address 0x6000 results in accessing the keyboard memory map.
  * - The behavior in these addresses is described in the Screen and Keyboard
  *   chip specifications given in the book.
- */
+
+Memory map:
+
+0x0000 = 0000 0000 ....    RAM
+...
+0x3fff = 0011 1111 ....    RAM
+0x4000 = 0100 0000 ....    SCREEN
+0x4001 = 0100 0000 ....    SCREEN
+...
+0x5fff = 0101 1111 ....    SCREEN
+0x6000 = 0110 0000 ....    KBD
+
+address[0..14]
+
+    if address[14] is low, then it's RAM
+    else if address[13] is low, then it's screen
+    else it's KBD
+
+*/
 
 CHIP Memory {
     IN in[16], load, address[15];
@@ -31,29 +49,20 @@ CHIP Memory {
 
     PARTS:
 
-/*
-0x4000 = 0100 0000 ....
-0x5fff = 0101 1111 ....
-0x6000 = 0110 0000 ....
+    /* calculate some helper booleans */
+    Not(in=address[14], out=is_ram);
+    And(a=address[13], b=address[14], out=is_kbd);
+    Not(in=is_kbd, out=is_not_kbd);
+    And(a=address[14], b=is_not_kbd, out=is_screen);
 
-address[0..14]
+    /* calculate load_x circuits */
+    And(a=is_ram, b=load, out=load_ram);
+    And(a=is_screen, b=load, out=load_screen);
 
+    RAM16K(in=in, load=load_ram, address=address, out=ram_out);
+    Screen(in=in, load=load_screen, address=address, out=screen_out);
+    Keyboard(out=kbd_out);
 
-*/
-
-    if address[14] is low, then it's RAM
-    if address[14] is high, then it's screen
-
-
-    RAM16K(in=, load=load, address=address[0..14], out=ramout)
-    Screen(in= , load=load, address=, out=screenout)
-    Keyboard(out=kbdout)
-
-
-/* add Mux so there's only one output */
-
-
-
-
-
+    /* add Mux so there's only one output */
+    Mux4Way16(a=ram_out, c=screen_out, d=kbd_out, sel=address[13..14], out=out);
 }
