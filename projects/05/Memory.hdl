@@ -65,5 +65,5 @@ CHIP Memory {
     Keyboard(out=kbdOut);
 
     /* add Mux so there's only one output */
-    Mux4Way16(a=ramOut, c=screenOut, d=kbdOut, sel=address[13..14], out=out);
+    Mux4Way16(a=kbdOut, b=screenOut, c=ramOut, d=ramOut, sel[0]=isScreen, sel[1]=isRam, out=out);
 }
