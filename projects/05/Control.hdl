@@ -27,16 +27,14 @@ Outputs:
 */
 
 CHIP Control {
-    IN in[16], alu[16];
+    IN inst[16], alu[16];
     OUT isAddress, isCompute, address;
 
     PARTS:
 
-    Not(in=in[15], out=isAddress);
-    And(a=in[15], b=true, out=isCompute);
-
-    address=in
+    Not(in=inst[15], out=isAddress);
+    And(a=inst[15], b=true, out=isCompute);
 
     /* add Mux so there's only one output */
-    Mux4Way16(a=ramOut, b=ramOut, c=screenOut, d=kbdOut, sel=address[13..14], out=out);
+    // Mux4Way16(a=ramOut, b=ramOut, c=screenOut, d=kbdOut, sel=address[13..14], out=out);
 }
