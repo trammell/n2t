@@ -22,6 +22,11 @@ Outputs:
   * something in to the PC? Increment? Load?
   * writeM
 
+Notes:
+  * it looks like this is purely combinatoric
+  * need to break up C instructions into a, c1-c6 (comp), d1-d3 (dest), j1-j3 (jmp).
+  * inputs to ALU are x, zx, nx, y, zy, ny, f, no
+  * outputs from ALU are out, zr (out==0), ng (out<0)
 
 
 */
