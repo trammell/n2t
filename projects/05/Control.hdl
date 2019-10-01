@@ -6,16 +6,36 @@ File name: projects/05/Control.hdl
 
 This chip decodes computer instructions.
 
+p.94
+
+Inputs:
+  * the instruction to be decoded
+  * something from the ALU? (jump?)
+
+Outputs:
+  * isAddress: true if this is an A instruction
+  * isCompute: true if this is an C instruction
+  * something to select between A and M as input to the ALU?
+  * address to the A register?
+  * address to the D register?
+  * the compute commands to the ALU
+  * something in to the PC? Increment? Load?
+  * writeM
+
+
+
 */
 
 CHIP Control {
-    IN in[16], load, address[15];
-    OUT out[16];
+    IN in[16], alu[16];
+    OUT isAddress, isCompute, address;
 
     PARTS:
 
+    Not(in=in[15], out=isAddress);
+    And(a=in[15], b=true, out=isCompute);
 
-
+    address=in
 
     /* add Mux so there's only one output */
     Mux4Way16(a=ramOut, b=ramOut, c=screenOut, d=kbdOut, sel=address[13..14], out=out);
