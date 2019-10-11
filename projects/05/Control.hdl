@@ -33,12 +33,12 @@ Notes:
 
 CHIP Control {
     IN inst[16], alu[16];
-    OUT isAddress, isCompute, address;
+    OUT iBit, vBus[15], aBit, cBus[6], dBus[3], jBus[3];
 
     PARTS:
-
-    Not(in=inst[15], out=isAddress);
-    And(a=inst[15], b=true, out=isCompute);
+    And16(a=inst, b[0..15]=true, out[15]=iBit, out[0..14]=vBus,
+          out[12]=aBit, out[6..11]=cBus, out[3..5]=dBus,
+          out[0..2]=jBus);
 
     /* add Mux so there's only one output */
     // Mux4Way16(a=ramOut, b=ramOut, c=screenOut, d=kbdOut, sel=address[13..14], out=out);
