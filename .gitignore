@@ -19,3 +19,6 @@
 # Resources
 tools/
 *.zip
+
+# MacOS
+.DS_Store
