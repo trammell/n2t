@@ -50,18 +50,6 @@ Outputs:
   * something in to the PC? Increment? Load?
   * writeM
 
-Notes:
-  * it looks like this is purely combinatoric
-  * need to break up C instructions into a, c1-c6 (comp), d1-d3 (dest), j1-j3 (jmp).
-  * inputs to ALU are x, zx, nx, y, zy, ny, f, no
-  * outputs from ALU are out, zr (out==0), ng (out<0)
-
-
-*/
-
-
-
-
 */
 
 CHIP CPU {
@@ -89,7 +77,7 @@ CHIP CPU {
     Mux16(a=, b=instruction, sel=instruction[5], out=);
 
     // PC (program counter) register
-    PC(in=ARegisterOut, load=, inc=, reset=reset, out=PCout);
+    PC(in=ARegisterOut, load=jmp, inc=notjmp, reset=reset, out=PCout);
 
     // A (address) register
     Register(in=AInputMux, load=instruction[5], out=ARegisterOut);
@@ -102,16 +90,24 @@ CHIP CPU {
 
     // Define ALU connections
     ALU(x=DRegisterOut, y=AMRegister, zx=instruction[11], nx=instruction[10],
-        zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=, zr=, ng=);
+        zy=instruction[9], ny=instruction[8], f=instruction[7],
+        no=instruction[6], out=ALUout, zr=ALUzr, ng=ALUng);
 
-//CHIP Control {
-//    IN inst[16], alu[16];
-//    OUT iBit, vBus[15], aBit, cBus[6], dBus[3], jBus[3];
-//    PARTS:
+    // jump logic:
+    // if instruction[2] && ALUng then jump
+    // if instruction[1] && ALUzr then jump
+    // if instruction[0] && !ALUng && !ALUzr then jump
+    And(a=instruction[2], b=ALUng, out=JumpLT);
+    And(a=instruction[1], b=ALUzr, out=JumpZR);
+    Not(in=ALUng, out=notALUng);
+    Not(in=ALUzr, out=notALUzr);
+    And(a=notALUng, b=notALUzr, out=ALUpos);
+    And(a=instruction[0], b=ALUpos, out=JumpGT);
+    Or8Way(in[0]=JumpLT, in[1]=JumpZR, in[2]=JumpGT, in[3..7]=false, out=jmp);
+    Not(in=jmp, out=notjmp);
 
 
-    /* add Mux so there's only one output */
-    // Mux4Way16(a=ramOut, b=ramOut, c=screenOut, d=kbdOut, sel=address[13..14], out=out);
+
 }
 
 
