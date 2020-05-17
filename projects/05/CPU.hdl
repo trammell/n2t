@@ -26,23 +26,93 @@ machine language. In particular, it functions as follows:
   step) rather than to the address resulting from executing the current
   instruction.
 
+/*
+
+This file is part of www.nand2tetris.org and the book "The Elements of
+Computing Systems" by Nisan and Schocken, MIT Press.
+File name: projects/05/Control.hdl
+
+This chip decodes computer instructions.
+
+p.94
+
+Inputs:
+  * the instruction to be decoded
+  * something from the ALU? (jump?)
+
+Outputs:
+  * isAddress: true if this is an A instruction
+  * isCompute: true if this is an C instruction
+  * something to select between A and M as input to the ALU?
+  * address to the A register?
+  * address to the D register?
+  * the compute commands to the ALU
+  * something in to the PC? Increment? Load?
+  * writeM
+
+Notes:
+  * it looks like this is purely combinatoric
+  * need to break up C instructions into a, c1-c6 (comp), d1-d3 (dest), j1-j3 (jmp).
+  * inputs to ALU are x, zx, nx, y, zy, ny, f, no
+  * outputs from ALU are out, zr (out==0), ng (out<0)
+
+
+*/
+
+
+
+
 */
 
 CHIP CPU {
 
-    IN  inM[16],         // M value input  (M = contents of RAM[A])
-        instruction[16], // Instruction for execution
-        reset;           // Signals whether to re-start the current
-                         // program (reset==1) or continue executing
-                         // the current program (reset==0).
+  IN  inM[16],         // M value input  (M = contents of RAM[A])
+      instruction[16], // Instruction for execution
+      reset;           // Signals whether to re-start the current
+                       // program (reset==1) or continue executing
+                       // the current program (reset==0).
 
-    OUT outM[16],        // M value output
-        writeM,          // Write to M? 
-        addressM[15],    // Address in data memory (of M)
-        pc[15];          // address of next instruction
+  OUT outM[16],        // M value output
+      writeM,          // Write to M? 
+      addressM[15],    // Address in data memory (of M)
+      pc[15];          // address of next instruction
 
-    PARTS:
+  PARTS:
+    // decode the instruction into components
+    And(a=instruction[16], b=true, out=IsCInstruction);
+    Not(in=IsCInstruction, out=IsAInstruction);
+    And16(a=instruction, b[0..15]=true, out[15]=iBit, out[0..14]=vBus,
+          out[12]=aBit, out[6..11]=cBus, out[3..5]=dBus,
+          out[0..2]=jBus);
 
+    // A register input mux
+    Mux16(a=, b=instruction, sel=instruction[5], out=);
+
+    // PC (program counter) register
+    PC(in=ARegisterOut, load=, inc=, reset=reset, out=PCout);
+
+    // A (address) register
+    Register(in=AInputMux, load=instruction[5], out=ARegisterOut);
+
+    // A-or-M mux, y-input to ALU
+    Mux16(a=ARegisterOut, b=inM, sel=instruction[12], out=AMRegister);
+
+    // D (data) register
+    Register(in=ALUout, load=instruction[4], out=DRegisterOut)
+
+    // Define ALU connections
+    ALU(x=DRegisterOut, y=AMRegister, zx=instruction[11], nx=instruction[10],
+        zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=, zr=, ng=);
+
+//CHIP Control {
+//    IN inst[16], alu[16];
+//    OUT iBit, vBus[15], aBit, cBus[6], dBus[3], jBus[3];
+//    PARTS:
+
+
+    /* add Mux so there's only one output */
+    // Mux4Way16(a=ramOut, b=ramOut, c=screenOut, d=kbdOut, sel=address[13..14], out=out);
+}
 
 
 
