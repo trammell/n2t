@@ -78,7 +78,7 @@ CHIP CPU {
     // A (address) register control logic
     Mux16(a=ALUout, b=instruction, sel=IsAInstruction, out=AMuxOut);
     Or(a=IsAInstruction, b=writeA, out=loadA);
-    ARegister(in=AMuxOut, load=loadA, out=ARegisterOut, out=addressM);
+    ARegister(in=AMuxOut, load=loadA, out=ARegisterOut, out[0..14]=addressM);
 
     // D (data) register control logic
     DRegister(in=ALUout, load=writeD, out=DRegisterOut);
@@ -104,5 +104,5 @@ CHIP CPU {
     Not(in=jmp, out=notjmp);
 
     // Program Counter (PC) connections
-    PC(in=ARegisterOut, load=jmp, inc=notjmp, reset=reset, out=pc);
+    PC(in=ARegisterOut, load=jmp, inc=notjmp, reset=reset, out[0..14]=pc);
 }
