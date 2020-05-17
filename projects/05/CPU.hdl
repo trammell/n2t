@@ -67,36 +67,33 @@ CHIP CPU {
 
   PARTS:
     // decode the instruction into components
-    And(a=instruction[16], b=true, out=IsCInstruction);
-    Not(in=IsCInstruction, out=IsAInstruction);
-    And16(a=instruction, b[0..15]=true, out[15]=iBit, out[0..14]=vBus,
-          out[12]=aBit, out[6..11]=cBus, out[3..5]=dBus,
-          out[0..2]=jBus);
+    Not(in=instruction[15], out=IsAInstruction);
+    And(a=instruction[15], b=instruction[0], out=jump3);
+    And(a=instruction[15], b=instruction[1], out=jump2);
+    And(a=instruction[15], b=instruction[2], out=jump1);
+    And(a=instruction[15], b=instruction[3], out=writeM);
+    And(a=instruction[15], b=instruction[4], out=writeD);
+    And(a=instruction[15], b=instruction[5], out=writeA);
+    
+    // A (address) register control logic
+    Mux16(a=ALUout, b=instruction, sel=IsAInstruction, out=AMuxOut);
+    Or(a=IsAInstruction, b=writeA, out=loadA);
+    ARegister(in=AMuxOut, load=loadA, out=ARegisterOut, out=addressM);
 
-    // A register input mux
-    Mux16(a=, b=instruction, sel=instruction[5], out=);
+    // D (data) register control logic
+    DRegister(in=ALUout, load=writeD, out=DRegisterOut);
 
-    // PC (program counter) register
-    PC(in=ARegisterOut, load=jmp, inc=notjmp, reset=reset, out=PCout);
-
-    // A (address) register
-    Register(in=AInputMux, load=instruction[5], out=ARegisterOut);
-
-    // A-or-M mux, y-input to ALU
+    // ALU control logic:
+    //  - includes A-or-M mux, y-input to ALU
     Mux16(a=ARegisterOut, b=inM, sel=instruction[12], out=AMRegister);
-
-    // D (data) register
-    Register(in=ALUout, load=instruction[4], out=DRegisterOut)
-
-    // Define ALU connections
     ALU(x=DRegisterOut, y=AMRegister, zx=instruction[11], nx=instruction[10],
         zy=instruction[9], ny=instruction[8], f=instruction[7],
-        no=instruction[6], out=ALUout, zr=ALUzr, ng=ALUng);
+        no=instruction[6], out=ALUout, out=outM, zr=ALUzr, ng=ALUng);
 
     // jump logic:
-    // if instruction[2] && ALUng then jump
-    // if instruction[1] && ALUzr then jump
-    // if instruction[0] && !ALUng && !ALUzr then jump
+    //  - if instruction[2] && ALUng then jump
+    //  - if instruction[1] && ALUzr then jump
+    //  - if instruction[0] && !ALUng && !ALUzr then jump
     And(a=instruction[2], b=ALUng, out=JumpLT);
     And(a=instruction[1], b=ALUzr, out=JumpZR);
     Not(in=ALUng, out=notALUng);
@@ -106,16 +103,6 @@ CHIP CPU {
     Or8Way(in[0]=JumpLT, in[1]=JumpZR, in[2]=JumpGT, in[3..7]=false, out=jmp);
     Not(in=jmp, out=notjmp);
 
-
-
-}
-
-
-
-
-
-
-
-
-
+    // Program Counter (PC) connections
+    PC(in=ARegisterOut, load=jmp, inc=notjmp, reset=reset, out=pc);
 }
