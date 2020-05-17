@@ -68,13 +68,14 @@ CHIP CPU {
   PARTS:
     // decode the instruction into components
     Not(in=instruction[15], out=IsAInstruction);
-    And(a=instruction[15], b=instruction[0], out=jump3);
-    And(a=instruction[15], b=instruction[1], out=jump2);
-    And(a=instruction[15], b=instruction[2], out=jump1);
-    And(a=instruction[15], b=instruction[3], out=writeM);
-    And(a=instruction[15], b=instruction[4], out=writeD);
-    And(a=instruction[15], b=instruction[5], out=writeA);
-    And(a=instruction[15], b=instruction[12], out=compA);
+    Not(in=IsAInstruction, out=IsCInstruction);
+    And(a=IsCInstruction, b=instruction[0], out=jump3);
+    And(a=IsCInstruction, b=instruction[1], out=jump2);
+    And(a=IsCInstruction, b=instruction[2], out=jump1);
+    And(a=IsCInstruction, b=instruction[3], out=writeM);
+    And(a=IsCInstruction, b=instruction[4], out=writeD);
+    And(a=IsCInstruction, b=instruction[5], out=writeA);
+    And(a=IsCInstruction, b=instruction[12], out=compA);
 
     // A (address) register control logic
     Mux16(a=ALUout, b=instruction, sel=IsAInstruction, out=AMuxOut);
@@ -91,19 +92,22 @@ CHIP CPU {
         zy=instruction[9], ny=instruction[8], f=instruction[7],
         no=instruction[6], out=ALUout, out=outM, zr=ALUzr, ng=ALUng);
 
-    // jump logic:
-    //  - if instruction[2] && ALUng then jump
-    //  - if instruction[1] && ALUzr then jump
-    //  - if instruction[0] && !ALUng && !ALUzr then jump
-    And(a=instruction[2], b=ALUng, out=JumpLT);
-    And(a=instruction[1], b=ALUzr, out=JumpZR);
-    Not(in=ALUng, out=notALUng);
-    Not(in=ALUzr, out=notALUzr);
-    And(a=notALUng, b=notALUzr, out=ALUpos);
-    And(a=instruction[0], b=ALUpos, out=JumpGT);
-    Or8Way(in[0]=JumpLT, in[1]=JumpZR, in[2]=JumpGT, in[3..7]=false, out=jmp);
-    Not(in=jmp, out=notjmp);
+    // jump logic: jump if any of these conditions are met:
+    //  - if jump1 && ALUng then jump
+    //  - if jump2 && ALUzr then jump
+    //  - if jump3 && ALUgt then jump
+    // Note: ALUgt is generated from !(ALUng || ALUzr)
+    Or(a=ALUng, b=ALUzr, out=ALUle);  // ALU <= 0
+    Not(in=ALUle, out=ALUgt);         // ALU > 0
+    And(a=jump1, b=ALUng, out=JumpLT);
+    And(a=jump2, b=ALUzr, out=JumpZR);
+    And(a=jump3, b=ALUgt, out=JumpGT);
+
+    // combine ORs
+    Or(a=JumpLT, b=JumpZR, out=JumpLTZR);
+    Or(a=JumpLTZR, b=JumpGT, out=jmp);
+    Not(in=jmp, out=nojmp);
 
     // Program Counter (PC) connections
-    PC(in=ARegOut, load=jmp, inc=notjmp, reset=reset, out[0..14]=pc);
+    PC(in=ARegOut, load=jmp, inc=nojmp, reset=reset, out[0..14]=pc);
 }
