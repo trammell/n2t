@@ -17,4 +17,7 @@ Add.hack: asm etc/Add.asm
 	./asm etc/Add.asm > Add.hack
 
 run: asm
-	./asm file.txt
+	./asm etc/Add.asm
+
+test:
+	go test -v

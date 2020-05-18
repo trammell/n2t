@@ -2,32 +2,44 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 	"regexp"
 )
 
-func main() {
-	file, err := os.Open(os.Args[1])
+type asm struct {
+	filename string
+	lines    []string
+}
+
+type inst struct {
+	txt string
+}
+
+func (a *asm) parse() {
+	file, err := os.Open(a.filename)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
-
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		txt := regexp.MustCompile(`//.*`).ReplaceAllString(scanner.Text(), "")
-		txt = regexp.MustCompile(`\s`).ReplaceAllString(txt, "")
-		if len(txt) > 0 {
-			fmt.Fprintf(os.Stderr, "> %s\n", txt)
-		}
+		a.appendLine(scanner.Text())
 	}
-
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
+}
 
+func (a *asm) appendLine(txt string) {
+	a.lines = append(a.lines, txt)
+}
+
+// Strip whitespace and comments from a line of assembler
+func canonicalizeInstruction(txt string) string {
+	txt = regexp.MustCompile(`//.*`).ReplaceAllString(txt, "")
+	txt = regexp.MustCompile(`\s`).ReplaceAllString(txt, "")
+	return txt
 }
 
 func isLabel(inst string) bool {
@@ -40,4 +52,9 @@ func isAInstruction(inst string) bool {
 
 func isCInstruction(inst string) bool {
 	return regexp.MustCompile(`[ADM]*=?([^;]*);())`).MatchString(inst)
+}
+
+func main() {
+	a := asm{filename: os.Args[1]}
+	a.parse()
 }
