@@ -7,13 +7,17 @@ import (
 	"regexp"
 )
 
+var SYMBOLS = map[string]int{
+	"R0": 0,
+	"R1": 1,
+	"R2": 2,
+	"R3": 3,
+}
+
 type asm struct {
 	filename string
 	lines    []string
-}
-
-type inst struct {
-	txt string
+	sym      map[string]int
 }
 
 func (a *asm) parse() {
@@ -35,24 +39,40 @@ func (a *asm) appendLine(txt string) {
 	a.lines = append(a.lines, txt)
 }
 
+/****************************************************/
+
+type inst struct {
+	Txt  string
+	Addr int
+}
+
 // Strip whitespace and comments from a line of assembler
-func canonicalizeInstruction(txt string) string {
+func (i *inst) Canonicalize(txt string) string {
 	txt = regexp.MustCompile(`//.*`).ReplaceAllString(txt, "")
-	txt = regexp.MustCompile(`\s`).ReplaceAllString(txt, "")
-	return txt
+	return regexp.MustCompile(`\s`).ReplaceAllString(txt, "")
 }
 
-func isLabel(inst string) bool {
-	return regexp.MustCompile(`^(.*)`).MatchString(inst)
+func (i *inst) IsEmpty() bool {
+	return true
 }
 
-func isAInstruction(inst string) bool {
-	return regexp.MustCompile(`^@.*`).MatchString(inst)
+func (i *inst) IsAInstruction() bool {
+	return regexp.MustCompile(`^@.*`).MatchString(i.Txt)
 }
 
-func isCInstruction(inst string) bool {
-	return regexp.MustCompile(`[ADM]*=?([^;]*);())`).MatchString(inst)
+func (i *inst) IsCInstruction() bool {
+	return regexp.MustCompile(`^[ADM]*=?([^;]*)(;.*)?$`).MatchString(i.Txt)
 }
+
+func (i *inst) IsLabel() bool {
+	return regexp.MustCompile(`^(.*)`).MatchString(i.Txt)
+}
+
+func (i *inst) Assemble(sym map[string]int) string {
+	return "1111111111111111"
+}
+
+/********************************************************************/
 
 func main() {
 	a := asm{filename: os.Args[1]}
