@@ -45,27 +45,27 @@ var CComp = map[string]string{
 	"A":   "0110000",
 	"!D":  "0001101",
 	"!A":  "0110001",
-	"-D":  "",
-	"-A":  "",
-	"D+1": "",
-	"A+1": "",
-	"D-1": "",
-	"A-1": "",
-	"D+A": "",
-	"D-A": "",
-	"A-D": "",
-	"D&A": "",
-	"D|A": "",
-	"M":   "",
-	"!M":  "",
-	"-M":  "",
-	"M+1": "",
-	"M-1": "",
-	"D+M": "",
-	"D-M": "",
-	"M-D": "",
-	"D&M": "",
-	"D|M": "",
+	"-D":  "0001111",
+	"-A":  "0110011",
+	"D+1": "0011111",
+	"A+1": "0110111",
+	"D-1": "0001110",
+	"A-1": "0110010",
+	"D+A": "0000010",
+	"D-A": "0010011",
+	"A-D": "0000111",
+	"D&A": "0000000",
+	"D|A": "0010101",
+	"M":   "1110000",
+	"!M":  "1110001",
+	"-M":  "1110011",
+	"M+1": "1110111",
+	"M-1": "1110010",
+	"D+M": "1000010",
+	"D-M": "1010011",
+	"M-D": "1000111",
+	"D&M": "1000000",
+	"D|M": "1010101",
 }
 
 var CJump = map[string]string{
@@ -152,8 +152,11 @@ type inst struct {
 func NewInstruction(txt string) *inst {
 	i := new(inst)
 	i.Txt = txt
+	i.Type = InstructionType(txt)
 	return i
 }
+
+
 
 // Strip whitespace and comments from a line of assembler
 func (i *inst) Canonicalize(txt string) string {
@@ -169,9 +172,7 @@ func (i *inst) IsAInstruction() bool {
 	return regexp.MustCompile(`^@[0-9a-zA-Z]+$`).MatchString(i.Txt)
 }
 
-/* A C instruction looks like `destination=compute;jump`.
- *
- */
+// A C-instruction looks like `destination=compute;jump`.
 func (i *inst) IsCInstruction() bool {
 	rex := makeCInstructionRegexp()
 	//fmt.Println(rex)

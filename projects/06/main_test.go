@@ -56,6 +56,11 @@ func TestIsAInstruction(t *testing.T) {
 	if i3.IsAInstruction() {
 		t.Errorf("D;JNE should be a C instruction")
 	}
+
+	i4 := inst{`@ball.move$if_true0`, 0}
+	if !i4.IsAInstruction() {
+		t.Errorf("@ball.move$if_true0 should be a C instruction")
+	}
 }
 
 func TestIsCInstruction(t *testing.T) {
