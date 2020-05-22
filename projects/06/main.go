@@ -2,41 +2,144 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"regexp"
+	"sort"
+	"strings"
 )
 
-var SYMBOLS = map[string]int{
-	"R0": 0,
-	"R1": 1,
-	"R2": 2,
-	"R3": 3,
+// Initialize the address map for symbols
+var Symbols = map[string]int{
+	"R0":     0,
+	"R1":     1,
+	"R2":     2,
+	"R3":     3,
+	"R4":     4,
+	"R5":     5,
+	"R6":     6,
+	"R7":     7,
+	"R8":     8,
+	"R9":     9,
+	"R10":    10,
+	"R11":    11,
+	"R12":    12,
+	"R13":    13,
+	"R14":    14,
+	"R15":    15,
+	"SCREEN": 16384,
+	"KBD":    24576,
+	"SP":     0,
+	"LCL":    1,
+	"ARG":    2,
+	"THIS":   3,
+	"THAT":   4,
 }
+
+var CComp = map[string]string{
+	"0":   "0101010",
+	"1":   "0111111",
+	"-1":  "1111010",
+	"D":   "1001100",
+	"A":   "0110000",
+	"!D":  "0001101",
+	"!A":  "0110001",
+	"-D":  "",
+	"-A":  "",
+	"D+1": "",
+	"A+1": "",
+	"D-1": "",
+	"A-1": "",
+	"D+A": "",
+	"D-A": "",
+	"A-D": "",
+	"D&A": "",
+	"D|A": "",
+	"M":   "",
+	"!M":  "",
+	"-M":  "",
+	"M+1": "",
+	"M-1": "",
+	"D+M": "",
+	"D-M": "",
+	"M-D": "",
+	"D&M": "",
+	"D|M": "",
+}
+
+var CJump = map[string]string{
+	"":    "000",
+	"JGT": "001",
+	"JEQ": "010",
+	"JGE": "011",
+	"JLT": "100",
+	"JNE": "101",
+	"JLE": "110",
+	"JMP": "111",
+}
+
+// Consruct a regular expression to parse a C-Instruction
+func makeCInstructionRegexp() string {
+
+	// helper function to build regexp components
+	pipe := func(m map[string]string) string {
+		keys := make([]string, 0, len(m))
+		for k := range m {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		return "(" + strings.Join(keys, "|") + ")"
+	}
+
+	destRe := "(?:([ADM]+)=)?" // the destination part of the regexp
+	compRe := pipe(CComp)      // the compute part of the regexp
+	jumpRe := pipe(CJump)      // the jump part of the regexp
+
+	return fmt.Sprintf("^%s%s(?:;(%s))?$", destRe, compRe, jumpRe)
+}
+
+/***********************************************************************/
 
 type asm struct {
-	filename string
-	lines    []string
-	sym      map[string]int
+	Filename string
+	Insts    []inst
+	Sym      map[string]int
 }
 
+// Read the instructions, resolve symbols, and emit assembled code
 func (a *asm) parse() {
-	file, err := os.Open(a.filename)
+	a.read()
+	a.resolve()
+	a.emit()
+}
+
+// read the instructions from the source file
+func (a *asm) read() {
+	// load all the instructions
+	file, err := os.Open(a.Filename)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		a.appendLine(scanner.Text())
+		i := NewInstruction(scanner.Text())
+		a.Insts = append(a.Insts, *i)
 	}
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func (a *asm) appendLine(txt string) {
-	a.lines = append(a.lines, txt)
+// resolve all unresolved symbols in instructions
+func (a *asm) resolve() {
+
+}
+
+// emit all instructions as machine code
+func (a *asm) emit() {
+
 }
 
 /****************************************************/
@@ -44,6 +147,12 @@ func (a *asm) appendLine(txt string) {
 type inst struct {
 	Txt  string
 	Addr int
+}
+
+func NewInstruction(txt string) *inst {
+	i := new(inst)
+	i.Txt = txt
+	return i
 }
 
 // Strip whitespace and comments from a line of assembler
@@ -57,15 +166,20 @@ func (i *inst) IsEmpty() bool {
 }
 
 func (i *inst) IsAInstruction() bool {
-	return regexp.MustCompile(`^@.*`).MatchString(i.Txt)
+	return regexp.MustCompile(`^@[0-9a-zA-Z]+$`).MatchString(i.Txt)
 }
 
+/* A C instruction looks like `destination=compute;jump`.
+ *
+ */
 func (i *inst) IsCInstruction() bool {
-	return regexp.MustCompile(`^[ADM]*=?([^;]*)(;.*)?$`).MatchString(i.Txt)
+	rex := makeCInstructionRegexp()
+	//fmt.Println(rex)
+	return regexp.MustCompile(rex).MatchString(i.Txt)
 }
 
 func (i *inst) IsLabel() bool {
-	return regexp.MustCompile(`^(.*)`).MatchString(i.Txt)
+	return regexp.MustCompile(`^\(.*\)$`).MatchString(i.Txt)
 }
 
 func (i *inst) Assemble(sym map[string]int) string {
@@ -74,7 +188,8 @@ func (i *inst) Assemble(sym map[string]int) string {
 
 /********************************************************************/
 
+// main function: takes a single filename as argument
 func main() {
-	a := asm{filename: os.Args[1]}
+	a := asm{Filename: os.Args[1]}
 	a.parse()
 }
