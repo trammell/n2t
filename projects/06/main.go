@@ -7,6 +7,7 @@ import (
 	"os"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -101,29 +102,22 @@ func makeCInstructionRegexp() string {
 
 /***********************************************************************/
 
-type Assembler struct {
+type Program struct {
 	Filename     string
 	Instructions []Instruction
 	Symbols      map[string]int
 }
 
-func NewAssembler(filename string) *Assembler {
-	a := new(Assembler)
-	a.Filename = filename
-	return a
-}
-
-// Read the instructions, resolve symbols, and emit assembled code
-func (a *Assembler) parse() {
-	a.read()
-	//a.resolve()
-	a.emit()
+func NewProgram(filename string) (p *Program) {
+	p = new(Program)
+	p.Filename = filename
+	return
 }
 
 // read the instructions from the source file
-func (a *Assembler) read() {
+func (p *Program) read() {
 	// load all the instructions
-	file, err := os.Open(a.Filename)
+	file, err := os.Open(p.Filename)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -131,7 +125,9 @@ func (a *Assembler) read() {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		i := NewInstruction(scanner.Text())
-		a.Instructions = append(a.Instructions, *i)
+		if i.Text != "" {
+			p.Instructions = append(p.Instructions, *i)
+		}
 	}
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
@@ -139,12 +135,12 @@ func (a *Assembler) read() {
 }
 
 // resolve all unresolved symbols in instructions
-func (a *Assembler) resolve() {
-
+func (p *Program) resolve() {
+	// tbd
 }
 
 // emit all instructions as machine code
-func (a *Assembler) emit() {
+func (p *Program) emit() {
 	//for i := range a.Instructions {
 	//}
 }
@@ -165,7 +161,7 @@ type Instruction struct {
 
 func (i *Instruction) Type() (int, error) {
 	// is this an A-instruction?
-	re, err := regexp.Compile(`^@[0-9a-zA-Z]+$`)
+	re, err := regexp.Compile(`^@.+$`)
 	if err != nil {
 		log.Fatal("error compiling regexp")
 	}
@@ -193,7 +189,7 @@ func (i *Instruction) Type() (int, error) {
 	}
 
 	// error
-	return 0, fmt.Errorf("unrecognized instruction type")
+	return -1, fmt.Errorf("unrecognized instruction type")
 }
 
 func NewInstruction(txt string) *Instruction {
@@ -208,30 +204,61 @@ func (i *Instruction) CleanUp(txt string) string {
 	return regexp.MustCompile(`\s`).ReplaceAllString(txt, "")
 }
 
-func (i *Instruction) IsEmpty() bool {
-	return true
-}
+// func (i *Instruction) IsEmpty() bool {
+// 	return true
+// }
 
-func (i *Instruction) Assemble(symbols map[string]int) string {
+func (i *Instruction) Assemble(symbols map[string]int) (string, error) {
 	ty, err := i.Type()
 	if err != nil {
-		log.Fatal("error determining instruction type")
+		log.Fatalf("error determining instruction type: %v", i)
 	}
 
 	switch ty {
 	case A:
+		return i.AssembleAInstruction(symbols)
 	case C:
-	case L:
+		return i.AssembleCInstruction(symbols)
 	default:
+		log.Fatalf("unable to assemble instruction: %v", i)
 	}
 
-	return "1111111111111111"
+	return "1111111111111111", nil
+}
+
+func (i *Instruction) AssembleAInstruction(symbols map[string]int) (string, error) {
+
+	inst := strings.Trim(i.Text, "@") // strip leading @ from instruction
+
+	// if it's a number then print it in binary, otherwise look it up in the symbol table
+	isNumeric := regexp.MustCompile(`^[0-9]+$`)
+	if isNumeric.MatchString(inst) {
+		num, err := strconv.Atoi(inst)
+		if err != nil {
+			return ``, fmt.Errorf("unable to assemble A instruction: %v", i)
+		}
+		return fmt.Sprintf("0%015b", num), nil
+	} else {
+		addr, ok := symbols[inst]
+		if !ok {
+			return ``, fmt.Errorf("unable to resolve symbol: %v (%v)", inst, i)
+		}
+		return fmt.Sprintf("0%015b", addr), nil
+	}
+
+}
+
+func (i *Instruction) AssembleCInstruction(symbols map[string]int) (string, error) {
+	return "", nil
 }
 
 /********************************************************************/
 
 // main function: takes a single filename as argument
+// Read the instructions, resolve symbols, and emit assembled code
 func main() {
-	a := NewAssembler(os.Args[1])
-	a.parse()
+	p := NewProgram(os.Args[1])
+	p.read()
+	p.resolve()
+	p.emit()
 }
