@@ -101,21 +101,27 @@ func makeCInstructionRegexp() string {
 
 /***********************************************************************/
 
-type asm struct {
-	Filename string
-	Insts    []inst
-	Sym      map[string]int
+type Assembler struct {
+	Filename     string
+	Instructions []Instruction
+	Symbols      map[string]int
+}
+
+func NewAssembler(filename string) *Assembler {
+	a := new(Assembler)
+	a.Filename = filename
+	return a
 }
 
 // Read the instructions, resolve symbols, and emit assembled code
-func (a *asm) parse() {
+func (a *Assembler) parse() {
 	a.read()
-	a.resolve()
+	//a.resolve()
 	a.emit()
 }
 
 // read the instructions from the source file
-func (a *asm) read() {
+func (a *Assembler) read() {
 	// load all the instructions
 	file, err := os.Open(a.Filename)
 	if err != nil {
@@ -125,7 +131,7 @@ func (a *asm) read() {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		i := NewInstruction(scanner.Text())
-		a.Insts = append(a.Insts, *i)
+		a.Instructions = append(a.Instructions, *i)
 	}
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
@@ -133,57 +139,92 @@ func (a *asm) read() {
 }
 
 // resolve all unresolved symbols in instructions
-func (a *asm) resolve() {
+func (a *Assembler) resolve() {
 
 }
 
 // emit all instructions as machine code
-func (a *asm) emit() {
-
+func (a *Assembler) emit() {
+	//for i := range a.Instructions {
+	//}
 }
 
 /****************************************************/
 
-type inst struct {
-	Txt  string
-	Addr int
+// instruction types
+const (
+	A = iota // address instruction
+	C = iota // compute instruction
+	L = iota // label instruction
+)
+
+type Instruction struct {
+	Text    string
+	Address int
 }
 
-func NewInstruction(txt string) *inst {
-	i := new(inst)
-	i.Txt = txt
-	i.Type = InstructionType(txt)
+func (i *Instruction) Type() (int, error) {
+	// is this an A-instruction?
+	re, err := regexp.Compile(`^@[0-9a-zA-Z]+$`)
+	if err != nil {
+		log.Fatal("error compiling regexp")
+	}
+	if re.MatchString(i.Text) {
+		return A, nil
+	}
+
+	// is this a label?
+	re, err = regexp.Compile(`^\(.*\)$`)
+	if err != nil {
+		log.Fatal("error compiling regexp")
+	}
+	if re.MatchString(i.Text) {
+		return L, nil
+	}
+
+	// is this a C-instruction?
+	crex := makeCInstructionRegexp()
+	re, err = regexp.Compile(crex)
+	if err != nil {
+		log.Fatal("error compiling regexp")
+	}
+	if re.MatchString(i.Text) {
+		return C, nil
+	}
+
+	// error
+	return 0, fmt.Errorf("unrecognized instruction type")
+}
+
+func NewInstruction(txt string) *Instruction {
+	i := new(Instruction)
+	i.Text = i.CleanUp(txt)
 	return i
 }
 
-
-
 // Strip whitespace and comments from a line of assembler
-func (i *inst) Canonicalize(txt string) string {
+func (i *Instruction) CleanUp(txt string) string {
 	txt = regexp.MustCompile(`//.*`).ReplaceAllString(txt, "")
 	return regexp.MustCompile(`\s`).ReplaceAllString(txt, "")
 }
 
-func (i *inst) IsEmpty() bool {
+func (i *Instruction) IsEmpty() bool {
 	return true
 }
 
-func (i *inst) IsAInstruction() bool {
-	return regexp.MustCompile(`^@[0-9a-zA-Z]+$`).MatchString(i.Txt)
-}
+func (i *Instruction) Assemble(symbols map[string]int) string {
+	ty, err := i.Type()
+	if err != nil {
+		log.Fatal("error determining instruction type")
+	}
 
-// A C-instruction looks like `destination=compute;jump`.
-func (i *inst) IsCInstruction() bool {
-	rex := makeCInstructionRegexp()
-	//fmt.Println(rex)
-	return regexp.MustCompile(rex).MatchString(i.Txt)
-}
+	switch ty {
+	case A:
+	case C:
+	case L:
+	default:
+	}
 
-func (i *inst) IsLabel() bool {
-	return regexp.MustCompile(`^\(.*\)$`).MatchString(i.Txt)
-}
-
-func (i *inst) Assemble(sym map[string]int) string {
 	return "1111111111111111"
 }
 
@@ -191,6 +232,6 @@ func (i *inst) Assemble(sym map[string]int) string {
 
 // main function: takes a single filename as argument
 func main() {
-	a := asm{Filename: os.Args[1]}
+	a := NewAssembler(os.Args[1])
 	a.parse()
 }
