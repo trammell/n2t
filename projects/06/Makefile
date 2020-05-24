@@ -2,7 +2,7 @@ usage:
 	@echo "usage: make [zip|build|all|clean|asm]"
 
 clean:
-	rm -f *.hack *.zip asm
+	rm -f *.hack *.tmp *.zip asm
 
 zip project06.zip: 
 	zip -j project06.zip main.go *.hack
@@ -19,5 +19,6 @@ Add.hack: asm etc/Add.asm
 run: asm
 	./asm etc/Add.asm
 
-test:
+test: asm
 	go test -v
+	./asm etc/Add.asm > Add.tmp; diff Add.tmp etc/Add.hack
