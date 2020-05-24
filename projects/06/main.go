@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-// Initialize the address map for symbols
+// Symbols maps text symbols to memory addresses.
 var Symbols = map[string]int{
 	"R0":     0,
 	"R1":     1,
@@ -38,6 +38,7 @@ var Symbols = map[string]int{
 	"THAT":   4,
 }
 
+// CComp lists the possible C-instruction computations.
 var CComp = map[string]string{
 	"0":   "0101010",
 	"1":   "0111111",
@@ -69,6 +70,7 @@ var CComp = map[string]string{
 	"D|M": "1010101",
 }
 
+// CJump lists the C-instruction jump encodings
 var CJump = map[string]string{
 	"":    "000",
 	"JGT": "001",
@@ -83,11 +85,12 @@ var CJump = map[string]string{
 // Consruct a regular expression to parse a C-Instruction
 func makeCInstructionRegexp() string {
 
-	// helper function to build regexp components with capture
+	// "pipe" is a helper function to build regexp components.
+	// One tricky thing here is that keys need to be
 	pipe := func(m map[string]string, cap string) string {
 		keys := make([]string, 0, len(m))
 		for k := range m {
-			keys = append(keys, k)
+			keys = append(keys, regexp.QuoteMeta(k))
 		}
 		sort.Strings(keys)
 		return "(" + strings.Join(keys, "|") + ")"
@@ -96,18 +99,20 @@ func makeCInstructionRegexp() string {
 	destRe := "(?:([ADM]+)=)?"    // the destination part of the regexp
 	compRe := pipe(CComp, `comp`) // the compute part of the regexp
 	jumpRe := pipe(CJump, `jump`) // the jump part of the regexp
-
-	return fmt.Sprintf("^%s%s(?:;%s)?$", destRe, compRe, jumpRe)
+	regexp := fmt.Sprintf("^%s%s(?:;%s)?$", destRe, compRe, jumpRe)
+	return regexp
 }
 
 /***********************************************************************/
 
+// Program represents the program to be compiled.
 type Program struct {
 	Filename     string
 	Instructions []Instruction
 	Symbols      map[string]int
 }
 
+// NewProgram is a constructor for Programs
 func NewProgram(filename string) (p *Program) {
 	p = new(Program)
 	p.Filename = filename
@@ -154,12 +159,14 @@ const (
 	L = iota // label instruction
 )
 
+// Instruction represents a single instruction in a program
 type Instruction struct {
 	Text    string
 	Address int
 }
 
-func (i *Instruction) Type() (int, error) {
+// GetType determines the type (A-instruction, C-instruction, Label) of an instruction
+func (i *Instruction) GetType() (int, error) {
 	// is this an A-instruction?
 	re, err := regexp.Compile(`^@.+$`)
 	if err != nil {
@@ -182,7 +189,7 @@ func (i *Instruction) Type() (int, error) {
 	crex := makeCInstructionRegexp()
 	re, err = regexp.Compile(crex)
 	if err != nil {
-		log.Fatal("error compiling regexp")
+		log.Fatal("error compiling C instruction regexp")
 	}
 	if re.MatchString(i.Text) {
 		return C, nil
@@ -192,24 +199,22 @@ func (i *Instruction) Type() (int, error) {
 	return -1, fmt.Errorf("unrecognized instruction type")
 }
 
+// NewInstruction is an Instruction constructor
 func NewInstruction(txt string) *Instruction {
 	i := new(Instruction)
 	i.Text = i.CleanUp(txt)
 	return i
 }
 
-// Strip whitespace and comments from a line of assembler
+// CleanUp strips whitespace and comments from an instruction
 func (i *Instruction) CleanUp(txt string) string {
 	txt = regexp.MustCompile(`//.*`).ReplaceAllString(txt, "")
 	return regexp.MustCompile(`\s`).ReplaceAllString(txt, "")
 }
 
-// func (i *Instruction) IsEmpty() bool {
-// 	return true
-// }
-
+// Assemble assembles a single instruction from text into binary
 func (i *Instruction) Assemble(symbols map[string]int) (string, error) {
-	ty, err := i.Type()
+	ty, err := i.GetType()
 	if err != nil {
 		log.Fatalf("error determining instruction type: %v", i)
 	}
@@ -226,6 +231,7 @@ func (i *Instruction) Assemble(symbols map[string]int) (string, error) {
 	return "1111111111111111", nil
 }
 
+// AssembleAInstruction converts an A instruction to binary
 func (i *Instruction) AssembleAInstruction(symbols map[string]int) (string, error) {
 
 	inst := strings.Trim(i.Text, "@") // strip leading @ from instruction
@@ -238,17 +244,15 @@ func (i *Instruction) AssembleAInstruction(symbols map[string]int) (string, erro
 			return ``, fmt.Errorf("unable to assemble A instruction: %v", i)
 		}
 		return fmt.Sprintf("0%015b", num), nil
-	} else {
-		addr, ok := symbols[inst]
-		if !ok {
-			return ``, fmt.Errorf("unable to resolve symbol: %v (%v)", inst, i)
-		}
-		return fmt.Sprintf("0%015b", addr), nil
 	}
-
+	addr, ok := symbols[inst]
+	if !ok {
+		return ``, fmt.Errorf("unable to resolve symbol: %v (%v)", inst, i)
+	}
+	return fmt.Sprintf("0%015b", addr), nil
 }
 
-// helper function to split up C instructions into parts
+// SplitCInstruction is a helper function to split up a C instructions into parts
 func (i *Instruction) SplitCInstruction() (string, string, string, error) {
 
 	// compile the regex
@@ -260,26 +264,44 @@ func (i *Instruction) SplitCInstruction() (string, string, string, error) {
 
 	match := r.FindStringSubmatch(i.Text)
 	if len(match) > 0 {
-		//fmt.Println(match)
 		return match[1], match[2], match[3], nil
-	} else {
-		return ``, ``, ``, fmt.Errorf("unable to split C instruction: %v", i.Text)
 	}
+	return ``, ``, ``, fmt.Errorf("Error splitting C instruction: %v", i.Text)
 }
 
+// AssembleCInstruction converts a C instruction into binary
 func (i *Instruction) AssembleCInstruction() (string, error) {
 	// extract dest, comp, and jump expressions from C instruction with regexp
-	comp, dest, jump, err := i.SplitCInstruction()
+	dest, comp, jump, err := i.SplitCInstruction()
 	if err != nil {
-
+		log.Fatalf("error splitting instruction: %v", err)
 	}
 
 	// calculate dest bits: M=1, D=2, A=4
+	destbits := 0
+	if strings.Contains(dest, "M") {
+		destbits = destbits | 1
+	}
+	if strings.Contains(dest, "D") {
+		destbits = destbits | 2
+	}
+	if strings.Contains(dest, "A") {
+		destbits = destbits | 4
+	}
+
+	// calculate comp bits
+	compbits, ok := CComp[comp]
+	if !ok {
+		log.Fatalf("error finding comp bits for %v", comp)
+	}
 
 	// calculate jump bits
-	// calculate comp bits
+	jumpbits, ok := CJump[jump]
+	if !ok {
+		log.Fatalf("error finding jump bits for %v", jump)
+	}
 
-	return fmt.Sprint("", comp, dest, jump), nil
+	return fmt.Sprintf("111%s%03b%s", compbits, destbits, jumpbits), nil
 }
 
 /********************************************************************/

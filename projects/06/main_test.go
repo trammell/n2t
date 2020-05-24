@@ -39,6 +39,7 @@ func TestInstructionType(t *testing.T) {
 		{`@bar`, A},
 		{"A=M", C},
 		{"D=D-1;JEQ", C},
+		{`D=D+A`, C},
 		{"(LABEL.ONE)", L},
 		{`(label.foo)`, L},
 		{`D;JNE`, C},
@@ -47,7 +48,10 @@ func TestInstructionType(t *testing.T) {
 
 	for _, tc := range tests {
 		i1 := NewInstruction(tc.in)
-		got, _ := i1.Type()
+		got, err := i1.GetType()
+		if err != nil {
+			t.Errorf("instruction: %v, got error: %v", tc.in, err)
+		}
 		if !reflect.DeepEqual(tc.ty, got) {
 			t.Errorf("instruction: %v, expected: %v, got: %v", tc.in, tc.ty, got)
 		}
@@ -105,6 +109,7 @@ func TestCInstructionSplitter(t *testing.T) {
 		{`AD=0;JLE`, `AD`, `0`, `JLE`},
 		{"A=M", `A`, `M`, ``},
 		{"D=D-1;JEQ", `D`, `D-1`, `JEQ`},
+		{"A=M+1;JGE", `A`, `M+1`, `JGE`},
 		{`D;JNE`, ``, `D`, `JNE`},
 	}
 
@@ -138,10 +143,9 @@ func TestCInstructionAssembler(t *testing.T) {
 		input string // instruction
 		want  string // correct encoding
 	}{
-		{`0;JMP`, s(`111 0 000000 000 000`)},
-		// {"A=M", C},
-		// {"D=D-1;JEQ", C},
-		// {`D;JNE`, C},
+		{`D=A`, s(`111 0110000 010 000`)},
+		{`D=D+A`, s(`111 0000010 010 000`)},
+		{`M=D`, s(`111 0001100 001 000`)},
 	}
 
 	for _, tc := range tests {
