@@ -141,17 +141,33 @@ func (p *Program) read() {
 
 // resolve all unresolved symbols in instructions
 func (p *Program) resolve() {
-	// tbd
+	address := 0
+	for _, inst := range p.Instructions {
+		itype, err := inst.GetType()
+		if err != nil {
+			log.Fatal(err)
+		}
+		if itype == L {
+			// extrsact the label from the instruction and assign the next address
+			label := strings.Trim(inst.Text, "()")
+			//fmt.Fprintln(os.Stderr, "Symbol[", label, "] = ", address)
+			Symbols[label] = address
+		} else {
+			address++
+		}
+	}
 }
 
 // emit all instructions as machine code
 func (p *Program) emit() {
 	for _, i := range p.Instructions {
-		out, err := i.Assemble(nil)
+		out, err := i.Assemble(Symbols)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(out)
+		if out != "" {
+			fmt.Println(out)
+		}
 	}
 }
 
@@ -229,11 +245,13 @@ func (i *Instruction) Assemble(symbols map[string]int) (string, error) {
 		return i.AssembleAInstruction(symbols)
 	case C:
 		return i.AssembleCInstruction()
+	case L:
+		/* do nothing */
 	default:
 		log.Fatalf("unable to assemble instruction: %v", i)
 	}
 
-	return "1111111111111111", nil
+	return "", nil
 }
 
 // AssembleAInstruction converts an A instruction to binary
