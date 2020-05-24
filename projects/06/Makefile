@@ -22,3 +22,4 @@ run: asm
 test: asm
 	go test -v
 	./asm etc/Add.asm > Add.tmp; diff Add.tmp etc/Add.hack
+	./asm etc/MaxL.asm > MaxL.tmp; diff MaxL.tmp etc/MaxL.hack
