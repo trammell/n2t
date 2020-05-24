@@ -235,12 +235,12 @@ func (i *Instruction) CleanUp(txt string) string {
 
 // Assemble assembles a single instruction from text into binary
 func (i *Instruction) Assemble(symbols map[string]int) (string, error) {
-	ty, err := i.GetType()
+	itype, err := i.GetType()
 	if err != nil {
 		log.Fatalf("error determining instruction type: %v", i)
 	}
 
-	switch ty {
+	switch itype {
 	case A:
 		return i.AssembleAInstruction(symbols)
 	case C:
@@ -253,6 +253,8 @@ func (i *Instruction) Assemble(symbols map[string]int) (string, error) {
 
 	return "", nil
 }
+
+var nextVariableAddress int = 16
 
 // AssembleAInstruction converts an A instruction to binary
 func (i *Instruction) AssembleAInstruction(symbols map[string]int) (string, error) {
@@ -270,7 +272,11 @@ func (i *Instruction) AssembleAInstruction(symbols map[string]int) (string, erro
 	}
 	addr, ok := symbols[inst]
 	if !ok {
-		return ``, fmt.Errorf("unable to resolve symbol: %v (%v)", inst, i)
+		// if the symbol doesn't resolve at this point, it's a variable
+		addr = nextVariableAddress
+		symbols[inst] = nextVariableAddress
+		nextVariableAddress++
+		//return ``, fmt.Errorf("unable to resolve symbol: %v (%v)", inst, i)
 	}
 	return fmt.Sprintf("0%015b", addr), nil
 }
