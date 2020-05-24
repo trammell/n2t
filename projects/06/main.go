@@ -146,8 +146,13 @@ func (p *Program) resolve() {
 
 // emit all instructions as machine code
 func (p *Program) emit() {
-	//for i := range a.Instructions {
-	//}
+	for _, i := range p.Instructions {
+		out, err := i.Assemble(nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(out)
+	}
 }
 
 /****************************************************/
