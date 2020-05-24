@@ -150,7 +150,7 @@ func TestCInstructionAssembler(t *testing.T) {
 
 	for _, tc := range tests {
 		i1 := NewInstruction(tc.input)
-		got, _ := i1.Assemble(nil)
+		got, _ := i1.Assemble(nil)	
 		if !reflect.DeepEqual(tc.want, got) {
 			t.Errorf("instruction: %v, expected: %v, got: %v", tc.input, tc.want, got)
 		}
