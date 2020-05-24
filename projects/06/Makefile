@@ -23,3 +23,6 @@ test: asm
 	go test -v
 	./asm etc/Add.asm > Add.tmp; diff Add.tmp etc/Add.hack
 	./asm etc/MaxL.asm > MaxL.tmp; diff MaxL.tmp etc/MaxL.hack
+	./asm etc/PongL.asm > PongL.tmp; diff PongL.tmp etc/PongL.hack
+	./asm etc/RectL.asm > RectL.tmp; diff RectL.tmp etc/RectL.hack
+
