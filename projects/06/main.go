@@ -83,8 +83,8 @@ var CJump = map[string]string{
 // Consruct a regular expression to parse a C-Instruction
 func makeCInstructionRegexp() string {
 
-	// helper function to build regexp components
-	pipe := func(m map[string]string) string {
+	// helper function to build regexp components with capture
+	pipe := func(m map[string]string, cap string) string {
 		keys := make([]string, 0, len(m))
 		for k := range m {
 			keys = append(keys, k)
@@ -93,11 +93,11 @@ func makeCInstructionRegexp() string {
 		return "(" + strings.Join(keys, "|") + ")"
 	}
 
-	destRe := "(?:([ADM]+)=)?" // the destination part of the regexp
-	compRe := pipe(CComp)      // the compute part of the regexp
-	jumpRe := pipe(CJump)      // the jump part of the regexp
+	destRe := "(?:([ADM]+)=)?"    // the destination part of the regexp
+	compRe := pipe(CComp, `comp`) // the compute part of the regexp
+	jumpRe := pipe(CJump, `jump`) // the jump part of the regexp
 
-	return fmt.Sprintf("^%s%s(?:;(%s))?$", destRe, compRe, jumpRe)
+	return fmt.Sprintf("^%s%s(?:;%s)?$", destRe, compRe, jumpRe)
 }
 
 /***********************************************************************/
@@ -218,7 +218,7 @@ func (i *Instruction) Assemble(symbols map[string]int) (string, error) {
 	case A:
 		return i.AssembleAInstruction(symbols)
 	case C:
-		return i.AssembleCInstruction(symbols)
+		return i.AssembleCInstruction()
 	default:
 		log.Fatalf("unable to assemble instruction: %v", i)
 	}
@@ -248,8 +248,38 @@ func (i *Instruction) AssembleAInstruction(symbols map[string]int) (string, erro
 
 }
 
-func (i *Instruction) AssembleCInstruction(symbols map[string]int) (string, error) {
-	return "", nil
+// helper function to split up C instructions into parts
+func (i *Instruction) SplitCInstruction() (string, string, string, error) {
+
+	// compile the regex
+	crex := makeCInstructionRegexp()
+	r, err := regexp.Compile(crex)
+	if err != nil {
+		log.Fatal("error compiling regexp")
+	}
+
+	match := r.FindStringSubmatch(i.Text)
+	if len(match) > 0 {
+		//fmt.Println(match)
+		return match[1], match[2], match[3], nil
+	} else {
+		return ``, ``, ``, fmt.Errorf("unable to split C instruction: %v", i.Text)
+	}
+}
+
+func (i *Instruction) AssembleCInstruction() (string, error) {
+	// extract dest, comp, and jump expressions from C instruction with regexp
+	comp, dest, jump, err := i.SplitCInstruction()
+	if err != nil {
+
+	}
+
+	// calculate dest bits: M=1, D=2, A=4
+
+	// calculate jump bits
+	// calculate comp bits
+
+	return fmt.Sprint("", comp, dest, jump), nil
 }
 
 /********************************************************************/

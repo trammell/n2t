@@ -91,7 +91,39 @@ func TestAInstructionAssembler(t *testing.T) {
 	if err == nil {
 		t.Errorf("missing symbol should throw error")
 	}
+}
 
+// Test C instruction splitter
+func TestCInstructionSplitter(t *testing.T) {
+	var tests = []struct {
+		input string // instruction
+		dest  string // destination
+		comp  string // computation
+		jump  string // jump destination
+	}{
+		{`0;JMP`, ``, `0`, `JMP`},
+		{`AD=0;JLE`, `AD`, `0`, `JLE`},
+		{"A=M", `A`, `M`, ``},
+		{"D=D-1;JEQ", `D`, `D-1`, `JEQ`},
+		{`D;JNE`, ``, `D`, `JNE`},
+	}
+
+	for _, tc := range tests {
+		i1 := NewInstruction(tc.input)
+		dest, comp, jump, err := i1.SplitCInstruction()
+		if err != nil {
+			t.Errorf("got error on valid C instruction: %v", err)
+		}
+		if dest != tc.dest {
+			t.Errorf("instruction: %v, expected dest=%v, got %v", tc.input, tc.dest, dest)
+		}
+		if comp != tc.comp {
+			t.Errorf("instruction: %v, expected comp=%v, got %v", tc.input, tc.comp, comp)
+		}
+		if jump != tc.jump {
+			t.Errorf("instruction: %v, expected jump=%v, got %v", tc.input, tc.jump, jump)
+		}
+	}
 }
 
 // Test our C instruction assembler
