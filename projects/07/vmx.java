@@ -5,17 +5,7 @@
  */
 public class VMX {
 
-
-public static void main(String[] args) {
-    System.out.println("Hello VMX World");
-
+    public static void main(String[] args) {
+        System.out.println("Hello VMX World");
+    }
 }
-}
-
-
-
-
-
-
-
-
