@@ -1,9 +1,9 @@
 
 clean:
-	rm -f main.jar
+	rm -f *.jar
 
-run: main.jar
-	java -jar main.jar
+run: vmtrans.jar
+	java -jar vmtrans.jar StackArithmetic/SimpleAdd/SimpleAdd.vm
 
-main.jar:
-	kotlinc main.kt -include-runtime -d main.jar
+vmtrans.jar: vmtrans.kt
+	kotlinc vmtrans.kt -include-runtime -d vmtrans.jar
