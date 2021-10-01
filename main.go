@@ -1,7 +1,7 @@
 package main
 
 import (
-	"nand2tetris/cmd"
+	"github.com/trammell/nand2tetris/cmd"
 )
 
 func main() {
