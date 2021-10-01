@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"asm"
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/trammell/nand2tetris/pkg/asm"
 )
 
 func init() {
@@ -18,8 +18,8 @@ var asmCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		p := asm.NewProgram(os.Args[1])
-		p.read()
-		p.resolve()
-		p.emit()
+		p.Read()
+		p.Resolve()
+		p.Emit()
 	},
 }
