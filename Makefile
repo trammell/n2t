@@ -4,7 +4,7 @@ usage:
 all: build
 
 n2t build:
-	go build -o n2t cmd/n2t/main.go
+	go build -o n2t main.go
 
 clean:
 	rm -rf n2t
