@@ -1,15 +1,35 @@
 package cmd
 
 import (
-	"asm"
+	"fmt"
 	"os"
+
+	"github.com/spf13/cobra"
 )
 
-// main function: takes a single filename as argument
-// Read the instructions, resolve symbols, and emit assembled code
-func main() {
-	p := asm.NewProgram(os.Args[1])
-	p.read()
-	p.resolve()
-	p.emit()
+var rootCmd = &cobra.Command{
+	Use:   "hugo",
+	Short: "Hugo is a very fast static site generator",
+	Long: `A Fast and Flexible Static Site Generator built with
+				  love by spf13 and friends in Go.
+				  Complete documentation is available at http://hugo.spf13.com`,
+	Run: func(cmd *cobra.Command, args []string) {
+		// Do Stuff Here
+	},
 }
+
+func Execute() {
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
+
+// // main function: takes a single filename as argument
+// // Read the instructions, resolve symbols, and emit assembled code
+// func main() {
+// 	p := asm.NewProgram(os.Args[1])
+// 	p.read()
+// 	p.resolve()
+// 	p.emit()
+// }
