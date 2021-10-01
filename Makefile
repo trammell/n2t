@@ -10,4 +10,4 @@ clean:
 	rm -rf n2t
 
 test:
-	go test .../smth
+	go test -v ./...
