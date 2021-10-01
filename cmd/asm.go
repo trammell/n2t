@@ -1,35 +1,25 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/trammell/nand2tetris/asm"
 )
 
-var rootCmd = &cobra.Command{
-	Use:   "hugo",
-	Short: "Hugo is a very fast static site generator",
-	Long: `A Fast and Flexible Static Site Generator built with
-				  love by spf13 and friends in Go.
-				  Complete documentation is available at http://hugo.spf13.com`,
+func init() {
+	rootCmd.AddCommand(asmCmd)
+}
+
+var asmCmd = &cobra.Command{
+	Use:   "asm",
+	Short: "Assemble a file",
+	Long:  `See https://github.com/trammell/nand2tetris`,
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		// Do Stuff Here
+		p := asm.NewProgram(os.Args[1])
+		p.read()
+		p.resolve()
+		p.emit()
 	},
 }
-
-func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-}
-
-// // main function: takes a single filename as argument
-// // Read the instructions, resolve symbols, and emit assembled code
-// func main() {
-// 	p := asm.NewProgram(os.Args[1])
-// 	p.read()
-// 	p.resolve()
-// 	p.emit()
-// }
