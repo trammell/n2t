@@ -8,13 +8,6 @@ import (
 	"strings"
 )
 
-// Program represents the program to be compiled.
-type Program struct {
-	Filename     string
-	Instructions []InstructionAssembler
-	Symbols      map[string]int
-}
-
 // NewProgram is a constructor for Programs
 func NewProgram(filename string) (p *Program) {
 	p = new(Program)
@@ -47,7 +40,7 @@ func (p *Program) AppendInstruction(i InstructionAssembler) {
 }
 
 // resolve all unresolved symbols in instructions
-func (p *Program) Resolve() {
+func (p *Program) ResolveSymbols() {
 	address := 0
 	for _, inst := range p.Instructions {
 		itype, err := inst.GetType()
