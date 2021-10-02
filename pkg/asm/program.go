@@ -5,38 +5,13 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"regexp"
-	"sort"
 	"strings"
 )
-
-// Consruct a regular expression to parse a C-Instruction
-func makeCInstructionRegexp() string {
-
-	// "pipe" is a helper function to build regexp components.
-	// One tricky thing here is that keys need to be
-	pipe := func(m map[string]string, cap string) string {
-		keys := make([]string, 0, len(m))
-		for k := range m {
-			keys = append(keys, regexp.QuoteMeta(k))
-		}
-		sort.Strings(keys)
-		return "(" + strings.Join(keys, "|") + ")"
-	}
-
-	destRe := "(?:([ADM]+)=)?"    // the destination part of the regexp
-	compRe := pipe(CComp, `comp`) // the compute part of the regexp
-	jumpRe := pipe(CJump, `jump`) // the jump part of the regexp
-	regexp := fmt.Sprintf("^%s%s(?:;%s)?$", destRe, compRe, jumpRe)
-	return regexp
-}
-
-/***********************************************************************/
 
 // Program represents the program to be compiled.
 type Program struct {
 	Filename     string
-	Instructions []Instruction
+	Instructions []InstructionAssembler
 	Symbols      map[string]int
 }
 
@@ -58,12 +33,16 @@ func (p *Program) Read() {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		i := NewInstruction(scanner.Text())
-		if i.Text != "" {
-			p.Instructions = append(p.Instructions, *i)
-		}
+		p.AppendInstruction(i)
 	}
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
+	}
+}
+
+func (p *Program) AppendInstruction(i InstructionAssembler) {
+	if string(i) != "" {
+		append(p.Instructions,i)
 	}
 }
 
