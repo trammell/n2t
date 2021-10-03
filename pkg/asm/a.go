@@ -14,7 +14,7 @@ const FirstVariableAddress = 16
 var currentVariableAddress int = FirstVariableAddress
 
 // Return True if this string represents an A instruction
-func isAInstruction(txt string) bool {
+func isAInstruction(i Instruction) bool {
 	return regexp.MustCompile(`^@.+$`).MatchString(txt)
 }
 
