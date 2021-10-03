@@ -18,16 +18,10 @@ func isAInstruction(txt string) bool {
 	return regexp.MustCompile(`^@.+$`).MatchString(txt)
 }
 
-// Construct an A Instruction object.
-func NewAInstruction(txt string) *AInstruction {
-	i := AInstruction(txt)
-	return &i
-}
-
 // Assemble a single A instruction into binary
-func (i *AInstruction) Assemble(symbols map[string]int) (string, error) {
+func (i AInstruction) Assemble(symbols SymbolTable) (Code, error) {
 
-	inst := strings.Trim(string(*i), "@")
+	inst := strings.Trim(string(i), "@")
 
 	// if it's a number then print it in binary
 	if regexp.MustCompile(`^[0-9]+$`).MatchString(inst) {
@@ -46,4 +40,8 @@ func (i *AInstruction) Assemble(symbols map[string]int) (string, error) {
 		currentVariableAddress++
 	}
 	return fmt.Sprintf("0%015b", addr), nil
+}
+
+func (i AInstruction) ResolveSymbol(s SymbolTable, a Address) Address {
+	return a + 1
 }

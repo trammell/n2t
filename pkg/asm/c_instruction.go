@@ -100,17 +100,17 @@ func compileCInstructionRegexp() *regexp.Regexp {
 	return regexp.MustCompile(tmp)
 }
 
-// Return True if this is a C instruction
-func isC(txt string) bool {
+// Return True if this looks like a C instruction
+func isCInstruction(txt string) bool {
 	re := compileCInstructionRegexp()
 	return re.MatchString(txt)
 }
 
 // Assemble a single C instruction from text into binary
-func (i *CInstruction) Assemble(symbols map[string]int) (string, error) {
+func (i CInstruction) Assemble(symbols map[string]int) (string, error) {
 
 	// extract dest, comp, and jump expressions from C instruction with regexp
-	dest, comp, jump, err := splitCInstruction(*i)
+	dest, comp, jump, err := splitCInstruction(i)
 	if err != nil {
 		log.Fatalf("error splitting instruction: %v", err)
 	}
@@ -150,4 +150,9 @@ func splitCInstruction(i CInstruction) (string, string, string, error) {
 		return match[1], match[2], match[3], nil
 	}
 	return ``, ``, ``, fmt.Errorf("error splitting C instruction: %v", string(i))
+}
+
+func (i CInstruction) ResolveSymbol (s SymbolTable, a Address) Address {
+
+	return a + 1
 }

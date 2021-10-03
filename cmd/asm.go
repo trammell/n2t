@@ -17,7 +17,7 @@ var asmCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		p := asm.NewProgram(args[0])
 		p.Read()
-		p.Resolve()
+		p.ResolveSymbols()
 		p.Emit()
 	},
 }
