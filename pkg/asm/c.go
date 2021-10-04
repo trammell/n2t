@@ -99,7 +99,7 @@ func (i CInstruction) Assemble(st SymbolTable) (Code, error) {
 		dbits |= 4
 	}
 
-	// calculate comp bits
+	// calculate computation bits
 	cbits, ok := CComp[comp]
 	if !ok {
 		log.Fatalf("error finding comp bits for %v", comp)
@@ -111,7 +111,7 @@ func (i CInstruction) Assemble(st SymbolTable) (Code, error) {
 		log.Fatalf("error finding jump bits for %v", jump)
 	}
 
-	return Code((0b111 << 13) | (cbits << 8) | (dbits << 6) | jbits), nil
+	return Code((0b111 << 13) | (cbits << 6) | (dbits << 3) | jbits), nil
 }
 
 // Split up a C instructions into parts
