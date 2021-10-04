@@ -54,4 +54,40 @@ func TestCompileA_symbol(t *testing.T) {
 	}
 }
 
+func TestCompileA_newsym(t *testing.T) {
+	st := DefaultSymbols.clone()
 
+	// the address of the first variable (symbol) is controlled by constant
+	// `FirstVariableAddress` (no magic numbers here!)
+	first := FirstVariableAddress
+	second := first + 1
+
+	// first new symbol should take a new slot at the start of available memory
+	i := AInstruction(`@foo`)
+	code, err := i.Assemble(st)
+	assert.Nil(t, err)
+	assert.Equal(t, Code(first), code)
+	assert.Equal(t, Address(first), st[`foo`])
+
+	// second new symbol should take a new slot at the start of available memory
+	i = AInstruction(`@bar`)
+	code, err = i.Assemble(st)
+	assert.Nil(t, err)
+	assert.Equal(t, Code(second), code)
+	assert.Equal(t, Address(second), st[`bar`])
+
+	// reuse of first symbol should return established address
+	i = AInstruction(`@foo`)
+	code, err = i.Assemble(st)
+	assert.Nil(t, err)
+	assert.Equal(t, Code(first), code)
+	assert.Equal(t, Address(first), st[`foo`])
+
+	// reuse of second symbol should return established address
+	i = AInstruction(`@bar`)
+	code, err = i.Assemble(st)
+	assert.Nil(t, err)
+	assert.Equal(t, Code(second), code)
+	assert.Equal(t, Address(second), st[`bar`])
+
+}
