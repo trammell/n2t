@@ -38,20 +38,21 @@ func (p *Program) Read() {
 }
 
 // CleanUp strips whitespace and comments from an instruction
-func CleanUp(txt string) string {
+func CleanUp(txt string) Instruction {
 	txt = regexp.MustCompile(`//.*`).ReplaceAllString(txt, "")
-	return regexp.MustCompile(`\s`).ReplaceAllString(txt, "")
+	txt = regexp.MustCompile(`\s`).ReplaceAllString(txt, "")
+	return Instruction(txt)
 }
 
-func (p *Program) AppendInstruction(txt string) {
-	if isAInstruction(txt) {
-		append(p.Instructions, AInstruction(txt))
-	} else if isCInstruction(txt) {
-		append(p.Instructions, CInstruction(txt))
-	} else if isLabel(txt) {
-		append(p.Instructions, Label(txt))
+func (p *Program) AppendInstruction(i Instruction) {
+	if isAInstruction(i) {
+		p.Instructions = append(p.Instructions, AInstruction(i))
+	} else if isCInstruction(i) {
+		p.Instructions = append(p.Instructions, CInstruction(i))
+	} else if isLabel(i) {
+		p.Instructions = append(p.Instructions, Label(i))
 	} else {
-		log.Fatal(``, txt)
+		log.Fatal(``, i)
 	}
 }
 
@@ -59,19 +60,18 @@ func (p *Program) AppendInstruction(txt string) {
 func (p *Program) ResolveSymbols() {
 	addr := Address(0)
 	for _, inst := range p.Instructions {
-		addr = inst.ResolveSymbol(p.Symbols, addr)
+		addr = inst.Resolve(p.SymbolTable, addr)
 	}
 }
 
 // emit all instructions as machine code
 func (p *Program) Emit() {
 	for _, i := range p.Instructions {
-		out, err := i.Assemble(Symbols)
+		code, err := i.Assemble(p.SymbolTable)
 		if err != nil {
-			log.Fatal(err)
-		}
-		if out != "" {
-			fmt.Println(out)
+			log.Fatal(code, err)
+		} else {
+			fmt.Println(code)
 		}
 	}
 }

@@ -11,15 +11,15 @@ import (
 // is used to keep track of where we are.
 const FirstVariableAddress = 16
 
-var currentVariableAddress int = FirstVariableAddress
+var currentVariableAddress Address = FirstVariableAddress
 
 // Return True if this string represents an A instruction
 func isAInstruction(i Instruction) bool {
-	return regexp.MustCompile(`^@.+$`).MatchString(txt)
+	return regexp.MustCompile(`^@.+$`).MatchString(string(i))
 }
 
 // Assemble a single A instruction into binary
-func (i AInstruction) Assemble(symbols SymbolTable) (Code, error) {
+func (i AInstruction) Assemble(st SymbolTable) (Code, error) {
 
 	inst := strings.Trim(string(i), "@")
 
@@ -27,21 +27,22 @@ func (i AInstruction) Assemble(symbols SymbolTable) (Code, error) {
 	if regexp.MustCompile(`^[0-9]+$`).MatchString(inst) {
 		num, err := strconv.Atoi(inst)
 		if err != nil {
-			return ``, fmt.Errorf("unable to assemble A instruction: %v", i)
+			return 0, fmt.Errorf("unable to assemble A instruction: %v", i)
 		}
-		return fmt.Sprintf("0%015b", num), nil
+		return Code(num), nil
 	}
 
 	// If the symbol doea not resolve, then claim another variable slot.
-	addr, ok := symbols[inst]
+	addr, ok := st[Symbol(inst)]
 	if !ok {
-		symbols[inst] = currentVariableAddress
+		st[Symbol(inst)] = currentVariableAddress
 		addr = currentVariableAddress
 		currentVariableAddress++
 	}
-	return fmt.Sprintf("0%015b", addr), nil
+	return Code(addr), nil
 }
 
-func (i AInstruction) ResolveSymbol(s SymbolTable, a Address) Address {
+// FIXME
+func (i AInstruction) Resolve(s SymbolTable, a Address) Address {
 	return a + 1
 }

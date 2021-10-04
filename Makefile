@@ -8,6 +8,7 @@ n2t build:
 
 clean:
 	rm -rf n2t
+	go clean -testcache ./...
 
 test:
 	go test -v ./...

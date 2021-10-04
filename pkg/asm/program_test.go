@@ -12,12 +12,12 @@ func TestCleanUp(t *testing.T) {
 		want string
 	}{
 		{line: "@256", want: "@256"},
-		{line: "D=A // assign accum.", want: "D=A"},
+		{line: "D = A // assign accum.", want: "D=A"},
 		{line: "// just a comment", want: ""},
 		{line: " ", want: ""},
 		{line: "", want: ""},
 	}
 	for _, tc := range tests {
-		assert.Equal(t, CleanUp(tc.line), tc.want)
+		assert.Equal(t, CleanUp(tc.line), Instruction(tc.want))
 	}
 }

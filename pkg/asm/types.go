@@ -12,7 +12,7 @@ type SymbolTable map[Symbol]Address
 type AInstruction Instruction
 
 // C instructions look like `dest=comp;jump`, where <dest> is the storage destination
-// of the computed value, <comp>  
+// of the computed value, <comp>
 type CInstruction Instruction
 
 // Labels are not really full-fledged instructions as they don't get assembled to a code;
@@ -24,12 +24,12 @@ type Label Instruction
 // 2.
 type Assembler interface {
 	Assemble(SymbolTable) (Code, error)
-	ResolveSymbol(SymbolTable, Address) Address
+	Resolve(SymbolTable, Address) Address
 }
 
 // Program represents the program to be compiled.
 type Program struct {
 	Filename     string
 	Instructions []Assembler
-	Symbols      SymbolTable
+	SymbolTable  SymbolTable
 }
