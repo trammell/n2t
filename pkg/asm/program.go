@@ -71,7 +71,7 @@ func (p *Program) Emit() {
 		if err != nil {
 			log.Fatal(code, err)
 		} else {
-			fmt.Println(code)
+			fmt.Printf("%016b\n", code)
 		}
 	}
 }
