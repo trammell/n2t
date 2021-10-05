@@ -27,7 +27,7 @@ var DefaultSymbols = SymbolTable{
 	"THAT":   4,
 }
 
-// Return a clone of the input symbol table.
+// Return a clone of the input symbol table. This is handy for testing.
 func (st SymbolTable) clone() SymbolTable {
 	copy := make(SymbolTable)
 	for k, v := range st {
