@@ -7,6 +7,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var Verbose bool = false
+
 var rootCmd = &cobra.Command{
 	Use:   "n2t",
 	Short: "n2t is a helper application for Nand2Tetris",
@@ -16,7 +18,10 @@ var rootCmd = &cobra.Command{
 	},
 }
 
+
 func Execute() {
+	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
+
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
