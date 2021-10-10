@@ -19,7 +19,7 @@ func isAInstruction(i Instruction) bool {
 }
 
 // Assemble a single A instruction into binary
-func (i AInstruction) Assemble(st SymbolTable) (Code, error) {
+func (i AInstruction) Assemble(st SymbolTable) ([]Code, error) {
 
 	inst := strings.Trim(string(i), "@")
 
@@ -27,9 +27,9 @@ func (i AInstruction) Assemble(st SymbolTable) (Code, error) {
 	if regexp.MustCompile(`^[0-9]+$`).MatchString(inst) {
 		num, err := strconv.Atoi(inst)
 		if err != nil {
-			return 0, fmt.Errorf("unable to assemble A instruction: %v", i)
+			return []Code{}, fmt.Errorf("unable to assemble A instruction: %v", i)
 		}
-		return Code(num), nil
+		return []Code{Code(num)}, nil
 	}
 
 	// If the symbol doea not resolve, then claim another variable slot.
@@ -39,7 +39,7 @@ func (i AInstruction) Assemble(st SymbolTable) (Code, error) {
 		addr = currentVariableAddress
 		currentVariableAddress++
 	}
-	return Code(addr), nil
+	return []Code{Code(addr)}, nil
 }
 
 // FIXME

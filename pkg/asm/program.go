@@ -12,6 +12,7 @@ import (
 func NewProgram(filename string) (p *Program) {
 	p = new(Program)
 	p.Filename = filename
+	p.SymbolTable = DefaultSymbols.clone()
 	return
 }
 
@@ -60,18 +61,51 @@ func (p *Program) AppendInstruction(i Instruction) {
 func (p *Program) ResolveSymbols() {
 	addr := Address(0)
 	for _, inst := range p.Instructions {
+		// A and C instructions increment address, labels do not
 		addr = inst.Resolve(p.SymbolTable, addr)
 	}
 }
 
+// emit all instructions, as machine code, to STDOUT
+func (p *Program) EmitToStdout() {
+	gen := p.Emit()
+	for s, x := gen(); !x; s, x = gen() {
+		fmt.Println(s)
+	}
+}
+
+// emit all instructions, as machine code, in a slice of strings
+func (p *Program) EmitToSlice() []string {
+	gen := p.Emit()
+	var out []string
+	for s, x := gen(); !x; s, x = gen() {
+		out = append(out, s)
+	}
+	return out
+}
+
 // emit all instructions as machine code
-func (p *Program) Emit() {
-	for _, i := range p.Instructions {
+func (p *Program) Emit() func() (string, bool) {
+
+	// make a copy of p.Instructions, and then just keep shifting them off
+	instructions := make([]Assembler, len(p.Instructions))
+	copy(instructions, p.Instructions)
+
+	// return a closure that shifts off & assembles the first slice elt
+	return func() (string, bool) {
+		if len(instructions) == 0 {
+			return ``, true // no value, and exit
+		}
+
+		i := instructions[0]
+		instructions = instructions[1:]
 		code, err := i.Assemble(p.SymbolTable)
 		if err != nil {
-			log.Fatal(code, err)
-		} else {
-			fmt.Printf("%016b\n", code)
+			log.Fatal(code[0], err)
 		}
+		if len(code) > 0 {
+			return fmt.Sprintf("%016b", code[0]), false
+		}
+		return ``, false // no value, but continue
 	}
 }

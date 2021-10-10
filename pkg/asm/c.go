@@ -79,7 +79,7 @@ func isCInstruction(i Instruction) bool {
 }
 
 // Assemble a single C instruction from text into binary
-func (i CInstruction) Assemble(st SymbolTable) (Code, error) {
+func (i CInstruction) Assemble(st SymbolTable) ([]Code, error) {
 
 	// extract dest, comp, and jump expressions from C instruction with regexp
 	dest, comp, jump, err := splitCInstruction(i)
@@ -111,7 +111,9 @@ func (i CInstruction) Assemble(st SymbolTable) (Code, error) {
 		log.Fatalf("error finding jump bits for %v", jump)
 	}
 
-	return Code((0b111 << 13) | (cbits << 6) | (dbits << 3) | jbits), nil
+	// construct the code and return it as an array value
+	code := Code((0b111 << 13) | (cbits << 6) | (dbits << 3) | jbits)
+	return []Code{code}, nil
 }
 
 // Split up a C instructions into parts

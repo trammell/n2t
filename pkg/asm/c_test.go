@@ -12,7 +12,7 @@ func TestIsCInstuction(t *testing.T) {
 	assert.False(t, isCInstruction(`@value`))
 }
 
-func TestCompileC(t *testing.T) {
+func TestAssembleC(t *testing.T) {
 	tests := []struct {
 		inst string
 		code Code
@@ -28,7 +28,7 @@ func TestCompileC(t *testing.T) {
 		st := SymbolTable{}
 		code, err := i.Assemble(st)
 		assert.Nil(t, err)
-		assert.Equal(t, tc.code, code)
+		assert.Equal(t, []Code{tc.code}, code)
 	}
 
 }

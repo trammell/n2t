@@ -20,10 +20,10 @@ type CInstruction Instruction
 type Label Instruction
 
 // Assembler types need to be able to do two things:
-// 1.
-// 2.
+// 1. return 0 or 1 binary codes
+// 2. add an address to the symbol table
 type Assembler interface {
-	Assemble(SymbolTable) (Code, error)
+	Assemble(SymbolTable) ([]Code, error)
 	Resolve(SymbolTable, Address) Address
 }
 

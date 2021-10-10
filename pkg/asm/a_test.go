@@ -29,7 +29,7 @@ func TestCompileA_const(t *testing.T) {
 		st := SymbolTable{}
 		code, err := i.Assemble(st)
 		assert.Nil(t, err)
-		assert.Equal(t, tc.code, code)
+		assert.Equal(t, []Code{tc.code}, code)
 	}
 }
 
@@ -50,7 +50,7 @@ func TestCompileA_symbol(t *testing.T) {
 		i := AInstruction(tc.inst)
 		code, err := i.Assemble(st)
 		assert.Nil(t, err)
-		assert.Equal(t, tc.code, code)
+		assert.Equal(t, []Code{tc.code}, code)
 	}
 }
 
@@ -66,28 +66,27 @@ func TestCompileA_newsym(t *testing.T) {
 	i := AInstruction(`@foo`)
 	code, err := i.Assemble(st)
 	assert.Nil(t, err)
-	assert.Equal(t, Code(first), code)
+	assert.Equal(t, []Code{Code(first)}, code)
 	assert.Equal(t, Address(first), st[`foo`])
 
 	// second new symbol should take a new slot at the start of available memory
 	i = AInstruction(`@bar`)
 	code, err = i.Assemble(st)
 	assert.Nil(t, err)
-	assert.Equal(t, Code(second), code)
+	assert.Equal(t, []Code{Code(second)}, code)
 	assert.Equal(t, Address(second), st[`bar`])
 
 	// reuse of first symbol should return established address
 	i = AInstruction(`@foo`)
 	code, err = i.Assemble(st)
 	assert.Nil(t, err)
-	assert.Equal(t, Code(first), code)
+	assert.Equal(t, []Code{Code(first)}, code)
 	assert.Equal(t, Address(first), st[`foo`])
 
 	// reuse of second symbol should return established address
 	i = AInstruction(`@bar`)
 	code, err = i.Assemble(st)
 	assert.Nil(t, err)
-	assert.Equal(t, Code(second), code)
+	assert.Equal(t, []Code{Code(second)}, code)
 	assert.Equal(t, Address(second), st[`bar`])
-
 }

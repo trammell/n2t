@@ -18,6 +18,6 @@ var asmCmd = &cobra.Command{
 		p := asm.NewProgram(args[0])
 		p.Read()
 		p.ResolveSymbols()
-		p.Emit()
+		p.EmitToStdout()
 	},
 }
