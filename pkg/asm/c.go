@@ -2,10 +2,11 @@ package asm
 
 import (
 	"fmt"
-	"log"
 	"regexp"
 	"sort"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 )
 
 // CComp lists the possible C-instruction computations.
@@ -70,6 +71,7 @@ func compileCInstructionRegexp() *regexp.Regexp {
 	compRe := pipe(CComp)      // the compute part of the regexp
 	jumpRe := pipe(CJump)      // the jump part of the regexp
 	tmp := fmt.Sprintf("^%s%s(?:;%s)?$", destRe, compRe, jumpRe)
+	log.Debug().Str("C Instruction Regex", tmp)
 	return regexp.MustCompile(tmp)
 }
 
@@ -81,11 +83,14 @@ func isCInstruction(i Instruction) bool {
 // Assemble a single C instruction from text into binary
 func (i CInstruction) Assemble(st SymbolTable) ([]Code, error) {
 
+	m := log.Info().Str("C", string(i))
+
 	// extract dest, comp, and jump expressions from C instruction with regexp
 	dest, comp, jump, err := splitCInstruction(i)
 	if err != nil {
-		log.Fatalf("error splitting instruction: %v", err)
+		log.Fatal().Err(err).Msgf("error splitting instruction: %v", err)
 	}
+	m = m.Str("dest", dest).Str("comp", comp).Str("jump", jump)
 
 	// calculate destination bits: M=1, D=2, A=4
 	dbits := 0
@@ -98,21 +103,25 @@ func (i CInstruction) Assemble(st SymbolTable) ([]Code, error) {
 	if strings.Contains(dest, "A") {
 		dbits |= 4
 	}
+	m.Uint8("dbits", uint8(dbits))
 
 	// calculate computation bits
 	cbits, ok := CComp[comp]
 	if !ok {
-		log.Fatalf("error finding comp bits for %v", comp)
+		log.Fatal().Msgf("error finding comp bits for %v", comp)
 	}
+	m.Uint8("cbits", uint8(cbits))
 
 	// calculate jump bits
 	jbits, ok := CJump[jump]
 	if !ok {
-		log.Fatalf("error finding jump bits for %v", jump)
+		log.Fatal().Msgf("error finding jump bits for %v", jump)
 	}
+	m.Uint8("jbits", uint8(jbits))
 
 	// construct the code and return it as an array value
 	code := Code((0b111 << 13) | (cbits << 6) | (dbits << 3) | jbits)
+	m.Send()
 	return []Code{code}, nil
 }
 

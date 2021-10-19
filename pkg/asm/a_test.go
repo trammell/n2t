@@ -34,7 +34,7 @@ func TestCompileA_const(t *testing.T) {
 }
 
 func TestCompileA_symbol(t *testing.T) {
-	st := DefaultSymbols.clone()
+	st := PredefinedSymbols.clone()
 	st[`foo`] = 1234
 
 	tests := []struct {
@@ -55,7 +55,7 @@ func TestCompileA_symbol(t *testing.T) {
 }
 
 func TestCompileA_newsym(t *testing.T) {
-	st := DefaultSymbols.clone()
+	st := PredefinedSymbols.clone()
 
 	// the address of the first variable (symbol) is controlled by constant
 	// `FirstVariableAddress` (no magic numbers here!)

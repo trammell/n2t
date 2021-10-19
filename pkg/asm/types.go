@@ -1,7 +1,7 @@
 package asm
 
 // base types
-type Address uint
+type Address uint16
 type Code uint16
 type Instruction string
 type Symbol string
@@ -11,12 +11,13 @@ type SymbolTable map[Symbol]Address
 // values that look like `0bbb bbbb bbbb bbbb`
 type AInstruction Instruction
 
-// C instructions look like `dest=comp;jump`, where <dest> is the storage destination
-// of the computed value, <comp>
+// Compute ("C") instructions look like `dest=comp;jump`, where <comp> is the
+// value computed, <dest> is the storage destination, and <jump> is the jump
+// condition.
 type CInstruction Instruction
 
-// Labels are not really full-fledged instructions as they don't get assembled to a code;
-// they're more of a helper to building sane jump commands.
+// Labels are placeholder instructions that make human-readable memory
+// addresses. Labels don't get assembled into actual instructions.
 type Label Instruction
 
 // Assembler types need to be able to do two things:

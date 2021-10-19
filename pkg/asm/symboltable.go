@@ -1,7 +1,7 @@
 package asm
 
-// This is the default symbol table mapping for the Hack assembler.
-var DefaultSymbols = SymbolTable{
+// The Hack language predefines these symbols.
+var PredefinedSymbols = SymbolTable{
 	"R0":     0,
 	"R1":     1,
 	"R2":     2,

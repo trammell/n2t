@@ -5,6 +5,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 )
 
 // the first 16 memory addresses are reserved; global currentVariableAddress
@@ -22,9 +24,11 @@ func isAInstruction(i Instruction) bool {
 func (i AInstruction) Assemble(st SymbolTable) ([]Code, error) {
 
 	inst := strings.Trim(string(i), "@")
+	m := log.Info().Str("A", string(inst))
 
 	// if it's a number then print it in binary
 	if regexp.MustCompile(`^[0-9]+$`).MatchString(inst) {
+		m.Send()
 		num, err := strconv.Atoi(inst)
 		if err != nil {
 			return []Code{}, fmt.Errorf("unable to assemble A instruction: %v", i)
@@ -33,10 +37,13 @@ func (i AInstruction) Assemble(st SymbolTable) ([]Code, error) {
 	}
 
 	// If the symbol doea not resolve, then claim another variable slot.
-	addr, ok := st[Symbol(inst)]
-	if !ok {
+	addr, exists := st[Symbol(inst)]
+	if exists {
+		m.Uint16("addr", uint16(addr)).Send()
+	} else {
 		st[Symbol(inst)] = currentVariableAddress
 		addr = currentVariableAddress
+		m.Uint16("new addr", uint16(addr)).Send()
 		currentVariableAddress++
 	}
 	return []Code{Code(addr)}, nil

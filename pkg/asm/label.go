@@ -3,6 +3,8 @@ package asm
 import (
 	"regexp"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 )
 
 // Return True if this looks like a label
@@ -19,8 +21,7 @@ func (i Label) Assemble(s SymbolTable) ([]Code, error) {
 // in the symbol table under this instruction label.
 func (i Label) Resolve(st SymbolTable, addr Address) Address {
 	sym := Symbol(strings.Trim(string(i), "()")) // strip parens
-	
-
+	log.Info().Str("sym", string(sym)).Uint16("addr", uint16(addr))
 	st[sym] = addr
 	return addr
 }

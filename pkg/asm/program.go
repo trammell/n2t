@@ -12,7 +12,7 @@ import (
 func NewProgram(filename string) (p *Program) {
 	p = new(Program)
 	p.Filename = filename
-	p.SymbolTable = DefaultSymbols.clone()
+	p.SymbolTable = PredefinedSymbols.clone()
 	return
 }
 

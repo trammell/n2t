@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
 
@@ -18,6 +20,12 @@ var rootCmd = &cobra.Command{
 	},
 }
 
+func setLogLevel(cmd *cobra.Command, args []string) {
+	if Verbose {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+		log.Debug().Msg("Verbose output enabled")
+	}
+}
 
 func Execute() {
 	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
