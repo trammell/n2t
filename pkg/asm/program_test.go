@@ -48,8 +48,8 @@ func TestAssembleMax(t *testing.T) {
 		if len(got) == 0 {
 			t.Fatalf(`assemble failed, line %d: ran out of instructions`, lineno)
 		}
-		if want != got[0] {
-			t.Fatalf(`assemble failed, line %d: want %s, got %s`, lineno, want, got[0])
+		if want != got[0].String() {
+			t.Fatalf(`assemble failed, line %d: want '%s', got '%s'`, lineno, want, got[0].String())
 		} else {
 			got = got[1:]
 			lineno++

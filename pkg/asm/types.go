@@ -17,7 +17,7 @@ type AInstruction Instruction
 type CInstruction Instruction
 
 // Labels are placeholder instructions that make human-readable memory
-// addresses. Labels don't get assembled into actual instructions.
+// addresses. Labels don't get assembled into machine instructions.
 type Label Instruction
 
 // Assembler types need to be able to do two things:

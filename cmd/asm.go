@@ -13,11 +13,11 @@ func asmFn(cmd *cobra.Command, args []string) {
 }
 
 var asmCmd = &cobra.Command{
-	Use:   "asm <file.asm>",
-	Short: "Assembles a single Hack assembly (.asm) file into Hack machine code",
-	Long:  `See https://github.com/trammell/nand2tetris`,
-	Args:  cobra.ExactArgs(1),
-	Run:   asmFn,
+	Use:    "asm <file.asm>",
+	Short:  "Assembles a single Hack assembly (.asm) file into Hack machine code",
+	Long:   `See https://github.com/trammell/nand2tetris`,
+	Args:   cobra.ExactArgs(1),
+	Run:    asmFn,
 	PreRun: setLogLevel,
 }
 

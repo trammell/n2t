@@ -53,6 +53,11 @@ var CJump = map[string]int{
 	"JMP": 7, // 111
 }
 
+// implement the stringer interface
+func (x CInstruction) String() string {
+	return string(x)
+}
+
 // pipe() is a helper function for building the C instruction regular expression.
 // We're looking to build a big "OR" regular expression like "(a|b|c|d|...)". Some
 // of the keys contain metacharacters like "|", "+" and "-" so we quotemeta() them.

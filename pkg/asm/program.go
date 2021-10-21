@@ -68,44 +68,44 @@ func (p *Program) ResolveSymbols() {
 
 // emit all instructions, as machine code, to STDOUT
 func (p *Program) EmitToStdout() {
-	gen := p.Emit()
-	for s, x := gen(); !x; s, x = gen() {
-		fmt.Println(s)
+	gen := p.AssemblyGenerator()
+	for codes, cont := gen(); cont; codes, cont = gen() {
+		for _, x := range codes {
+			fmt.Println(x.String())
+		}
 	}
 }
 
 // emit all instructions, as machine code, in a slice of strings
-func (p *Program) EmitToSlice() []string {
-	gen := p.Emit()
-	var out []string
-	for s, x := gen(); !x; s, x = gen() {
-		out = append(out, s)
+func (p *Program) EmitToSlice() []Code {
+	gen := p.AssemblyGenerator()
+	var out []Code
+	for s, x := gen(); x; s, x = gen() {
+		out = append(out, s...)
 	}
 	return out
 }
 
 // emit all instructions as machine code
-func (p *Program) Emit() func() (string, bool) {
+func (p *Program) AssemblyGenerator() func() (codes []Code, cont bool) {
 
 	// make a copy of p.Instructions, and then just keep shifting them off
 	instructions := make([]Assembler, len(p.Instructions))
 	copy(instructions, p.Instructions)
 
 	// return a closure that shifts off & assembles the first slice elt
-	return func() (string, bool) {
+	return func() ([]Code, bool) {
 		if len(instructions) == 0 {
-			return ``, true // no value, and exit
+			return []Code{}, false // no value & no more instructions
 		}
 
+		// shift off the first instruction & assemble it
 		i := instructions[0]
 		instructions = instructions[1:]
-		code, err := i.Assemble(p.SymbolTable)
+		codes, err := i.Assemble(p.SymbolTable)
 		if err != nil {
-			log.Fatal(code[0], err)
+			log.Fatal(err)
 		}
-		if len(code) > 0 {
-			return fmt.Sprintf("%016b", code[0]), false
-		}
-		return ``, false // no value, but continue
+		return codes, true // continue
 	}
 }

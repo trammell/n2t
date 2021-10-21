@@ -21,17 +21,26 @@ var rootCmd = &cobra.Command{
 }
 
 func setLogLevel(cmd *cobra.Command, args []string) {
+	output := zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: `//`}
+	output.FormatLevel = func(i interface{}) string {
+		return ``
+	}
+	log.Logger = log.Output(output)
+	zerolog.TimeFieldFormat = ``
 	if Verbose {
-		zerolog.SetGlobalLevel(zerolog.DebugLevel)
-		log.Debug().Msg("Verbose output enabled")
+		zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	} else {
+		zerolog.SetGlobalLevel(zerolog.Disabled)
 	}
 }
 
 func Execute() {
-	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
-
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+}
+
+func init() {
+	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 }
