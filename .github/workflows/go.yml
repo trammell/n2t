@@ -1,3 +1,5 @@
+# https://gfgfddgleb.medium.com/how-to-test-your-go-code-with-github-actions-f15881d46089
+
 name: Go
 
 on:

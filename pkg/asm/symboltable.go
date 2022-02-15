@@ -1,7 +1,7 @@
 package asm
 
-// This is the default symbol table mapping for the Hack assembler.
-var DefaultSymbols = SymbolTable{
+// The Hack language predefines these symbols.
+var PredefinedSymbols = SymbolTable{
 	"R0":     0,
 	"R1":     1,
 	"R2":     2,
@@ -27,8 +27,8 @@ var DefaultSymbols = SymbolTable{
 	"THAT":   4,
 }
 
-// Return a clone of the input symbol table.
-func (st SymbolTable) clone() SymbolTable {
+// Return a clone of the input symbol table. This is handy for testing.
+func (st SymbolTable) Clone() SymbolTable {
 	copy := make(SymbolTable)
 	for k, v := range st {
 		copy[k] = v
