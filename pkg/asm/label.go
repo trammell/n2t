@@ -8,8 +8,8 @@ import (
 )
 
 // Return True if this looks like a label
-func isLabel(x Instruction) bool {
-	return regexp.MustCompile(`^\(.+\)$`).MatchString(string(x))
+func isLabel(i Instruction) bool {
+	return regexp.MustCompile(`^\(.+\)$`).MatchString(string(i))
 }
 
 // implement the stringer interface
@@ -18,8 +18,8 @@ func (x Label) String() string {
 }
 
 // Labels are pseudoinstructions, so they don't really assemble.
-func (x Label) Assemble(s SymbolTable) ([]Code, error) {
-	return []Code{}, nil // return an empty array, but successful!
+func (i Label) Assemble(s SymbolTable) ([]MachineCode, error) {
+	return []MachineCode{}, nil // return an empty array, but successful!
 }
 
 // Labels do affect the symbol table though. Save the current address

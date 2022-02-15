@@ -15,7 +15,7 @@ func TestIsCInstuction(t *testing.T) {
 func TestAssembleC(t *testing.T) {
 	tests := []struct {
 		inst string
-		code Code
+		code MachineCode
 	}{
 		{inst: "0", code: 0b1110_1010_1000_0000}, // noop
 		{inst: "M=1", code: 0b1110_1111_1100_1000},
@@ -28,7 +28,7 @@ func TestAssembleC(t *testing.T) {
 		st := SymbolTable{}
 		code, err := i.Assemble(st)
 		assert.Nil(t, err)
-		assert.Equal(t, []Code{tc.code}, code)
+		assert.Equal(t, []MachineCode{tc.code}, code)
 	}
 
 }

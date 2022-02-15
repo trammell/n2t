@@ -27,7 +27,7 @@ func TestAssembleLabel(t *testing.T) {
 		st := SymbolTable{}
 		code, err := i.Assemble(st)
 		assert.Nil(t, err)
-		assert.Equal(t, []Code{}, code)
+		assert.Equal(t, []MachineCode{}, code)
 	}
 }
 

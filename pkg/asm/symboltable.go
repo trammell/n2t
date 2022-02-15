@@ -28,7 +28,7 @@ var PredefinedSymbols = SymbolTable{
 }
 
 // Return a clone of the input symbol table. This is handy for testing.
-func (st SymbolTable) clone() SymbolTable {
+func (st SymbolTable) Clone() SymbolTable {
 	copy := make(SymbolTable)
 	for k, v := range st {
 		copy[k] = v

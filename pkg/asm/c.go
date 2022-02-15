@@ -85,10 +85,12 @@ func isCInstruction(i Instruction) bool {
 	return compileCInstructionRegexp().MatchString(string(i))
 }
 
-// Assemble a single C instruction from text into binary
-func (i CInstruction) Assemble(st SymbolTable) ([]Code, error) {
+// Assemble a single C instruction from text into binary. Note the method
+// returns a list of codes, as other (pseudo)instructions (like labels) do
+// not assemble to actual machine code.
+func (i CInstruction) Assemble(st SymbolTable) ([]MachineCode, error) {
 
-	m := log.Info().Str("C", string(i))
+	m := log.Info().Str("C", string(i)) // log this conversion
 
 	// extract dest, comp, and jump expressions from C instruction with regexp
 	dest, comp, jump, err := splitCInstruction(i)
@@ -125,9 +127,9 @@ func (i CInstruction) Assemble(st SymbolTable) ([]Code, error) {
 	m.Uint8("jbits", uint8(jbits))
 
 	// construct the code and return it as an array value
-	code := Code((0b111 << 13) | (cbits << 6) | (dbits << 3) | jbits)
+	code := MachineCode((0b111 << 13) | (cbits << 6) | (dbits << 3) | jbits)
 	m.Send()
-	return []Code{code}, nil
+	return []MachineCode{code}, nil
 }
 
 // Split up a C instructions into parts
