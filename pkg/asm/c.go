@@ -81,7 +81,7 @@ func compileCInstructionRegexp() *regexp.Regexp {
 }
 
 // Return True if this looks like a C instruction
-func isCInstruction(i Instruction) bool {
+func IsCInstruction(i Instruction) bool {
 	return compileCInstructionRegexp().MatchString(string(i))
 }
 
@@ -142,7 +142,7 @@ func splitCInstruction(i CInstruction) (string, string, string, error) {
 	return ``, ``, ``, fmt.Errorf("error splitting C instruction: %v", string(i))
 }
 
-func (i CInstruction) Resolve(s SymbolTable, a Address) Address {
-
-	return a + 1
+func (i CInstruction) UpdateSymbolTable(s SymbolTable, a Address) (next Address) {
+	next = a + 1
+	return
 }

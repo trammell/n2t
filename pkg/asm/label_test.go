@@ -1,15 +1,17 @@
-package asm
+package asm_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/trammell/nand2tetris/pkg/asm"
 )
 
 func TestIsLabel(t *testing.T) {
-	assert.True(t, isLabel(`(END)`))
-	assert.False(t, isLabel(`// comment`))
-	assert.False(t, isLabel(`@value`))
+	assert.True(t, asm.IsLabel(`(END)`))
+	assert.False(t, asm.IsLabel(`// comment`))
+	assert.False(t, asm.IsLabel(`@value`))
+	assert.False(t, asm.IsLabel(`MD=M+1`))
 }
 
 func TestAssembleLabel(t *testing.T) {
@@ -23,20 +25,19 @@ func TestAssembleLabel(t *testing.T) {
 		{inst: "(x)", addr: 9999, addx: 1000},
 	}
 	for _, tc := range tests {
-		i := Label(tc.inst)
-		st := SymbolTable{}
+		i := asm.Label(tc.inst)
+		st := asm.SymbolTable{}
 		code, err := i.Assemble(st)
 		assert.Nil(t, err)
-		assert.Equal(t, []MachineCode{}, code)
+		assert.Equal(t, []asm.MachineCode{}, code)
 	}
 }
 
 func TestLabelResolve(t *testing.T) {
-	label := Label(`(foo)`)
-	st := SymbolTable{}
+	label := asm.Label(`(foo)`)
+	st := asm.SymbolTable{Table: map[asm.Symbol]asm.Address{}}
 
 	// initial address resolution: 1234
-	addr := label.Resolve(st, 1234)
-	assert.Equal(t, Address(1234), addr)
-
+	addr := label.UpdateSymbolTable(st, 1234)
+	assert.Equal(t, asm.Address(1234), addr)
 }

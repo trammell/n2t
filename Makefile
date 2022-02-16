@@ -10,8 +10,11 @@ clean:
 	rm -rf n2t
 	go clean -testcache ./...
 
+# test building blocks first, then work up to integration tests
 test:
 	go clean -testcache ./...
+	go test -v pkg/asm/{source,symboltable}_test.go
+	go test -v pkg/asm/{a,c,label}_test.go
 	go test -v ./...
 
 coverage:

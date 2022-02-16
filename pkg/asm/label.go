@@ -8,7 +8,7 @@ import (
 )
 
 // Return True if this looks like a label
-func isLabel(i Instruction) bool {
+func IsLabel(i Instruction) bool {
 	return regexp.MustCompile(`^\(.+\)$`).MatchString(string(i))
 }
 
@@ -24,9 +24,10 @@ func (i Label) Assemble(s SymbolTable) ([]MachineCode, error) {
 
 // Labels do affect the symbol table though. Save the current address
 // in the symbol table under this instruction label.
-func (x Label) Resolve(st SymbolTable, addr Address) Address {
+func (x Label) UpdateSymbolTable(st SymbolTable, addr Address) (next Address) {
 	sym := Symbol(strings.Trim(x.String(), "()")) // strip parens
 	log.Info().Str("sym", string(sym)).Uint16("addr", uint16(addr))
-	st[sym] = addr
-	return addr
+	st.Table[sym] = addr
+	next = addr
+	return
 }

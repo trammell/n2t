@@ -44,8 +44,8 @@ func TestCompileA_const(t *testing.T) {
 }
 
 func TestCompileA_symbol(t *testing.T) {
-	st := asm.PredefinedSymbols.Clone()
-	st[`foo`] = 1234
+	st := asm.DefaultSymbolTable()
+	st.Table[`foo`] = 1234
 
 	tests := []struct {
 		inst string
@@ -65,38 +65,41 @@ func TestCompileA_symbol(t *testing.T) {
 }
 
 func TestCompileA_newsym(t *testing.T) {
-	st := asm.PredefinedSymbols.Clone()
+	st := asm.DefaultSymbolTable()
 
 	// the address of the first variable (symbol) is controlled by constant
 	// `FirstVariableAddress` (no magic numbers here!)
 	first := asm.FirstVariableAddress
 	second := first + 1
 
-	// first new symbol should take a new slot at the start of available memory
+	// assembling an A instruction that introduces a new symbol should
+	// take a new slot at the start of available memory
 	i := asm.AInstruction(`@foo`)
 	code, err := i.Assemble(st)
 	assert.Nil(t, err)
 	assert.Equal(t, []asm.MachineCode{asm.MachineCode(first)}, code)
-	assert.Equal(t, asm.Address(first), st[`foo`])
+	assert.Equal(t, asm.Address(first), st.Table[`foo`])
 
-	// second new symbol should take a new slot at the start of available memory
+	// assembling another new symbol should take another new slot at
+	// the start of available memory
 	i = asm.AInstruction(`@bar`)
 	code, err = i.Assemble(st)
 	assert.Nil(t, err)
 	assert.Equal(t, []asm.MachineCode{asm.MachineCode(second)}, code)
-	assert.Equal(t, asm.Address(second), st[`bar`])
+	assert.Equal(t, asm.Address(second), st.Table[`bar`])
 
-	// reuse of first symbol should return established address
+	// reuse of first symbol should return established address, and
+	// not use a new memory slot
 	i = asm.AInstruction(`@foo`)
 	code, err = i.Assemble(st)
 	assert.Nil(t, err)
 	assert.Equal(t, []asm.MachineCode{asm.MachineCode(first)}, code)
-	assert.Equal(t, asm.Address(first), st[`foo`])
+	assert.Equal(t, asm.Address(first), st.Table[`foo`])
 
 	// reuse of second symbol should return established address
 	i = asm.AInstruction(`@bar`)
 	code, err = i.Assemble(st)
 	assert.Nil(t, err)
 	assert.Equal(t, []asm.MachineCode{asm.MachineCode(second)}, code)
-	assert.Equal(t, asm.Address(second), st[`bar`])
+	assert.Equal(t, asm.Address(second), st.Table[`bar`])
 }
