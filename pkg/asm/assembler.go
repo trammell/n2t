@@ -1,6 +1,8 @@
 package asm
 
 import (
+	"fmt"
+
 	"github.com/rs/zerolog/log"
 )
 
@@ -13,8 +15,12 @@ func NewAssembler(filename string) Assembler {
 }
 
 // Implement the Stringer interface
-func (a Assembler) String() string {
-	return a.SymbolTable.String()
+func (a Assembler) String() (out string) {
+	out = a.SymbolTable.String()
+	for _, inst := range a.Instructions {
+		out += fmt.Sprintln(inst)
+	}
+	return
 }
 
 // Assemble the instructions into machine code
@@ -34,7 +40,7 @@ func (a *Assembler) ReadInstructions() {
 		} else if IsLabel(Instruction(i)) {
 			a.Instructions = append(a.Instructions, Label(i))
 		} else {
-			log.Warn().Msgf(`%v`, i)
+			log.Warn().Msgf(`unrecognized instruction: %v`, i)
 		}
 	}
 	return

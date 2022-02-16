@@ -9,10 +9,9 @@ import (
 
 func asmFn(cmd *cobra.Command, args []string) {
 	a := asm.NewAssembler(args[0])
-	fmt.Println(a)
 	a.Assemble()
 	for _, mc := range a.MachineCode {
-		fmt.Printf("%d\n", mc)
+		fmt.Printf("%016b\n", mc)
 	}
 }
 

@@ -3,7 +3,7 @@ usage:
 
 all: build
 
-n2t build:
+n2t build: cmd/*.go pkg/asm/*.go
 	go build -o n2t main.go
 
 clean:
@@ -12,10 +12,12 @@ clean:
 
 # test building blocks first, then work up to integration tests
 test:
-	go clean -testcache ./...
-	go test -v pkg/asm/{source,symboltable}_test.go
-	go test -v pkg/asm/{a,c,label}_test.go
+	#go test -v pkg/asm/{source,symboltable}_test.go
+	#go test -v pkg/asm/{a,c,label}_test.go
 	go test -v ./...
 
 coverage:
 	go test -race -covermode=atomic -coverprofile=coverage.out ./...
+
+run: n2t
+	./n2t asm pkg/asm/testdata/Max.asm

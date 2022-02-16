@@ -21,7 +21,7 @@ func IsAInstruction(i Instruction) bool {
 func (i AInstruction) Assemble(st SymbolTable) (SymbolTable, []MachineCode, error) {
 
 	inst := strings.Trim(string(i), "@")
-	m := log.Info().Str("A", string(inst))
+	m := log.Debug().Str("A", string(inst))
 
 	// if it's a number then it assembles trivially to an integer
 	if regexp.MustCompile(`^[0-9]+$`).MatchString(inst) {

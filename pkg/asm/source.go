@@ -22,6 +22,8 @@ func NewSource(filename string) (src *Source) {
 func (src Source) GetInstruction() (inst string, more bool) {
 	for src.Scanner.Scan() {
 		txt := src.Scanner.Text()
+		txt = regexp.MustCompile(`//.*`).ReplaceAllString(txt, "")
+		txt = regexp.MustCompile(`\s`).ReplaceAllString(txt, "")
 		if IsInstruction(txt) {
 			return txt, true
 		}
