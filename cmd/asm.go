@@ -8,13 +8,11 @@ import (
 )
 
 func asmFn(cmd *cobra.Command, args []string) {
-	code := make(chan asm.MachineCode)
-	a := asm.NewAssembler(args[0], code)
-	fmt.Println(a)
-	// p := asm.NewProgram(args[0])
-	// p.Read()
-	// p.ResolveSymbols()
-	// p.EmitToStdout()
+	a := asm.NewAssembler(args[0])
+	a.Assemble()
+	for _, mc := range a.MachineCode {
+		fmt.Printf("%016b\n", mc)
+	}
 }
 
 var asmCmd = &cobra.Command{

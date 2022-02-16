@@ -1,7 +1,12 @@
 package asm
 
-// The Hack language predefines these symbols.
-var PredefinedSymbols = SymbolTable{
+import (
+	"fmt"
+	"sort"
+)
+
+// These are the symbols defined in the Hack spec and their values.
+var PredefinedSymbols = map[Symbol]Address{
 	"R0":     0,
 	"R1":     1,
 	"R2":     2,
@@ -27,11 +32,45 @@ var PredefinedSymbols = SymbolTable{
 	"THAT":   4,
 }
 
-// Return a clone of the input symbol table. This is handy for testing.
+// The first open variable slot is at this RAM address.
+const FirstVariableAddress = Address(16)
+
+// Construct a "default" symbol table containing the Hack standard symbols.
+// Make it a clone for isolation during testing.
+func DefaultSymbolTable() SymbolTable {
+	first := Address(FirstVariableAddress) + 0
+	return SymbolTable{
+		Pointer: first,
+		Table:   PredefinedSymbols,
+	}.Clone()
+}
+
+// Clone a symbol table. This is handy for testing.
 func (st SymbolTable) Clone() SymbolTable {
-	copy := make(SymbolTable)
-	for k, v := range st {
-		copy[k] = v
+	t := make(map[Symbol]Address)
+	for k, v := range st.Table {
+		t[k] = v
 	}
-	return copy
+	return SymbolTable{Pointer: st.Pointer, Table: t}
+}
+
+// implement the Stringer interface
+func (st SymbolTable) String() (out string) {
+
+	// get a sorted slice of symbol table keys
+	keys := make([]string, 0, len(st.Table))
+	for k := range st.Table {
+		keys = append(keys, string(k))
+	}
+	sort.Strings(keys)
+
+	// show the pointer first
+	out = fmt.Sprintf("pointer=%v\n", st.Pointer)
+
+	// append the other symbol table members
+	for _, k := range keys {
+		out += fmt.Sprintf("st[%v]=%v\n", k, st.Table[Symbol(k)])
+	}
+
+	return out
 }
