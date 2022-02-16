@@ -33,14 +33,16 @@ var PredefinedSymbols = map[Symbol]Address{
 }
 
 // The first open variable slot is at this RAM address.
-const FirstVariableAddress = 16
+const FirstVariableAddress = Address(16)
 
 // Construct a "default" symbol table containing the Hack standard symbols.
+// Make it a clone for isolation during testing.
 func DefaultSymbolTable() SymbolTable {
+	first := Address(FirstVariableAddress) + 0
 	return SymbolTable{
-		Pointer: FirstVariableAddress,
+		Pointer: first,
 		Table:   PredefinedSymbols,
-	}
+	}.Clone()
 }
 
 // Clone a symbol table. This is handy for testing.

@@ -65,41 +65,54 @@ func TestCompileA_symbol(t *testing.T) {
 }
 
 func TestCompileA_newsym(t *testing.T) {
+	// compile in the standard Hack environment
 	st := asm.DefaultSymbolTable()
 
-	// the address of the first variable (symbol) is controlled by constant
-	// `FirstVariableAddress` (no magic numbers here!)
-	first := asm.FirstVariableAddress
-	second := first + 1
+	// the address of the first variable (symbol) is controlled by package
+	// constant `FirstVariableAddress` (equal to 16 in the Hack standard).
+	base := asm.FirstVariableAddress
+
+	// sanity check: the symbol table pointer should point to the next free address
+	assert.Equal(t, asm.Address(base), st.Pointer)
 
 	// assembling an A instruction that introduces a new symbol should
 	// take a new slot at the start of available memory
 	i := asm.AInstruction(`@foo`)
 	code, err := i.Assemble(st)
 	assert.Nil(t, err)
-	assert.Equal(t, []asm.MachineCode{asm.MachineCode(first)}, code)
-	assert.Equal(t, asm.Address(first), st.Table[`foo`])
+	assert.Equal(t, []asm.MachineCode{asm.MachineCode(base)}, code)
+	assert.Equal(t, asm.Address(base), st.Table[`foo`])
+
+	// the symbol table pointer should now point to the next free address
+	assert.Equal(t, asm.Address(base+1), st.Pointer)
 
 	// assembling another new symbol should take another new slot at
 	// the start of available memory
 	i = asm.AInstruction(`@bar`)
 	code, err = i.Assemble(st)
 	assert.Nil(t, err)
-	assert.Equal(t, []asm.MachineCode{asm.MachineCode(second)}, code)
-	assert.Equal(t, asm.Address(second), st.Table[`bar`])
+	assert.Equal(t, []asm.MachineCode{asm.MachineCode(base + 1)}, code)
+	assert.Equal(t, asm.Address(base+1), st.Table[`bar`])
+
+	// the symbol table pointer should point to the next free address
+	assert.Equal(t, st.Pointer, base+2)
 
 	// reuse of first symbol should return established address, and
 	// not use a new memory slot
 	i = asm.AInstruction(`@foo`)
 	code, err = i.Assemble(st)
 	assert.Nil(t, err)
-	assert.Equal(t, []asm.MachineCode{asm.MachineCode(first)}, code)
-	assert.Equal(t, asm.Address(first), st.Table[`foo`])
+	assert.Equal(t, []asm.MachineCode{asm.MachineCode(base)}, code)
+	assert.Equal(t, asm.Address(base), st.Table[`foo`])
 
 	// reuse of second symbol should return established address
 	i = asm.AInstruction(`@bar`)
 	code, err = i.Assemble(st)
 	assert.Nil(t, err)
-	assert.Equal(t, []asm.MachineCode{asm.MachineCode(second)}, code)
-	assert.Equal(t, asm.Address(second), st.Table[`bar`])
+	assert.Equal(t, []asm.MachineCode{asm.MachineCode(base + 1)}, code)
+	assert.Equal(t, asm.Address(base+1), st.Table[`bar`])
+
+	// the symbol table pointer should still point to the next free address
+	assert.Equal(t, st.Pointer, base+2)
+
 }

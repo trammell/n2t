@@ -22,7 +22,7 @@ func (i AInstruction) Assemble(st SymbolTable) ([]MachineCode, error) {
 	inst := strings.Trim(string(i), "@")
 	m := log.Info().Str("A", string(inst))
 
-	// if it's a number then print it in binary
+	// if it's a number then it assembles trivially to an integer
 	if regexp.MustCompile(`^[0-9]+$`).MatchString(inst) {
 		m.Send()
 		num, err := strconv.Atoi(inst)
@@ -32,7 +32,9 @@ func (i AInstruction) Assemble(st SymbolTable) ([]MachineCode, error) {
 		return []MachineCode{MachineCode(num)}, nil
 	}
 
-	// If the symbol does not resolve, then claim another variable slot.
+	// If it's a symbol and not a new integer:
+	// - if the symbol resolves, that address is the machine code
+	// - if not, then it's a new variable; claim the next slot.
 	addr, exists := st.Table[Symbol(inst)]
 	if exists {
 		m.Uint16("addr", uint16(addr)).Send()
@@ -40,8 +42,10 @@ func (i AInstruction) Assemble(st SymbolTable) ([]MachineCode, error) {
 		st.Table[Symbol(inst)] = st.Pointer
 		addr = st.Pointer
 		m.Uint16("new addr", uint16(addr)).Send()
-		st.Pointer++
+		st.Pointer = st.Pointer + 1
 	}
+	st.Pointer = st.Pointer + 99
+
 	return []MachineCode{MachineCode(addr)}, nil
 }
 
