@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/trammell/nand2tetris/pkg/asm"
+	"github.com/trammell/n2t/pkg/asm"
 )
 
 func TestSymbolTableClone(t *testing.T) {

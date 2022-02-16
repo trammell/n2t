@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/trammell/nand2tetris/pkg/asm"
+	"github.com/trammell/n2t/pkg/asm"
 )
 
 func asmFn(cmd *cobra.Command, args []string) {
