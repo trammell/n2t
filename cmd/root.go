@@ -11,7 +11,7 @@ import (
 
 var Verbose bool = false
 
-var rootCmd = &cobra.Command{
+var RootCmd = &cobra.Command{
 	Use:   "n2t",
 	Short: "n2t is a helper application for Nand2Tetris",
 	Long:  `See https://github.com/trammell/n2t`,
@@ -33,12 +33,12 @@ func setUpLogging(cmd *cobra.Command, args []string) {
 }
 
 func Execute() {
-	if err := rootCmd.Execute(); err != nil {
+	if err := RootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
 func init() {
-	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
+	RootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 }

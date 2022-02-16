@@ -7,7 +7,7 @@ n2t build: cmd/*.go pkg/asm/*.go
 	go build -o n2t main.go
 
 clean:
-	rm -rf n2t
+	rm -f n2t coverage.out
 	go clean -testcache ./...
 
 test:
