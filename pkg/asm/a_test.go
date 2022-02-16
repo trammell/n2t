@@ -11,7 +11,6 @@ import (
 
 func TestMain(m *testing.M) {
 	zerolog.SetGlobalLevel(zerolog.Disabled)
-
 	os.Exit(m.Run())
 }
 
@@ -36,13 +35,16 @@ func TestCompileA_const(t *testing.T) {
 	}
 	for _, tc := range tests {
 		i := asm.AInstruction(tc.inst)
-		st := asm.SymbolTable{}
-		code, err := i.Assemble(st)
+		st := asm.DefaultSymbolTable()
+		assert.Equal(t, asm.FirstVariableAddress, st.Pointer)
+		st, code, err := i.Assemble(st)
 		assert.Nil(t, err)
 		assert.Equal(t, []asm.MachineCode{tc.mc}, code)
+		assert.Equal(t, asm.FirstVariableAddress, st.Pointer)
 	}
 }
 
+// Check compiling of symbolic A instructions, default and user-defined.
 func TestCompileA_symbol(t *testing.T) {
 	st := asm.DefaultSymbolTable()
 	st.Table[`foo`] = 1234
@@ -58,13 +60,15 @@ func TestCompileA_symbol(t *testing.T) {
 	}
 	for _, tc := range tests {
 		i := asm.AInstruction(tc.inst)
-		code, err := i.Assemble(st)
+		assert.Equal(t, asm.FirstVariableAddress, st.Pointer)
+		st, code, err := i.Assemble(st)
 		assert.Nil(t, err)
 		assert.Equal(t, []asm.MachineCode{tc.code}, code)
+		assert.Equal(t, asm.FirstVariableAddress, st.Pointer)
 	}
 }
 
-func TestCompileA_newsym(t *testing.T) {
+func TestCompileA_new_symbol(t *testing.T) {
 	// compile in the standard Hack environment
 	st := asm.DefaultSymbolTable()
 
@@ -72,13 +76,14 @@ func TestCompileA_newsym(t *testing.T) {
 	// constant `FirstVariableAddress` (equal to 16 in the Hack standard).
 	base := asm.FirstVariableAddress
 
-	// sanity check: the symbol table pointer should point to the next free address
+	// sanity check: the symbol table pointer should point to the next
+	// free address
 	assert.Equal(t, asm.Address(base), st.Pointer)
 
 	// assembling an A instruction that introduces a new symbol should
 	// take a new slot at the start of available memory
 	i := asm.AInstruction(`@foo`)
-	code, err := i.Assemble(st)
+	st, code, err := i.Assemble(st)
 	assert.Nil(t, err)
 	assert.Equal(t, []asm.MachineCode{asm.MachineCode(base)}, code)
 	assert.Equal(t, asm.Address(base), st.Table[`foo`])
@@ -89,7 +94,7 @@ func TestCompileA_newsym(t *testing.T) {
 	// assembling another new symbol should take another new slot at
 	// the start of available memory
 	i = asm.AInstruction(`@bar`)
-	code, err = i.Assemble(st)
+	st, code, err = i.Assemble(st)
 	assert.Nil(t, err)
 	assert.Equal(t, []asm.MachineCode{asm.MachineCode(base + 1)}, code)
 	assert.Equal(t, asm.Address(base+1), st.Table[`bar`])
@@ -100,14 +105,14 @@ func TestCompileA_newsym(t *testing.T) {
 	// reuse of first symbol should return established address, and
 	// not use a new memory slot
 	i = asm.AInstruction(`@foo`)
-	code, err = i.Assemble(st)
+	st, code, err = i.Assemble(st)
 	assert.Nil(t, err)
 	assert.Equal(t, []asm.MachineCode{asm.MachineCode(base)}, code)
 	assert.Equal(t, asm.Address(base), st.Table[`foo`])
 
 	// reuse of second symbol should return established address
 	i = asm.AInstruction(`@bar`)
-	code, err = i.Assemble(st)
+	st, code, err = i.Assemble(st)
 	assert.Nil(t, err)
 	assert.Equal(t, []asm.MachineCode{asm.MachineCode(base + 1)}, code)
 	assert.Equal(t, asm.Address(base+1), st.Table[`bar`])

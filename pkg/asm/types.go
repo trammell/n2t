@@ -35,8 +35,8 @@ type SymbolTable struct {
 // 1. assemble into a slice of type MachineCode
 // 2. update the symbol table
 type Assemblable interface {
-	Assemble(SymbolTable) ([]MachineCode, error)
-	UpdateSymbolTable(SymbolTable, Address) Address
+	Assemble(SymbolTable) (SymbolTable, []MachineCode, error)
+	UpdateSymbolTable(SymbolTable, Address) (SymbolTable, Address)
 }
 
 // The _sourcecode_ object represents the input code to be compiled.

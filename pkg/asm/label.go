@@ -18,16 +18,15 @@ func (x Label) String() string {
 }
 
 // Labels are pseudoinstructions, so they don't really assemble.
-func (i Label) Assemble(s SymbolTable) ([]MachineCode, error) {
-	return []MachineCode{}, nil // return an empty array, but successful!
+func (i Label) Assemble(s SymbolTable) (SymbolTable, []MachineCode, error) {
+	return s, []MachineCode{}, nil // return an empty array, but successful!
 }
 
 // Labels do affect the symbol table though. Save the current address
 // in the symbol table under this instruction label.
-func (x Label) UpdateSymbolTable(st SymbolTable, addr Address) (next Address) {
+func (x Label) UpdateSymbolTable(st SymbolTable, addr Address) (SymbolTable, Address) {
 	sym := Symbol(strings.Trim(x.String(), "()")) // strip parens
 	log.Info().Str("sym", string(sym)).Uint16("addr", uint16(addr))
 	st.Table[sym] = addr
-	next = addr
-	return
+	return st, addr
 }

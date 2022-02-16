@@ -45,14 +45,15 @@ func (a *Assembler) FillSymbolTable() {
 	addr := Address(0)
 	for _, inst := range a.Instructions {
 		// A and C instructions increment address, labels do not
-		addr = inst.UpdateSymbolTable(a.SymbolTable, addr)
+		a.SymbolTable, addr = inst.UpdateSymbolTable(a.SymbolTable, addr)
 	}
 }
 
 // Assemble all A and C instructions into machine code
 func (a *Assembler) AssembleInstructions() {
 	for _, inst := range a.Instructions {
-		mc, err := inst.Assemble(a.SymbolTable)
+		st, mc, err := inst.Assemble(a.SymbolTable)
+		a.SymbolTable = st
 		if err != nil {
 			log.Fatal().Err(err)
 		}

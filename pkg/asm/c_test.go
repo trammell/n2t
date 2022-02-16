@@ -27,7 +27,7 @@ func TestAssembleC(t *testing.T) {
 	for _, tc := range tests {
 		i := asm.CInstruction(tc.inst)
 		st := asm.SymbolTable{}
-		code, err := i.Assemble(st)
+		st, code, err := i.Assemble(st)
 		assert.Nil(t, err)
 		assert.Equal(t, []asm.MachineCode{tc.code}, code)
 	}

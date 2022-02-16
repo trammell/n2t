@@ -88,7 +88,7 @@ func IsCInstruction(i Instruction) bool {
 // Assemble a single C instruction from text into binary. Note the method
 // returns a list of codes, as other (pseudo)instructions (like labels) do
 // not assemble to actual machine code.
-func (i CInstruction) Assemble(st SymbolTable) ([]MachineCode, error) {
+func (i CInstruction) Assemble(st SymbolTable) (SymbolTable, []MachineCode, error) {
 
 	m := log.Info().Str("C", string(i)) // log this conversion
 
@@ -129,7 +129,7 @@ func (i CInstruction) Assemble(st SymbolTable) ([]MachineCode, error) {
 	// construct the code and return it as an array value
 	code := MachineCode((0b111 << 13) | (cbits << 6) | (dbits << 3) | jbits)
 	m.Send()
-	return []MachineCode{code}, nil
+	return st, []MachineCode{code}, nil
 }
 
 // Split up a C instructions into parts
@@ -142,7 +142,6 @@ func splitCInstruction(i CInstruction) (string, string, string, error) {
 	return ``, ``, ``, fmt.Errorf("error splitting C instruction: %v", string(i))
 }
 
-func (i CInstruction) UpdateSymbolTable(s SymbolTable, a Address) (next Address) {
-	next = a + 1
-	return
+func (i CInstruction) UpdateSymbolTable(s SymbolTable, a Address) (SymbolTable, Address) {
+	return s, a + 1
 }

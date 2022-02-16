@@ -27,7 +27,7 @@ func TestAssembleLabel(t *testing.T) {
 	for _, tc := range tests {
 		i := asm.Label(tc.inst)
 		st := asm.SymbolTable{}
-		code, err := i.Assemble(st)
+		st, code, err := i.Assemble(st)
 		assert.Nil(t, err)
 		assert.Equal(t, []asm.MachineCode{}, code)
 	}
@@ -38,6 +38,6 @@ func TestLabelResolve(t *testing.T) {
 	st := asm.SymbolTable{Table: map[asm.Symbol]asm.Address{}}
 
 	// initial address resolution: 1234
-	addr := label.UpdateSymbolTable(st, 1234)
+	st, addr := label.UpdateSymbolTable(st, 1234)
 	assert.Equal(t, asm.Address(1234), addr)
 }
