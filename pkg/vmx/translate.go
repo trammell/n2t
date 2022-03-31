@@ -26,16 +26,19 @@ func Translate(file string) {
 		log.Info().Msgf(`Parsing source file: "%s"`, fn)
 		p := NewParser(fn)
 		for p.Scan() {
-			cw.writeComment(p.Text())
+			//cw.writeComment(p.Text())
 			fmt.Println(p.Scanner.Text())
 			switch p.commandType() {
 			case C_ARITHMETIC:
+				cw.writeComment("arithmetic: " + p.Text())
 				log.Info().Msgf(`looks like arithmetic`)
-				cw.writeArithmetic(p.arg1())
+				cw.writeArithmetic(p.Text())
 			case C_POP, C_PUSH:
+				cw.writeComment("pushpop: " + p.Text())
 				log.Info().Msgf(`looks like pushpop`)
 				cw.writePushPop(p.commandType(), p.arg1(), p.arg2())
 			default:
+				cw.writeComment("unknown: " + p.Text())
 				log.Info().Msgf(`unknown type`)
 			}
 		}

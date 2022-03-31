@@ -35,7 +35,10 @@ func (w *CodeWriter) writeComment(comment string) {
 }
 
 func (w *CodeWriter) writeArithmetic(cmd string) {
-	fmt.Fprintf(w.Writer, "asdadsfa\n")
+	switch cmd {
+	case `add`:
+		fmt.Fprintf(w.Writer, "foo\n")
+	}
 }
 
 func (w *CodeWriter) writePushPop(cmd Command, segment string, index int) {

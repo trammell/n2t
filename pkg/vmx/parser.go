@@ -29,16 +29,15 @@ func (p *Parser) Text() string {
 	return p.Scanner.Text()
 }
 
-
 //
 func (p *Parser) commandType() Command {
 	txt := p.Scanner.Text()
 
-	if regexp.MustCompile(`^\s*(add|sub|neg|eq|gt)\s+`).MatchString(txt) {
+	if regexp.MustCompile(`^\s*(add|sub|neg|eq|gt)\s*$`).MatchString(txt) {
 		return C_ARITHMETIC
-	} else if regexp.MustCompile(`^\s*(pop)\s+`).MatchString(txt) {
+	} else if regexp.MustCompile(`^\s*pop\s+`).MatchString(txt) {
 		return C_POP
-	} else if regexp.MustCompile(`^\s*(push)\s+`).MatchString(txt) {
+	} else if regexp.MustCompile(`^\s*push\s+`).MatchString(txt) {
 		return C_PUSH
 	}
 
