@@ -1,14 +1,14 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
+	"github.com/trammell/n2t/pkg/vmx"
 )
 
-// The main VM translator ("VMX") function
+// The main VM translator ("VMX") function. All the magic happens in
+// function vmx.Translate().
 func vmxFn(cmd *cobra.Command, args []string) {
-	fmt.Println(`Ultimately call out to vmx.Translate() here`)
+	vmx.Translate(args[0])
 }
 
 var vmxCmd = &cobra.Command{

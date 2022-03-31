@@ -18,3 +18,6 @@ coverage:
 
 run: n2t
 	./n2t asm pkg/asm/testdata/Max.asm
+
+SimpleAdd.asm: n2t pkg/vmx/testdata/SimpleAdd/SimpleAdd.vm
+	./n2t vmx pkg/vmx/testdata/SimpleAdd/SimpleAdd.vm
