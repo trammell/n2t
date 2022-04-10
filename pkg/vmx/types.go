@@ -2,7 +2,7 @@ package vmx
 
 import (
 	"bufio"
-	"os"
+	"io"
 )
 
 type Command int
@@ -27,7 +27,5 @@ type Parser struct {
 }
 
 type CodeWriter struct {
-	FileName   string
-	Writer     *bufio.Writer
-	FileHandle *os.File
+	Writer io.Writer
 }

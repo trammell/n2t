@@ -10,6 +10,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// Translate .vm source code into .asm code. Create one CodeWriter object,
+// and one Parser object for each source file.
 func Translate(file string) {
 	log.Info().Msgf(`input file/dir is "%s"`, file)
 
@@ -19,9 +21,8 @@ func Translate(file string) {
 
 	// construct CodeWriter
 	cw := NewCodeWriter(out)
-	defer cw.Close()
 
-	// construct parser(s)
+	// construct Parser object(s), one per source file
 	for _, fn := range getSourceFiles(file) {
 		log.Info().Msgf(`Parsing source file: "%s"`, fn)
 		p := NewParser(fn)
@@ -45,8 +46,8 @@ func Translate(file string) {
 	}
 }
 
-// Is this a file or a directory? If it's a directory, return all the .vm
-// files in the directory.
+// If `src` is a directory, return all the .vm files in the directory,
+// otherwise return a single .vm filename.
 func getSourceFiles(src string) []string {
 	stat, err := os.Stat(src)
 	if err != nil {
