@@ -10,7 +10,7 @@ n2t build: cmd/*.go pkg/asm/*.go pkg/vmx/*.go
 	go build -o n2t main.go
 
 clean:
-	rm -f n2t coverage.out
+	rm -f n2t coverage.out *.asm
 	go clean -testcache ./...
 
 test-asm:
