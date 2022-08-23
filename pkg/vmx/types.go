@@ -5,8 +5,6 @@ import (
 	"io"
 )
 
-type Command int
-
 // These are all our command types
 const (
 	C_ARITHMETIC = iota
@@ -21,6 +19,11 @@ const (
 	C_UNDEFINED
 )
 
+type Command struct {
+	vmCommand string
+	fields []string
+}
+
 type Parser struct {
 	Source  string
 	Scanner *bufio.Scanner
@@ -28,4 +31,8 @@ type Parser struct {
 
 type CodeWriter struct {
 	Writer io.Writer
+}
+
+type Translatable interface {
+	GetAsm() string
 }

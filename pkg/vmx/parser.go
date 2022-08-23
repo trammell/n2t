@@ -3,7 +3,6 @@ package vmx
 import (
 	"bufio"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -30,20 +29,20 @@ func (p *Parser) Text() string {
 }
 
 //
-func (p *Parser) commandType() Command {
-	txt := p.Scanner.Text()
+// func (p *Parser) commandType() Command {
+// 	txt := p.Scanner.Text()
 
-	if regexp.MustCompile(`^\s*(add|sub|neg|eq|gt)\s*$`).MatchString(txt) {
-		return C_ARITHMETIC
-	} else if regexp.MustCompile(`^\s*pop\s+`).MatchString(txt) {
-		return C_POP
-	} else if regexp.MustCompile(`^\s*push\s+`).MatchString(txt) {
-		return C_PUSH
-	}
+// 	if regexp.MustCompile(`^\s*(add|sub|neg|eq|gt)\s*$`).MatchString(txt) {
+// 		return C_ARITHMETIC
+// 	} else if regexp.MustCompile(`^\s*pop\s+`).MatchString(txt) {
+// 		return C_POP
+// 	} else if regexp.MustCompile(`^\s*push\s+`).MatchString(txt) {
+// 		return C_PUSH
+// 	}
 
-	log.Fatal().Msg(txt)
-	return C_UNDEFINED
-}
+// 	log.Fatal().Msg(txt)
+// 	return C_UNDEFINED
+// }
 
 func (p *Parser) arg1() string {
 	return strings.Fields(p.Scanner.Text())[1]
