@@ -42,16 +42,31 @@ func (c *Command) Math() string {
 	var asm string
 	switch c.fields[0] {
 	case "add":
-		asm = Trim(`
+		asm = `
 			// add
-			@SP     // A = 0
-			M=M-1   // SP--
-			A=M     // A = SP
-			D=M     // D = RAM[SP] = *SP
-			A=A-1   // A-- 		
-			M=D+M   // RAM[SP-1] += D`)
+			@SP        // SP--
+			M=M-1
+			A=M        // D = *SP
+			D=M
+			A=A-1      // *(SP-1) = *(SP-1) + D 		
+			M=D+M`
 	case "sub":
-		return "// sub\n@SP\nD=M\nM=M-1\nD=D+M\nM=D\n\n"
+		asm = `
+			// sub
+			@SP        // SP--
+			M=M-1
+			A=M        // D = *SP
+			D=M
+			A=A-1      // *(SP-1) = *(SP-1) - D
+			M=M-D`
+	case "neg":
+		asm = `
+			// neg
+			@SP        // *(SP-1) = -(*(SP-1))
+			A=M
+			A=A-1
+			M=-M
+		`
 	default:
 		asm = "ERROR"
 	}
@@ -60,15 +75,23 @@ func (c *Command) Math() string {
 
 func (c *Command) Push() string {
 	segment := c.fields[1]
+	var asm string
 	switch segment {
 	case `constant`:
-		return fmt.Sprintf("// %s\n", c.vmCommand) +
-			fmt.Sprintf("@%s\n", c.fields[2]) +
-			"M=A\n@SP\nM=D\n@SP\nM=M+1\n\n"
+		asm = fmt.Sprintf("// %s\n", c.vmCommand) +
+			fmt.Sprintf("@%-8s  // D = %s\n", c.fields[2], c.fields[2]) +
+			`D=A
+			@SP        // *SP = D
+			A=M
+			M=D
+			@SP        // SP++
+			M=M+1
+			`
 	default:
+		asm = `ERROR`
 		log.Fatal().Msgf(`Unrecognized segment: %s`, segment)
 	}
-	return `ERROR\n`
+	return Trim(asm)
 }
 
 func (c *Command) Pop() string {

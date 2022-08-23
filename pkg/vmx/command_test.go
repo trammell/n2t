@@ -7,11 +7,11 @@ import (
 )
 
 func TestTrim(t *testing.T) {
-	tmp := `this is a
+	src := `this is a
 	multiline string
 		with complicated spacing   `
 	expected := "this is a\nmultiline string\nwith complicated spacing\n"
 
-	assert.Equal(t, expected, Trim(tmp))
+	assert.Equal(t, expected, Trim(src))
 
 }

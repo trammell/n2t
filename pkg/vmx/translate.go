@@ -38,7 +38,7 @@ func Translate(file string) {
 
 		scanner := bufio.NewScanner(srcFile)
 		for scanner.Scan() {
-			fmt.Println(`// ` + scanner.Text())
+			//fmt.Println(`// ` + scanner.Text())
 			cmd := NewCommand(scanner.Text())
 			out.WriteString(cmd.GetAsm())
 		}
