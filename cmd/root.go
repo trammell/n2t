@@ -14,7 +14,7 @@ var Verbose bool = false
 var RootCmd = &cobra.Command{
 	Use:   "n2t",
 	Short: "n2t is a helper application for Nand2Tetris",
-	Long:  `See https://github.com/trammell/n2t`,
+	Long:  `See https://github.com/trammell/nand2tetris`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Do Stuff Here
 	},
