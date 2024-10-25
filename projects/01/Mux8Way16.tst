@@ -1,12 +1,12 @@
-// This file is part of www.nand2tetris.org
-// and the book "The Elements of Computing Systems"
-// by Nisan and Schocken, MIT Press.
-// File name: projects/01/Mux8Way16.tst
+// This file is part of the materials accompanying the book 
+// "The Elements of Computing Systems" by Nisan and Schocken, 
+// MIT Press. Book site: www.nand2tetris.org
+// File name: projects/00/Mux8Way16.tst
 
 load Mux8Way16.hdl,
 output-file Mux8Way16.out,
 compare-to Mux8Way16.cmp,
-output-list a%B1.16.1 b%B1.16.1 c%B1.16.1 d%B1.16.1 e%B1.16.1 f%B1.16.1 g%B1.16.1 h%B1.16.1 sel%B2.3.2 out%B1.16.1;
+output-list a%X1.4.1 b%X1.4.1 c%X1.4.1 d%X1.4.1 e%X1.4.1 f%X1.4.1 g%X1.4.1 h%X1.4.1 sel%D2.1.2 out%X1.4.1;
 
 set a 0,
 set b 0,
@@ -48,14 +48,14 @@ set sel 7,
 eval,
 output;
 
-set a %B0001001000110100,
-set b %B0010001101000101,
-set c %B0011010001010110,
-set d %B0100010101100111,
-set e %B0101011001111000,
-set f %B0110011110001001,
-set g %B0111100010011010,
-set h %B1000100110101011,
+set a %X1234,
+set b %X2345,
+set c %X3456,
+set d %X4567,
+set e %X5678,
+set f %X6789,
+set g %X789a,
+set h %X89ab,
 set sel 0,
 eval,
 output;

@@ -1,7 +1,10 @@
 // This file is part of www.nand2tetris.org
 // and the book "The Elements of Computing Systems"
 // by Nisan and Schocken, MIT Press.
-// File name: projects/01/Xor.tst
+// File name: projects/00/Xor.tst
+
+// This file is included here for those who wish to follow the Hardware Simulator Tutorial
+// and play with the Xor.hdl implementation. 
 
 load Xor.hdl,
 output-file Xor.out,
