@@ -10,10 +10,16 @@
     @R2
     M=0
 
+    // initialize R3 to R0, to avoid changing R0
+    @R0
+    D=M
+    @R3
+    M=D
+
 (LOOP)
 
-    // jump to end if R0 = 0
-    @R0
+    // jump to END if R3 = 0
+    @R3
     D=M
     @END
     D;JEQ
@@ -24,14 +30,15 @@
     @R2
     M=D+M
 
-    // R0 = R0 - 1
-    @R0
+    // R3 = R3 - 1
+    @R3
     M=M-1
 
     // jump to top of loop
     @LOOP
     0;JMP
 
+    // infinite loop indicating end of program
 (END)
     @END
     0;JMP
