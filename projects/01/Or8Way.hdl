@@ -6,6 +6,9 @@
 /**
  * 8-way Or: 
  * out = (in[0] or in[1] or ... or in[7])
+ *
+ * This implementation uses three "levels" of ORs, since the OR primitive
+ * operator only allows two inputs.
  */
 
 CHIP Or8Way {
