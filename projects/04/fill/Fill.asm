@@ -1,4 +1,3 @@
-// vim: set ai et ts=4 :
 // This file is part of www.nand2tetris.org
 // and the book "The Elements of Computing Systems"
 // by Nisan and Schocken, MIT Press.
@@ -11,7 +10,6 @@
 // "white" in every pixel; the screen should remain fully clear as long as no
 // key is pressed.
 
-
 // Pseudocode
 // ==========
 // @black := 65535
@@ -19,10 +17,14 @@
 // @color := @white
 // @addr := @SCREEN
 // while true:
+//     // if @addr has grown too big, reset it to @SCREEN
 //     if @addr >= 24576, @addr := @SCREEN
+//     // if a key is pressed, set @color to @black, else @white
 //     if @kbd is true, @color := @black
 //         else @color := @white
+//     // set the current memory value to @color
 //     M[@addr] := @color
+//     // increment the pointer into screen RAM buffer
 //     @addr += 1
 
 // notes on SCREEN layout
@@ -42,7 +44,7 @@
 //         16417 (0x4021)   second word in second row
 //         ...
 //         24574 (0x5ffe)
-//         24575 (0x5fff)
+//         24575 (0x5fff)   final word of final row
 //
 // KBD RAM is just one word at 24576 (0x6000)
 
@@ -53,28 +55,24 @@
 //    @R3 contains the current screen RAM address being updated
 
 // initialize symbol R0 (black) to 65535 (0xffff)
-@32767
-D=A
-D=D+A
-D=D+1
-@R0
-M=D
+  @R0
+  M=-1
 
 // initialize symbol R1 (white) to 0
-@R1
-M=0
+  @R1
+  M=0
 
 // initialize symbol R2 (color) to white (R1)
-@R1
-D=M
-@R2
-M=D
+  @R1
+  D=M
+  @R2
+  M=D
 
 // initialize symbol R3 (addr) to @SCREEN
-@SCREEN
-D=A
-@R3
-M=D
+  @SCREEN
+  D=A
+  @R3
+  M=D
 
 // start of infinite loop
 (INFINITE_LOOP)
@@ -82,25 +80,26 @@ M=D
 // make sure we don't pass our loop boundary
 // if @addr >= 24576, then @addr := @SCREEN (production code)
 // if @addr >= 16416, then @addr := @SCREEN (test code)
-@R3
-D=M
-@24576
-// @16416   // uncomment this line for shorter test loop
-D=D-A
-@ADDR_RANGE_OK
-D;JLT   // jump if @addr is in bounds (does not change @addr)
-@SCREEN
-D=A
-@R3
-M=D
+  @R3
+  D=M
+  @24576
+  // @16416   // uncomment this line for shorter test loop
+  D=D-A
+  @ADDR_RANGE_OK
+  D;JLT   // jump if @addr is in bounds (does not change @addr)
+  @SCREEN
+  D=A
+  @R3
+  M=D
+
 (ADDR_RANGE_OK)
 
 // if @KBD is true then set @color to @black
 // else set @color to @white
-@KBD
-D=M
-@KEYPRESS_TRUE
-D; JGT
+  @KBD
+  D=M
+  @KEYPRESS_TRUE
+  D; JGT
 @R1
 D=M
 @R2
