@@ -79,11 +79,9 @@
 
 // make sure we don't pass our loop boundary
 // if @addr >= 24576, then @addr := @SCREEN (production code)
-// if @addr >= 16416, then @addr := @SCREEN (test code)
   @R3
   D=M
   @24576
-  // @16416   // uncomment this line for shorter test loop
   D=D-A
   @ADDR_RANGE_OK
   D;JLT   // jump if @addr is in bounds (does not change @addr)
@@ -100,32 +98,34 @@
   D=M
   @KEYPRESS_TRUE
   D; JGT
-@R1
-D=M
-@R2
-M=D
-@KEYPRESS_END
-0; JMP
+  @R1
+  D=M    // D := @white
+  @R2
+  M=D    // @color := D
+  @KEYPRESS_END
+  0; JMP
+
 (KEYPRESS_TRUE)
-@R0
-D=M
-@R2
-M=D
+  @R0
+  D=M    // D := @black
+  @R2
+  M=D    // @color := D
+
 (KEYPRESS_END)
 
 // Apply @color to the current SCREEN RAM address. Need to dereference the
 // contents of R3, which is an address somewhere in the screen buffer.
-@R2
-D=M
-@R3     // A := 3
-A=M     // A := M[3]
-M=D     // M[3] := D
+  @R2
+  D=M     // D := @color
+  @R3     // A := 3
+  A=M     // A := M[3]
+  M=D     // M[3] := D
 
 // increment @addr
-@R3
-M=M+1
+  @R3
+  M=M+1
 
 // go back to top of infinite loop
-@INFINITE_LOOP
-0;JMP
+  @INFINITE_LOOP
+  0;JMP
 
