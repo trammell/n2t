@@ -3,26 +3,30 @@
 // by Nisan and Schocken, MIT Press.
 // File name: projects/01/Mux.hdl
 
-/**
- * Multiplexor:
- *     out = a if sel == 0
- *           b otherwise
- *
- * Solution with brute force canonical representation:
- *     a * notb * notsel + a * b * notsel + nota * b * sel + a * b * sel
- *
- * If you group terms, you can find a cleaner representation:
- *
- *     (a * notb * notsel + a * b * notsel) + (nota * b * sel + a * b * sel)
- *     a * notsel + b * sel
- *
- * This leads to the solution below:
- *
- *     OR(
- *         AND(a, notsel)
- *         AND(b, sel)
- *     )
- */
+/*
+
+Description:
+ - has three inputs (a, b, sel) and one output (out)
+ - if sel == 0, then out == a
+ - if sel == 1, then out == b
+
+Solution with brute force canonical representation:
+
+    a * notb * notsel + a * b * notsel + nota * b * sel + a * b * sel
+
+If you group terms, you can find a cleaner representation:
+
+    (a * notb * notsel + a * b * notsel) + (nota * b * sel + a * b * sel)
+    a * notsel + b * sel
+
+This leads to the solution below:
+
+    OR(
+        AND(a, notsel)
+        AND(b, sel)
+    )
+
+*/
 
 CHIP Mux {
     IN a, b, sel;
