@@ -3,11 +3,19 @@
 // by Nisan and Schocken, MIT Press.
 // File name: projects/03/a/Bit.hdl
 
-/**
- * 1-bit register:
- * If load[t] == 1 then out[t+1] = in[t]
- *                 else out does not change (out[t+1] = out[t])
- */
+/*
+
+## Description
+
+"Bit" is a 1-bit register:
+
+* Two inputs (in, load)
+* DFF (digital flip/flop) stores the current state
+* if load[t] == 1 then out[t+1] = in[t]
+* else out does not change (out[t+1] = out[t])
+* use Mux chip with "load" as selector to choose DFF or "in"
+
+*/
 
 CHIP Bit {
     IN in, load;
