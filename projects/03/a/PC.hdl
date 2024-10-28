@@ -5,13 +5,35 @@ by Nisan and Schocken, MIT Press.
 File name: projects/03/a/PC.hdl
 */
 
-/**
- * A 16-bit counter with load and reset control bits.
- * if      (reset[t] == 1) out[t+1] = 0
- * else if (load[t] == 1)  out[t+1] = in[t]
- * else if (inc[t] == 1)   out[t+1] = out[t] + 1  (integer addition)
- * else                    out[t+1] = out[t]
- */
+/*
+
+## Description
+
+A 16-bit counter with load and reset control bits.
+
+    if      (reset[t] == 1) out[t+1] = 0
+    else if (load[t] == 1)  out[t+1] = in[t]
+    else if (inc[t] == 1)   out[t+1] = out[t] + 1  (integer addition)
+    else                    out[t+1] = out[t]
+
+## Implementation
+
+This is all built around a single Register chip.
+
+    Register(in[16], load, out[16])
+
+The complication is that there are three selector inputs, each of which has a
+very different effect on the PC chip.
+
+I had considered using a Mux4Way16 instead of 2 Mux16 in series, but whatever
+I gained in simplicity by having just one Mux I lost in requiring more logic
+to manage addressing.
+
+Another recent change is using Or8Way for the 3-way OR of load, increment, and
+reset. This could be done easily with two OR chips but this is a little
+cleaner, and any performance effect is just imaginary.
+
+*/
 
 CHIP PC {
     IN in[16],load,inc,reset;
@@ -19,21 +41,23 @@ CHIP PC {
 
     PARTS:
 
-    /* we need an incremented version of the output */
-    Inc16(in=regout, out=reginc);
+    /* One of the possible inputs to the PC (in my mind the "default" value) is
+     * an incremented version of the current PC, so calculate that.
+     */
+    Inc16(in=pc, out=pcinc);
+
+    /* Now use a sequence of Mux16 chips to choose which value (one of reset,
+     * load, increment) to send to the Register.
+     * First use "load" to choose the "in" value sent to the PC chip.
+     */
+    Mux16(a=pcinc, b=in, sel=load, out=m1out);
+
+    /* Second use "reset" to override that with a "zero" value. */
+    Mux16(a=m1out, b[0..15]=false, sel=reset, out=m2out);
 
     /* we only need to load the register if "load", "inc", or "reset" is true */
-    Or(a=load,b=inc,out=w);
-    Or(a=w,b=reset,out=loadreg);
+    Or8Way(in[0]=load,in[1]=inc,in[2]=reset,out=loadreg);
 
-    /* first mux: choose between "inc" and "load" */
-    Mux16(a=reginc, b=in, sel=load, out=y);
-
-    /* third mux: choose between "inc+load" and "reset" */
-    Mux16(a=y, b[0..15]=false, sel=reset, out=z);
-
-    /* not the same "load" as in second mux (if it was, then the
-     * register output would only change on load events)
-     */
-    Register(in=z, load=loadreg, out=regout, out=out);
+    /* The output from the second Mux is what we want to store in the Register. */
+    Register(in=m2out, load=loadreg, out=pc, out=out);
 }
