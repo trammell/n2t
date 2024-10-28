@@ -3,16 +3,22 @@
 // by Nisan and Schocken, MIT Press.
 // File name: projects/02/Inc16.hdl
 
-/**
- * 16-bit incrementer:
- * out = in + 1 (arithmetic addition)
- */
+/*
+
+16-bit incrementer:
+
+* out = in + 1 (arithmetic addition)
+* Overflow is neither detected nor handled.
+
+Just call Add16 with inputs (a, 0b000000000001).
+
+*/
 
 CHIP Inc16 {
     IN in[16];
     OUT out[16];
 
     PARTS:
-    /* See Appendix A p. 286 for details on this */
+    /* See TEoCS Appendix A p. 286 for details on this syntax */
     Add16(a=in, b[0]=true, b[1..15]=false, out=out);
 }

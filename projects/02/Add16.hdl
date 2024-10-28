@@ -3,10 +3,17 @@
 // by Nisan and Schocken, MIT Press.
 // File name: projects/02/Adder16.hdl
 
-/**
- * Adds two 16-bit values.
- * The most significant carry bit is ignored.
- */
+/*
+
+Adds two 16-bit values.
+The most significant carry bit is ignored.
+
+> Note: instead of starting with a half-adder, you can also start with
+> a full-adder and set the input carry bit to 0 or false. Doing this
+> adds a couple of unnecessary components, so the solution below might
+> be called a micro-optimization.
+
+*/
 
 CHIP Add16 {
     IN a[16], b[16];
