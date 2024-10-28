@@ -3,14 +3,28 @@
 // by Nisan and Schocken, MIT Press.
 // File name: projects/01/DMux4Way.hdl
 
-/**
- * 4-way demultiplexor:
- * {a, b, c, d} = {in, 0, 0, 0} if sel == 00
- *                {0, in, 0, 0} if sel == 01
- *                {0, 0, in, 0} if sel == 10
- *                {0, 0, 0, in} if sel == 11
- * NOTE: "in" is a single bit.
- */
+/*
+
+# Description
+
+4-way demultiplexor has three inputs and for outputs:
+
+* in: a single input bit
+* sel[0,1]: a 2-bit selector
+* {a, b, c, d}: outputs, transmit _in_ based on _sel_
+
+{a, b, c, d} = {in, 0, 0, 0} if sel == 00
+               {0, in, 0, 0} if sel == 01
+               {0, 0, in, 0} if sel == 10
+               {0, 0, 0, in} if sel == 11
+
+# Implementation
+
+Use two "levels" of demultiplexor to route the signal from
+_in_ to _ab_ (if sel[1] == 0) or _cd_ (if sel[1] == 1),
+then repeat again based on sel[0].
+
+*/
 
 CHIP DMux4Way {
     IN in, sel[2];

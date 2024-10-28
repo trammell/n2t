@@ -3,13 +3,27 @@
 // by Nisan and Schocken, MIT Press.
 // File name: projects/01/Mux8Way16.hdl
 
-/**
- * 8-way 16-bit multiplexor:
- * out = a if sel == 000
- *       b if sel == 001
- *       etc.
- *       h if sel == 111
- */
+/*
+
+# Description
+
+8-way 16-bit multiplexor:
+
+* 9 inputs:
+   - a, b, c, ... h : 16-bit buses
+   - sel[3] : 3-bit selector
+
+    out = a if sel == 000
+          b if sel == 001
+          etc.
+          h if sel == 111
+
+Note: It's also possible to build this using Mux4Way16
+as a building block. This makes the description a little
+cleaner but not much.
+
+*/
+
 
 CHIP Mux8Way16 {
     IN a[16], b[16], c[16], d[16],
