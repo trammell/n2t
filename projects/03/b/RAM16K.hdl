@@ -20,7 +20,7 @@ CHIP RAM16K {
     /* Use a DMux to choose which of the 4 RAM4K modules we want to address. */
     DMux4Way(in=load, sel=address[12..13], a=loada, b=loadb, c=loadc, d=loadd);
 
-    /* under the hood we use 8x RAM4K modules */
+    /* under the hood we use 4x RAM4K modules */
     RAM4K(in=in, load=loada, address=address[0..11], out=outa);
     RAM4K(in=in, load=loadb, address=address[0..11], out=outb);
     RAM4K(in=in, load=loadc, address=address[0..11], out=outc);
