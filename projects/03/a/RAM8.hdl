@@ -3,21 +3,36 @@
 // by Nisan and Schocken, MIT Press.
 // File name: projects/03/a/RAM8.hdl
 
-/**
- * Memory of 8 registers, each 16 bit-wide. Out holds the value
- * stored at the memory location specified by address. If load==1, then 
- * the in value is loaded into the memory location specified by address 
- * (the loaded value will be emitted to out from the next time step onward).
- */
+/*
+
+## Description
+
+RAM8 is a chip consisting of 8 16-bit registers.
+
+* "in" conducts the value to be saved in RAM
+* "load" must be true for the value to be stored
+* "address" selects one register from the 8 available
+* "out"
+
+## Implementation
+
+* A DMux8Way chip and the "address" value are used to fan out the "load" signal
+  to the correct register.
+* The "in" value is sent to all registers (output from most is ignored)
+* A Mux8Way16 chip is used to conduct the output value to "out".
+
+*/
 
 CHIP RAM8 {
     IN in[16], load, address[3];
     OUT out[16];
 
     PARTS:
+    /* create a bunch of load circuits for the registers */
     DMux8Way(in=load, sel=address, a=loada, b=loadb, c=loadc,
              d=loadd, e=loade, f=loadf, g=loadg, h=loadh);
 
+    /* address all the registers, seems wasteful */
     Register(in=in, load=loada, out=outa);
     Register(in=in, load=loadb, out=outb);
     Register(in=in, load=loadc, out=outc);
@@ -27,6 +42,7 @@ CHIP RAM8 {
     Register(in=in, load=loadg, out=outg);
     Register(in=in, load=loadh, out=outh);
 
+    /* gather all the register values back and choose the right one */
     Mux8Way16(a=outa, b=outb, c=outc, d=outd, e=oute, f=outf,
               g=outg, h=outh, sel=address, out=out);
 }
