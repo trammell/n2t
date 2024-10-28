@@ -27,6 +27,34 @@
  * if (out < 0) set ng = 1
  */
 
+/*
+
+## Description
+
+There are four major components to the ALU:
+
+1. X Preprocessing.
+2. Y Preprocessing.
+3. Sum/And processing.
+4. Postprocessing
+
+## Explanation
+
+The X preprocessing uses selectors "zx" and "nx" to optionally zero and negate
+the X input. Mux16 chips choose the final value which is emitted in "xbus".
+
+The Y preprocessing chips mirror X with the output emitted to "ybus".
+
+In the sum/and processing, both the "sum" and "and" of X and Y are calculated,
+and a Mux16 chip is used to select the desired result using the value of "f".
+The result of this calculation is emitted to "result".
+
+In postprocessing, the Not16 of "result" is calculated and optionally selected
+with a Mux16 and the "no" (Negate Output) signal. Registers "zr" ("zero") and
+"ng" ("negative") are calculated with bitwise arithmetic.
+
+*/
+
 CHIP ALU {
     IN x[16], y[16],  // 16-bit inputs
        zx, // zero the x input?
@@ -34,7 +62,7 @@ CHIP ALU {
        zy, // zero the y input?
        ny, // negate the y input?
        f,  // compute out = x + y (if 1) or x & y (if 0)
-       no; // negate the out output?
+       no; // _n_egate the _o_ut output?
 
     OUT out[16], // 16-bit output
         zr, // 1 if (out == 0), 0 otherwise
@@ -58,20 +86,23 @@ CHIP ALU {
     Add16(a=xbus, b=ybus, out=outsum);
     Mux16(a=outand, b=outsum, sel=f, out=result);
 
-    /* apply optional "not" to output */
-    Not16(in=result, out=notresult);
-    Mux16(a=result, b=notresult, sel=no, out=out);
-    Mux16(a=result, b=notresult, sel=no, out=outtmp);
-    Mux16(a=result, b=notresult, sel=no, out[15]=ng);
-
-    /* Set zr register.
-     * Or together all the bits in 'out'. If any of them are true then 'out'
-     * is not zero.
+    /* apply optional "not" to output and set "ng" register
+     * - "ng" is true if the number is negative (high bit is 1)
+     * - also set helper circuits "outhi", "outlo" to calculate "zr"
      */
-    Or16(a[0..15]=false, b=outtmp, out[0..7]=out1);    // first 8 bits
-    Or16(a[0..15]=false, b=outtmp, out[8..15]=out2);   // last 8 bits
-    Or8Way(in=out1, out=or1);
-    Or8Way(in=out2, out=or2);
+    Not16(in=result, out=notresult);
+    Mux16(a=result, b=notresult, sel=no, out=out,
+          out[0..7]=outlo, out[8..15]=outhi, out[15]=ng);
+
+    /* Set zr ("zero") register:
+     * - true if all output bits are zero
+     * - false otherwise.
+     * Or together all the bits in 'out'. If any of them are true
+     * then 'out' is not zero. We need to do this in chunks because
+     * there's no Or16Way chip.
+     */
+    Or8Way(in=outlo, out=or1);
+    Or8Way(in=outhi, out=or2);
     Or(a=or1, b=or2, out=or3);
     Not(in=or3, out=zr);
 }
