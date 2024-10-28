@@ -3,8 +3,21 @@
 // by Nisan and Schocken, MIT Press.
 // File name: projects/02/FullAdder.hdl
 
-/**
- * Computes the sum of three bits.
+/*
+
+## Description
+
+Full adder. Computes the sum of three bits. Generates _sum_ and _carry_ bits.
+
+## Details
+
+
+1. Add a, b using HalfAdder; calculate first sum (s1) and carry (c1).
+2. Add s1, c using HalfAdder, calculate second sum and carry (c2).
+
+If either of these operations generates a carry bit, pass that along as output.
+
+
  */
 
 CHIP FullAdder {
@@ -13,7 +26,7 @@ CHIP FullAdder {
         carry;   // Left bit of a + b + c
 
     PARTS:
-    HalfAdder(a=a, b=b, sum=sumab, carry=carryab);
-    HalfAdder(a=sumab, b=c, sum=sum, carry=carryabc);
-    Or(a=carryab, b=carryabc, out=carry);
+    HalfAdder(a=a, b=b, sum=s1, carry=c1);
+    HalfAdder(a=s1, b=c, sum=sum, carry=c2);
+    Or(a=c1, b=c2, out=carry);
 }

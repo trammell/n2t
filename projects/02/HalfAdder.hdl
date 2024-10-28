@@ -3,11 +3,32 @@
 // by Nisan and Schocken, MIT Press.
 // File name: projects/02/HalfAdder.hdl
 
-/**
- * Computes the sum of two bits.
- * sum is Xor(a,b)
- * carry is And(a,b)
- */
+/*
+
+## Description
+
+A half-adder computes the sum of two bits:
+
+* sum is Xor(a,b)
+* carry is And(a,b)
+
+It's called a half-adder because you can't use it to add two bits
+(it lacks an input for "carry" from previous bits) BUT you can chain
+two of them together to make a "full" adder that can be used to add
+two integers.
+
+## Truth Table
+
+    a  b  | sum | carry
+    ------+-----+-----
+    0  0  |  0  |   0
+    0  1  |  1  |   0
+    1  0  |  1  |   0
+    1  1  |  0  |   1
+
+So the outputs are simple -- sum=XOR and carry=AND.
+
+*/
 
 CHIP HalfAdder {
     IN a, b;    // 1-bit inputs
