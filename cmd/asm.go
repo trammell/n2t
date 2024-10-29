@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/trammell/n2t/pkg/asm"
+	"github.com/trammell/nand2tetris/n2t/pkg/asm"
 )
 
 func asmFn(cmd *cobra.Command, args []string) {
@@ -18,7 +18,7 @@ func asmFn(cmd *cobra.Command, args []string) {
 var asmCmd = &cobra.Command{
 	Use:    "asm <file.asm>",
 	Short:  "Assembles a single Hack assembly (.asm) file into Hack machine code",
-	Long:   `See https://github.com/trammell/n2t`,
+	Long:   `See https://github.com/trammell/nand2tetris`,
 	Args:   cobra.ExactArgs(1),
 	Run:    asmFn,
 	PreRun: setUpLogging,

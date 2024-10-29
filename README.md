@@ -23,3 +23,9 @@ wget -O /tmp/n2t.$$ https://drive.google.com/file/d/0B9c0BdDJz6XpZUh3X2dPR1o0MUE
 * <https://www.nand2tetris.org/>
 * <https://www.nand2tetris.org/software>
 * <https://github.com/golang-standards/project-layout>
+
+
+
+
+go mod tidy
+

@@ -24,8 +24,8 @@ type CInstruction Instruction
 // create symbol table entries.
 type Label Instruction
 
-// The symbol table maps labels to addresses in both RAM and ROM
-// FIXME: is there a chance of collision? should there be two tables?
+// The symbol table maps labels to addresses. Due to the possibility of
+// collisions, there are two separate symbol tables, for RAM and ROM.
 type SymbolTable struct {
 	Table   map[Symbol]Address
 	Pointer Address

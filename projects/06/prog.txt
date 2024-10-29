@@ -1,2 +1,0 @@
-This is my solution to Nand2Tetris Chapter 6 / Hack Assembler.
-Full source code is available at https://github.com/trammell/nand2tetris.

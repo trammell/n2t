@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/trammell/n2t/cmd"
+	"github.com/trammell/nand2tetris/cmd"
 )
 
 func main() {
