@@ -26,15 +26,9 @@ machine language. In particular, it functions as follows:
   step) rather than to the address resulting from executing the current
   instruction.
 
-/*
-
-This file is part of www.nand2tetris.org and the book "The Elements of
-Computing Systems" by Nisan and Schocken, MIT Press.
-File name: projects/05/Control.hdl
-
 This chip decodes computer instructions.
 
-p.94
+See The Elements of Computing Systems, p.94.
 
 Inputs:
   * the instruction to be decoded
