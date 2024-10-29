@@ -27,20 +27,23 @@ Address space rules:
 
 Memory map:
 
-0x0000 = 0000 0000 ....    RAM
+0x0000 = 0000 0000 0000 0000    RAM
 ...
-0x3fff = 0011 1111 ....    RAM
-0x4000 = 0100 0000 ....    SCREEN
-0x4001 = 0100 0000 ....    SCREEN
+0x3fff = 0011 1111 1111 1111    RAM
+0x4000 = 0100 0000 0000 0000    SCREEN
+0x4001 = 0100 0000 0000 0001    SCREEN
 ...
-0x5fff = 0101 1111 ....    SCREEN
-0x6000 = 0110 0000 ....    KBD
+0x5fff = 0101 1111 1111 1111    SCREEN
+0x6000 = 0110 0000 0000 0000    KBD
 
-address[0..14]
+We only use address[0..14]; address[15] is ignored.
 
     if address[14] is low, then it's RAM
-    else if address[13] is low, then it's screen
-    else it's KBD
+    if address[14] is high and address[13] is low, then it's screen
+    if address[14] is high and address[13] is high, then it's KBD
+
+Idea: could use a Mux4Way to send the load signal to the RAM/Screen/Keyboard.
+      Might be more trouble than it's worth due to extra control circuits.
 
 */
 
@@ -50,7 +53,12 @@ CHIP Memory {
 
     PARTS:
 
-    /* calculate some helper booleans */
+    /* calculate some helper booleans:
+     *   - isRam is true if this is a RAM access (bit 14 is low)
+     *   - isKbd is true if this is a keyboard access (bits 13, 14 are high)
+     *   - isScreen is true if this is a screen access (bit 13 low, 14 high)
+     */
+
     Not(in=address[14], out=isRam);
     And(a=address[13], b=address[14], out=isKbd);
     Not(in=isKbd, out=isNotKbd);
@@ -64,6 +72,7 @@ CHIP Memory {
     Screen(in=in, load=loadScreen, address=address[0..12], out=screenOut);
     Keyboard(out=kbdOut);
 
-    /* add Mux so there's only one output */
-    Mux4Way16(a=ramOut, b=ramOut, c=screenOut, d=kbdOut, sel=address[13..14], out=out);
+    /* add Mux to coordinate outputs (nice that sel corresponds to address) */
+    Mux4Way16(a=ramOut, b=ramOut, c=screenOut, d=kbdOut,
+              sel=address[13..14], out=out);
 }
