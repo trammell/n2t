@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/rs/zerolog"
@@ -35,10 +34,7 @@ func setUpLogging(cmd *cobra.Command, args []string) {
 }
 
 func Execute() error {
-	if err := RootCmd.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+	return RootCmd.Execute()
 }
 
 func init() {
