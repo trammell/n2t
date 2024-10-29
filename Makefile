@@ -13,19 +13,16 @@ clean:
 	rm -f n2t coverage.out *.asm
 	go clean -testcache
 
-test-asm:
+test: n2t
 	go test -v ./pkg/asm
+	go test -v ./pkg/vmx
+	./n2t vmx pkg/vmx/testdata/SimpleAdd/SimpleAdd.vm
 
 coverage:
 	go test -race -covermode=atomic -coverprofile=coverage.out ./...
 
 run: n2t
 	./n2t asm pkg/asm/testdata/Max.asm
-
-test-vmx: n2t
-	go test -v ./pkg/vmx
-	./n2t vmx pkg/vmx/testdata/SimpleAdd/SimpleAdd.vm
-
 
 SimpleAdd.asm: n2t pkg/vmx/testdata/SimpleAdd/SimpleAdd.vm
 	./n2t vmx pkg/vmx/testdata/SimpleAdd/SimpleAdd.vm
