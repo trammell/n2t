@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/trammell/n2t/pkg/vmx"
+	"github.com/trammell/nand2tetris/pkg/vmx"
 )
 
 // The main VM translator ("VMX") function. All the magic happens in

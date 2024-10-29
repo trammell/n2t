@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/trammell/n2t/pkg/asm"
+	"github.com/trammell/nand2tetris/pkg/asm"
 )
 
 func TestIsCInstuction(t *testing.T) {

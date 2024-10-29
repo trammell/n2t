@@ -11,7 +11,7 @@ n2t build: cmd/*.go pkg/asm/*.go pkg/vmx/*.go
 
 clean:
 	rm -f n2t coverage.out *.asm
-	go clean -testcache ./...
+	go clean -testcache
 
 test-asm:
 	go test -v ./pkg/asm

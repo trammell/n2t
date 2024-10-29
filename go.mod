@@ -1,4 +1,4 @@
-module github.com/trammell/n2t
+module github.com/trammell/nand2tetris
 
 go 1.23
 

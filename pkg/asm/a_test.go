@@ -6,7 +6,7 @@ import (
 
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
-	"github.com/trammell/n2t/pkg/asm"
+	"github.com/trammell/nand2tetris/pkg/asm"
 )
 
 func TestMain(m *testing.M) {

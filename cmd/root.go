@@ -13,8 +13,10 @@ var Verbose bool = false
 
 var RootCmd = &cobra.Command{
 	Use:   "n2t",
-	Short: "n2t is a helper application for Nand2Tetris",
-	Long:  `See https://github.com/trammell/nand2tetris`,
+	Short: "A helper application for Nand2Tetris",
+	Long:  `n2t is a command-line helper application for Nand2Tetris
+providing an assembler and a compiler. See
+https://github.com/trammell/nand2tetris for details.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Do Stuff Here
 	},
@@ -32,7 +34,7 @@ func setUpLogging(cmd *cobra.Command, args []string) {
 	}
 }
 
-func Execute() {
+func Execute() error {
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

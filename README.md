@@ -18,6 +18,15 @@ wget -O /tmp/n2t.$$ https://drive.google.com/file/d/0B9c0BdDJz6XpZUh3X2dPR1o0MUE
 
 ```
 
+## Go commands
+
+```
+go mod tidy
+
+
+```
+
+
 # Resources
 
 * <https://www.nand2tetris.org/>
