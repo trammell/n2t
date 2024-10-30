@@ -1,14 +1,41 @@
-// This file is part of www.nand2tetris.org
-// and the book "The Elements of Computing Systems"
-// by Nisan and Schocken, MIT Press.
-// File name: projects/00/Xor.hdl
+/*
+This file is part of www.nand2tetris.org and the book "The Elements of
+Computing Systems" by Nisan and Schocken, MIT Press.
 
-/**
- * Exclusive-or gate: out = !(a == b).
- * This implementation uses AND and OR primitives like:
- *
- *    OR( AND(a, NOT(b)), AND(b, NOT(a)) )
- */
+
+## Description
+
+Exclusive-or gate: out = !(a == b).
+
+## Implementation 1
+
+This implementation uses AND and OR primitives like:
+
+   OR( AND(a, NOT(b)), AND(b, NOT(a)) )
+
+This takes a total of 9 NANDs under the hood: 1 per NOT, 2 per AND, 3 for the
+OR gate.
+
+## Implementation 2
+
+I felt like I could reimplement XOR with fewer gates, and sure enough here's a
+solution (see https://en.wikipedia.org/wiki/XOR_gate) using just 4 NANDs:
+
+    nab = NAND(a, b)
+    n1 = NAND(nab, a)
+    n2 = NAND(nab, b)
+    out = NAND(n1, n2)
+
+Truth table:
+
+    a   b   nab   n1   n2   out
+   --- --- ----- ---- ---- -----
+    0   0    1     1    1    0
+    1   0    1     0    1    1
+    0   1    1     1    0    1
+    1   1    0     1    1    0
+
+*/
 
 CHIP Xor {
 
@@ -16,9 +43,17 @@ CHIP Xor {
     OUT out;
 
     PARTS:
+    Nand(a=a, b=b, out=nab);
+    Nand(a=a, b=nab, out=n1);
+    Nand(a=b, b=nab, out=n2);
+    Nand(a=n1, b=n2, out=out);
+
+/*
     Not(in=a, out=nota);
     Not(in=b, out=notb);
     And(a=a, b=notb, out=w1);
     And(a=nota, b=b, out=w2);
     Or(a=w1, b=w2, out=out);
+*/
+
 }
