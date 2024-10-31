@@ -1,14 +1,15 @@
-// This file is part of www.nand2tetris.org
-// and the book "The Elements of Computing Systems"
-// by Nisan and Schocken, MIT Press.
-// File name: projects/01/Mux.hdl
-
 /*
 
-Description:
- - has three inputs (a, b, sel) and one output (out)
- - if sel == 0, then out == a
- - if sel == 1, then out == b
+This file is part of www.nand2tetris.org and the book "The Elements of
+Computing Systems" by Nisan and Schocken, MIT Press.
+File name: projects/01/Mux.hdl
+
+## Description
+
+Mux has three inputs (a, b, sel) and one output (out):
+
+- if sel == 0, then out == a
+- if sel == 1, then out == b
 
 Solution with brute force canonical representation:
 
@@ -26,6 +27,47 @@ This leads to the solution below:
         AND(b, sel)
     )
 
+## Refinement
+
+There's an implementation available from 4 NANDs, which is half the number that
+I naively came up with:
+
+    Nand(a=sel,b=true,out=notsel)    // NOT(sel)
+    Nand(a=a,b=sel,out=asel)         // NAND(a, sel)
+    Nand(a=b,b=notsel,out=bsel)      // NAND(b, notsel)
+    Nand(a=asel,b=bsel,out=out)      // NAND(asel, bsel)
+
+Also written `[ A NAND ( S NAND S ) ] NAND ( B NAND S )`, or:
+
+    NAND(
+      NAND(a, NAND(s,s)),
+      NAND(b, s)
+    )
+
+Truth table:
+
+     a   b    s   sbar  NAND(a,sbar)  NAND(b,s)  NAND(asel, bsel)   Q
+    --- ---  ---  ----  ------------  ---------  ----------------  ---
+     0   0    0    1         1           1              0           0
+     0   1    0    1         1           1              0           0
+     1   0    0    1         0           1              1           1
+     1   1    0    1         0           1              1           1
+     0   0    1    0         1           1              0           0
+     0   1    1    0         1           0              1           1
+     1   0    1    0         1           1              0           0
+     1   1    1    0         1           0              1           1
+
+## Another idea
+
+Generate all combinations of outputs reachable from 1 NAND, 2 NANDs, 3 NANDs,
+etc. I'm sure this has been tried elsewhere.
+
+## Resources
+
+* https://vlsiuniverse.blogspot.com/2016/11/2x1-mux-using-nand-gates.html
+* https://www.electronics-tutorials.ws/combination/comb_2.html
+* https://en.wikipedia.org/wiki/NAND_logic#MUX
+
 */
 
 CHIP Mux {
@@ -33,8 +75,16 @@ CHIP Mux {
     OUT out;
 
     PARTS:
+
+    Nand(a=sel,b=true,out=sbar);
+    Nand(a=a,b=sbar,out=asbar);
+    Nand(a=sel,b=b,out=bsel);
+    Nand(a=asbar,b=bsel,out=out);
+
+    /*
     Not(in=sel,out=notsel);
     And(a=a, b=notsel, out=asel);
     And(a=b, b=sel, out=bsel);
     Or(a=asel,b=bsel,out=out);
+    */
 }
