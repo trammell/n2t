@@ -1,17 +1,34 @@
-// This file is part of www.nand2tetris.org
-// and the book "The Elements of Computing Systems"
-// by Nisan and Schocken, MIT Press.
-// File name: projects/01/DMux8Way.hdl
+/*
 
-/**
- * 8-way demultiplexor:
- * {a, b, c, d, e, f, g, h} = {in, 0, 0, 0, 0, 0, 0, 0} if sel == 000
- *                            {0, in, 0, 0, 0, 0, 0, 0} if sel == 001
- *                            etc.
- *                            {0, 0, 0, 0, 0, 0, 0, in} if sel == 111
- * As with DMux4Way, the input is a single bit. Logic here is the same, but
- * with three layers instead of two.
- */
+This file is part of www.nand2tetris.org and the book "The Elements of
+Computing Systems" by Nisan and Schocken, MIT Press.
+File name: projects/01/DMux8Way.hdl
+
+## Description
+
+This is an 8-way demultiplexor:
+
+inputs:
+* in: 1-bit signal
+* sel[3]: chooses which of 8 outputs labeled (a-h) the input signal
+          goes to; all other signals are false.
+  - if sel==000, then set a=in, all others 0
+  - if sel==001, then set b=in, all others 0
+  - if sel==010, then set c=in, all others 0
+  - if sel==011, then set d=in, all others 0
+  - ...
+  - if sel==111, then set h=in, all others 0
+
+## Implementation
+
+Implement the selection with three layers on DMux chips, one layer for each
+signal bit in "sel":
+
+* sel[2] chooses (a-d) or (e-h) for the input signal
+* sel[1] chooses (ab) (cd) (ef) or (gh)
+* sel[0] chooses the individual signal out
+
+*/
 
 CHIP DMux8Way {
     IN in, sel[3];
@@ -20,15 +37,15 @@ CHIP DMux8Way {
     PARTS:
 
     /* first level */
-    DMux(in=in,sel=sel[2],a=selabcd,b=selefgh);
+    DMux(in=in,sel=sel[2],a=sel_abcd,b=sel_efgh);
 
     /* second level */
-    DMux(in=selabcd,sel=sel[1],a=selab,b=selcd);
-    DMux(in=selefgh,sel=sel[1],a=selef,b=selgh);
+    DMux(in=sel_abcd,sel=sel[1],a=sel_ab,b=sel_cd);
+    DMux(in=sel_efgh,sel=sel[1],a=sel_ef,b=sel_gh);
 
     /* third level */
-    DMux(in=selab,sel=sel[0],a=a,b=b);
-    DMux(in=selcd,sel=sel[0],a=c,b=d);
-    DMux(in=selef,sel=sel[0],a=e,b=f);
-    DMux(in=selgh,sel=sel[0],a=g,b=h);
+    DMux(in=sel_ab,sel=sel[0],a=a,b=b);
+    DMux(in=sel_cd,sel=sel[0],a=c,b=d);
+    DMux(in=sel_ef,sel=sel[0],a=e,b=f);
+    DMux(in=sel_gh,sel=sel[0],a=g,b=h);
 }
