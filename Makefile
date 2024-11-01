@@ -6,8 +6,8 @@ usage:
 
 all: build
 
-n2t build: cmd/*.go pkg/asm/*.go pkg/vmx/*.go
-	go build -o n2t main.go
+n2t-asm build: services/asm/*.go
+	go build -o n2t-asm services/asm/main.go
 
 clean:
 	rm -f n2t coverage.out *.asm
