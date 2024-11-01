@@ -10,13 +10,11 @@ n2t-asm build: services/asm/*.go
 	go build -o n2t-asm services/asm/main.go
 
 clean:
-	rm -f n2t coverage.out *.asm
+	rm -f n2t n2t-asm coverage.out *.asm
 	go clean -testcache
 
-test: n2t
-	go test -v ./pkg/asm
-	go test -v ./pkg/vmx
-	./n2t vmx pkg/vmx/testdata/SimpleAdd/SimpleAdd.vm
+test: n2t-asm
+	go test -v ./services/asm
 
 coverage:
 	go test -race -covermode=atomic -coverprofile=coverage.out ./...

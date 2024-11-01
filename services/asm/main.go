@@ -82,6 +82,15 @@ var CJump = map[string]string{
 	"JMP": "111",
 }
 
+// main function: takes a single filename as argument
+// Read the instructions, resolve symbols, and emit assembled code
+func main() {
+	f := NewAssemblyFile(os.Args[1])
+	a := NewAssembler()
+	a.Assemble(f)
+	a.Emit()
+}
+
 // Consruct a regular expression to parse a C-Instruction
 func makeCInstructionRegexp() string {
 
@@ -335,11 +344,3 @@ func (i *Instruction) AssembleCInstruction() (string, error) {
 
 /********************************************************************/
 
-// main function: takes a single filename as argument
-// Read the instructions, resolve symbols, and emit assembled code
-func main() {
-	p := NewProgram(os.Args[1])
-	p.read()
-	p.resolve()
-	p.emit()
-}
