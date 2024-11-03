@@ -4,14 +4,14 @@
 usage:
 	@echo "usage: make [all|build|clean|test]"
 
-all: build
-
-n2t-asm build: services/asm/*.go
-	go build -o n2t-asm services/asm/main.go
-
 clean:
-	rm -f n2t n2t-asm coverage.out *.asm
+	rm -f n2t n2t-asm n2t-vmx *.out *.asm
 	go clean -testcache
+
+all build: n2t-asm
+
+n2t-asm: services/asm/*.go libs/n2t/*.go
+	go build -o n2t-asm services/asm/main.go
 
 test: n2t-asm
 	go test -v ./services/asm
