@@ -4,19 +4,20 @@
 usage:
 	@echo "usage: make [all|build|clean|test]"
 
-all: build
-
-n2t build: cmd/*.go pkg/asm/*.go pkg/vmx/*.go
-	go build -o n2t main.go
-
 clean:
-	rm -f n2t coverage.out *.asm
+	rm -f n2t n2t-asm n2t-vmx *.out *.asm
 	go clean -testcache
 
-test: n2t
-	go test -v ./pkg/asm
-	go test -v ./pkg/vmx
-	./n2t vmx pkg/vmx/testdata/SimpleAdd/SimpleAdd.vm
+all build: n2t-asm
+
+n2t-asm: services/asm/*.go libs/n2t/*.go
+	go build -o n2t-asm services/asm/*.go
+
+lint:
+	go fmt services/asm/main.go services/asm/parser.go
+
+test: n2t-asm
+	go test -v ./services/asm
 
 coverage:
 	go test -race -covermode=atomic -coverprofile=coverage.out ./...

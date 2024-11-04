@@ -18,9 +18,13 @@ wget -O /tmp/n2t.$$ https://drive.google.com/file/d/0B9c0BdDJz6XpZUh3X2dPR1o0MUE
 
 ```
 
-## Go commands
+## Golang
+
+This repo roughly follows the [golang monorepo layout](https://earthly.dev/blog/golang-monorepo/).
+
 
 ```
+# 
 go mod tidy
 
 
