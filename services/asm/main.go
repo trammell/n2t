@@ -18,7 +18,11 @@ func main() {
 	}
 
 	// first pass: loop through the commands printing their type
-	for ; p.hasMoreCommands(); p.advance() {
+	for {
+		if !p.hasMoreCommands() {
+			break
+		}
+		p.advance()
 		fmt.Println(p.index, p.commandType())
 	}
 }

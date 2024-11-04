@@ -23,7 +23,7 @@ func NewParser(filename string) (*Parser, error) {
 }
 
 func (p Parser) hasMoreCommands() bool {
-	return p.index < len(p.lines)
+	return p.index < len(p.lines) - 1
 }
 
 func (p *Parser) advance() {
