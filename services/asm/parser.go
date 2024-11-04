@@ -50,7 +50,7 @@ func (p Parser) commandType() uint8 {
 	if err == nil {
 		return C_COMMAND
 	}
-	log.Fatal("Unknown command type: %v", cur)
+	log.Fatalf("Unrecognized command: %v", cur)
 	return X_COMMAND
 }
 
