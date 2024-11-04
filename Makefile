@@ -11,7 +11,10 @@ clean:
 all build: n2t-asm
 
 n2t-asm: services/asm/*.go libs/n2t/*.go
-	go build -o n2t-asm services/asm/main.go
+	go build -o n2t-asm services/asm/main.go services/asm/parser.go services/asm/types.go
+
+lint:
+	go fmt services/asm/*.go
 
 test: n2t-asm
 	go test -v ./services/asm

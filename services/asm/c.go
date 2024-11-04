@@ -1,4 +1,11 @@
-package asm
+package main
+
+// A C instruction looks like "dest=comp;jump"., where either or both of the
+// "dest" and "jump" fields may be empty,
+// comp is the computation to perform
+// dest is the destination for the computation
+// jmp is the 
+
 
 import (
 	"fmt"
