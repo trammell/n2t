@@ -1,6 +1,11 @@
+// vim: set ai ts=4 :
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+	"strings"
+) 
 
 // CComp lists the possible C-instruction computations.
 var CComp = map[string]uint8{
@@ -47,7 +52,7 @@ var CJump = map[string]uint8{
 }
 
 // calculate the destination bits from the `dest` part of the C instruction
-func dest(str string) string {
+func (Code) dest(str string) string {
 	var dbits uint8 = 0
         if strings.Contains(str, "M") {
                 dbits |= 1
@@ -62,18 +67,20 @@ func dest(str string) string {
 }
 
 // look up the compute bits from the `comp` part of the C instruction
-func comp(str string) string {
-        // calculate computation bits
-        if cbits, ok := CComp[str]; ok {
+func (Code) comp(str string) string {
+    // calculate computation bits
+	if cbits, ok := CComp[str]; ok {
 	    return fmt.Sprintf("%07b", cbits)
 	}
-        log.Fatal().Msgf("error finding comp bits for %v", comp)
+	log.Fatalf("error finding comp bits for %v", str)
+	return ""
 }
 
 // look up the jump bits from the `jump` part of the c instruction
-func jump(str string) string {
-	if jbits, ok := CJump[jump]; ok {
+func (Code) jump(str string) string {
+	if jbits, ok := CJump[str]; ok {
 	    return fmt.Sprintf("%03b", jbits)
 	}
-        log.Fatal().Msgf("error finding jump bits for %v", jump)
+    log.Fatalf("error finding jump bits for %v", str)
+	return ""
 }
