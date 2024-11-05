@@ -43,7 +43,7 @@ func (p Parser) commandType() uint8 {
 	if regexp.MustCompile(`^@\d+$`).MatchString(cur) {
 		return A_COMMAND
 	}
-	if regexp.MustCompile(`^@[A-Za-z0-9_.]+$`).MatchString(cur) {
+	if regexp.MustCompile(`^@[A-Za-z0-9_.$]+$`).MatchString(cur) {
 		return A_COMMAND
 	}
 	if regexp.MustCompile(`^\(.+\)$`).MatchString(cur) {
@@ -64,7 +64,7 @@ func (p Parser) symbol() (string, error) {
 	if regexp.MustCompile(`^@\d+$`).MatchString(cur) {
 		return regexp.MustCompile(`^@`).ReplaceAllString(cur, ""), nil
 	}
-	if regexp.MustCompile(`^@[A-Za-z0-9_.]+$`).MatchString(cur) {
+	if regexp.MustCompile(`^@[A-Za-z0-9_.$]+$`).MatchString(cur) {
 		return regexp.MustCompile(`^@`).ReplaceAllString(cur, ""), nil
 	}
 

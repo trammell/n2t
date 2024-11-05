@@ -1,4 +1,4 @@
-// vim: set ai ts=4 :
+// vim: set ts=4 :
 package main
 
 import (
@@ -82,7 +82,7 @@ func main() {
 			} else if st.contains(sym) {
 				num := st.getAddress(sym)
 				fmt.Fprintf(w, "%016b\n", num)
-			} else if regexp.MustCompile(`^[A-Za-z0-9_.]+$`).MatchString(sym) {
+			} else if regexp.MustCompile(`^[A-Za-z0-9_.$]+$`).MatchString(sym) {
 				log.Printf("+ Adding variable %s=%d\n", sym, ramAddr)
 				st.addEntry(sym, ramAddr)
 				fmt.Fprintf(w, "%016b\n", ramAddr)
