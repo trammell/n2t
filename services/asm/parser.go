@@ -1,4 +1,4 @@
-// vim: set ai ts=4 :
+// vim: set ts=4 :
 
 package main
 
@@ -40,7 +40,10 @@ func (p *Parser) reset() {
 
 func (p Parser) commandType() uint8 {
 	cur := p.lines[p.index]
-	if regexp.MustCompile(`^@(\d+|[[:alnum:]])$`).MatchString(cur) {
+	if regexp.MustCompile(`^@\d+$`).MatchString(cur) {
+		return A_COMMAND
+	}
+	if regexp.MustCompile(`^@[A-Za-z0-9_.]+$`).MatchString(cur) {
 		return A_COMMAND
 	}
 	if regexp.MustCompile(`^\(.+\)$`).MatchString(cur) {
@@ -50,7 +53,7 @@ func (p Parser) commandType() uint8 {
 	if err == nil {
 		return C_COMMAND
 	}
-	log.Fatalf("Unrecognized command: %v", cur)
+	log.Fatalf(`Unrecognized instruction: "%v"`, cur)
 	return X_COMMAND
 }
 
@@ -58,7 +61,10 @@ func (p Parser) symbol() (string, error) {
 	cur := p.lines[p.index]
 
 	// A instructions
-	if regexp.MustCompile(`^@(\d+|[[:alnum:]])$`).MatchString(cur) {
+	if regexp.MustCompile(`^@\d+$`).MatchString(cur) {
+		return regexp.MustCompile(`^@`).ReplaceAllString(cur, ""), nil
+	}
+	if regexp.MustCompile(`^@[A-Za-z0-9_.]+$`).MatchString(cur) {
 		return regexp.MustCompile(`^@`).ReplaceAllString(cur, ""), nil
 	}
 
@@ -70,10 +76,40 @@ func (p Parser) symbol() (string, error) {
 	return "", fmt.Errorf("unrecognized symbol: %s", cur)
 }
 
-// thin wrapper to ParseCInstruction()
-func (p Parser) destCompJump() (string, string, string, error) {
+// Method destCompJump() is a thin wrapper to ParseCInstruction(). It returns a
+// string containing a bitwise representation of the C instruction.
+func (p Parser) destCompJump() (
+	destbits string,
+	compbits string,
+	jumpbits string,
+	err error) {
 	cur := p.lines[p.index]
-	return ParseCInstruction(cur)
+
+	// parse the C instructions into components
+	dest, comp, jump, err := ParseCInstruction(cur)
+	if err != nil {
+		return "", "", "", fmt.Errorf(`Error parsing C instruction "%s": %s`, cur, err)
+	}
+
+	// translate the components into their bit representations
+	var code = Code{}
+	destbits, err = code.dest(dest)
+	if err != nil {
+		err = fmt.Errorf(`Error calculating dest bits, C instruction "%s": %s`, cur, err)
+		return "", "", "", err
+	}
+	compbits, err = code.comp(comp)
+	if err != nil {
+		err = fmt.Errorf(`Error calculating comp bits, C instruction "%s": %s`, cur, err)
+		return "", "", "", err
+	}
+	jumpbits, err = code.jump(jump)
+	if err != nil {
+		err = fmt.Errorf(`Error calculating jump bits, C instruction "%s": %s`, cur, err)
+		return "", "", "", err
+	}
+
+	return destbits, compbits, jumpbits, nil
 }
 
 // read source file into `lines`
@@ -102,15 +138,32 @@ func stripInstruction(inst string) string {
 	return inst
 }
 
-// attempt to parse a string as a C instruction. This is a combination of the
-// dest(), comp() and jump() methods as described in the N2T book, page 114.
-func ParseCInstruction(inst string) (string, string, string, error) {
-	// cut out the "dest" part of the instruction
-	dest, rest, found_eq := strings.Cut(inst, "=")
-	comp, jump, found_semi := strings.Cut(rest, ";")
-	if found_eq || found_semi {
-		return dest, comp, jump, nil
+/*
+Attempt to parse a string as a C instruction. C instructions look like
+"dest=comp;jump", but either the "dest" or the "jump" parts can be empty.
+
+In this function I assume that one of the "dest" or "jump" parts must be
+present, since anything else is a NOOP and is probably an error. This is a
+combination of the dest(), comp() and jump() methods as described in the N2T
+book, page 114.
+
+I am not in love with this logic, but it's good enough.
+*/
+func ParseCInstruction(inst string) (dest string, comp string, jump string, err error) {
+	dest, comp, jump = "", "", ""
+	err = nil
+	if strings.Contains(inst, "=") {
+		var tmp string
+		dest, tmp, _ = strings.Cut(inst, "=")
+		if strings.Contains(tmp, ";") {
+			comp, jump, _ = strings.Cut(tmp, ";")
+		} else {
+			comp = tmp
+		}
+	} else if strings.Contains(inst, ";") {
+		comp, jump, _ = strings.Cut(inst, ";")
 	} else {
-		return "", "", "", errors.New("No = or ; found")
+		err = errors.New("No = or ; found")
 	}
+	return
 }

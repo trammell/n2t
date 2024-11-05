@@ -13,6 +13,8 @@ type Parser struct {
 	index int
 }
 
-type SymbolTable map[string]int
+type SymbolTable struct {
+	table map[string]int
+}
 
 type Code struct {}
