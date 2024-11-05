@@ -5,7 +5,7 @@ usage:
 	@echo "usage: make [all|build|clean|test]"
 
 clean:
-	rm -f n2t n2t-asm n2t-vmx *.out *.asm
+	rm -f n2t n2t-asm n2t-vmx *.out *.asm *.hack
 	go clean -testcache
 
 all build: n2t-asm
