@@ -1,15 +1,16 @@
-package vmx
+package main
 
 import (
 	"fmt"
+	"log"
 	"regexp"
 	"strings"
 )
 
 func NewCommand(src string) Command {
 	return Command{
-		vmCommand: src
-		fields: strings.Fields(src)
+		vmCommand: src,
+		fields: strings.Fields(src),
 	}
 }
 
@@ -90,7 +91,7 @@ func (c *Command) Push() string {
 			`
 	default:
 		asm = `ERROR`
-		log.Fatal().Msgf(`Unrecognized segment: %s`, segment)
+		log.Printf(`Unrecognized segment: %s\n`, segment)
 	}
 	return Trim(asm)
 }

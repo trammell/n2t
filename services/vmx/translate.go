@@ -1,4 +1,4 @@
-package vmx
+package main
 
 import (
 	"bufio"
@@ -7,8 +7,6 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
-
-	"github.com/rs/zerolog/log"
 )
 
 // Translate .vm source code into .asm code. Create one CodeWriter object,
@@ -66,25 +64,4 @@ func Translate(file string) {
 		// 	}
 		// }
 	}
-}
-
-// If `src` is a directory, return all the .vm files in the directory,
-// otherwise return a single .vm filename.
-func getSourceFiles(src string) []string {
-	stat, err := os.Stat(src)
-	if err != nil {
-		log.Fatal().Err(err)
-	}
-
-	// glob out the .vm files if it's a directory
-	if stat.IsDir() {
-		log.Info().Msgf(`"%s" is a directory`, src)
-		files := []string{}
-		// need to list all files matching *.vm in dir
-		return files
-	}
-
-	// it's not a directory, so return a slice with a single filename
-	log.Info().Msgf(`"%s" is a file`, src)
-	return []string{src}
 }

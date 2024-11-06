@@ -12,79 +12,47 @@ import (
 	"strings"
 )
 
-// main VM translator function: takes no arguments, reads source file name from
-// os.Args Read the instructions, resolve symbols, and emit the assembled code
+// The main VM translator function: reads source file name from os.Args.
+// Read the instructions, resolve symbols, and emit the assembled code
 func main() {
 
-	// construct the parser object
-	asmfile := os.Args[1]
-	p, err := NewParser(asmfile)
+	srcfiles, err := getSourceFiles(os.Args[1])
 	if err != nil {
-		log.Fatalf("NewParser: %s", err)
+		log.Fatalf("Unable to get source files: %s", err)
 	}
 
-	// create and open the output file (foo.asm ==> foo.hack)
-	hackfile := regexp.MustCompile(`.asm$`).ReplaceAllString(asmfile, ".hack")
-	log.Printf("Opening file: %s\n", hackfile)
-	file, err := os.Create(hackfile)
+	destfile, err := getDestFile(os.Args[1])
 	if err != nil {
-		log.Fatalf("Unable to create %v: %s", hackfile, err)
+		log.Fatalf("Unable to get destination file: %s", err)
+	}
+	log.Printf(`Opening output file "%s"\n`, destfile)
+	file, err := os.Create(destfile)
+	if err != nil {
+		log.Fatalf(`Unable to create "%v": %s`, destfile, err)
 	}
 	defer file.Close()
 	w := bufio.NewWriter(file)
 	defer w.Flush()
 
-			fmt.Fprintf(w, "111%s%s%s\n", compbits, destbits, jumpbits)
-			continue
-		}
-
-		// ignore L instructions
-		if p.commandType() == L_COMMAND {
-			continue
-		}
-
-		log.Fatalf("Error, found instruction that is neither A nor C.")
-	}
-	fmt.Printf("\n")
-	log.Println("Done.")
-}
-
-
-// Translate .vm source code into .asm code.
-// Create one CodeWriter object, and one Parser object for each source file.
-func Translate(file string) {
-	log.Info().Msgf(`input file/dir is "%s"`, file)
-
-	basename := path.Base(file) // get filename minus path
-	outfname := strings.TrimSuffix(basename, filepath.Ext(basename)) + ".asm"
-	log.Info().Msgf(`output file is "%s"`, outfname)
-
-	// construct output filehandle
-	out, err := os.Create(outfname)
-	if err != nil {
-		fmt.Println(err)
-	}
-	// close the file with defer
-	defer out.Close()
-
 	// translate all lines in all source files
-	for _, srcFileName := range getSourceFiles(file) {
-		log.Info().Msgf(`Translating source file: "%s"`, file)
-		srcFile, err := os.Open(srcFileName)
-		if err != nil {
-			fmt.Println(err)
-		}
+	for _, srcfile := range srcfiles {
+		log.Printf(`Translating source file "%s"\n`, srcfile)
 
-		scanner := bufio.NewScanner(srcFile)
-		for scanner.Scan() {
-			//fmt.Println(`// ` + scanner.Text())
-			cmd := NewCommand(scanner.Text())
-			out.WriteString(cmd.GetAsm())
-		}
-
-		if err := scanner.Err(); err != nil {
-			fmt.Println(err)
-		}
+//srcFile, err := os.Open(srcFileName)
+//		if err != nil {
+//			fmt.Println(err)
+//		}
+//
+//		scanner := bufio.NewScanner(srcFile)
+//		for scanner.Scan() {
+//			//fmt.Println(`// ` + scanner.Text())
+//			cmd := NewCommand(scanner.Text())
+//			out.WriteString(cmd.GetAsm())
+//		}
+//
+//		if err := scanner.Err(); err != nil {
+//			fmt.Println(err)
+//		}
 
 		// p := NewParser(fn)
 		// for p.Scan() {
@@ -105,25 +73,79 @@ func Translate(file string) {
 		// 	}
 		// }
 	}
+
+	log.Println("Done.")
+}
+
+
+
+// If `src` is a directory, return all the .vm files in the directory,
+// otherwise return a single .vm filename.
+func getSourceFiles(path string) ([]string, error) {
+	stat, err := os.Stat(path)
+	if err != nil {
+		return []string{}, err
+	}
+
+	// if it's a regular file, just return it back
+	if stat.IsRegular() {
+		if strings.HasSuffix(path, ".vm") {
+			err := fmt.Errorf(`"%s" is the wrong type, should be .vm`, path)
+			return []string{}, err
+		} else {
+			return []string{path}, nil
+		}
+	}
+
+	// if it's a directory, match out the .vm files
+	if stat.IsDir() {
+		log.Printf(`source file "%s" is a directory`, path)
+		f, err := os.Open(path)
+		if err != nil {
+			return []string{}, err
+		}
+		files, err := f.Readdir(0)
+		if err != nil {
+			return []string{}, err
+		}
+		var vmfiles []string
+		for _, v := range files {
+			if v.IsRegular() && strings.HasSuffix(v.Name(), ".vm") {
+				vmfiles = append(vmfiles, v.Name())
+			}
+		}
+		if len(vmfiles) == 0 {
+			err := fmt.Errorf(`No .vm files found in directory "%s"`, path)
+			return []string{}, err
+		}
+		return vmfiles, nil
+	}
+
+	log.Fatalf(`File "%s" is not a file or a directory.`, path)
+	return []string{}
 }
 
 // If `src` is a directory, return all the .vm files in the directory,
 // otherwise return a single .vm filename.
-func getSourceFiles(src string) []string {
-	stat, err := os.Stat(src)
+func getDestFile(path string) (string, error) {
+	stat, err := os.Stat(path)
 	if err != nil {
-		log.Fatal().Err(err)
+		return "", err
 	}
 
-	// glob out the .vm files if it's a directory
+	// input path might be a regular file
+	if stat.IsRegular() {
+		log.Printf(`"%s" is a regular file`, path)
+		if strings.HasSuffix(path, ".vm") {
+			log.Fatalf(`"%s" is the wrong type, should be .vm`, path)
+		} else {
+			return regexp.MustCompile(`.vm$`).ReplaceAllString(path, ".asm")
+		}
+	}
+
 	if stat.IsDir() {
-		log.Info().Msgf(`"%s" is a directory`, src)
-		files := []string{}
-		// need to list all files matching *.vm in dir
-		return files
+		log.Printf(`"%s" is a directory`, path)
+		return files, nil
 	}
 
-	// it's not a directory, so return a slice with a single filename
-	log.Info().Msgf(`"%s" is a file`, src)
-	return []string{src}
 }

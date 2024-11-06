@@ -1,4 +1,4 @@
-package vmx
+package main
 
 import (
 	"bufio"

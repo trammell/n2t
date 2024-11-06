@@ -1,12 +1,10 @@
-package vmx
+package main
 
 import (
 	"bufio"
 	"os"
 	"strconv"
 	"strings"
-
-	"github.com/rs/zerolog/log"
 )
 
 func NewParser(file string) Parser {
