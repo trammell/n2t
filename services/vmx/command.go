@@ -9,7 +9,10 @@ import (
 )
 
 func NewCommand(src string) Command {
-	return Command{vmCommand: src, fields: strings.Fields(src)}
+	return Command{
+		vmCommand: src
+		fields: strings.Fields(src)
+	}
 }
 
 func (c *Command) GetAsm() string {
