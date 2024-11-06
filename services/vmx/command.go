@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-
-	"github.com/rs/zerolog/log"
 )
 
 func NewCommand(src string) Command {
