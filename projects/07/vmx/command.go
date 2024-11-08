@@ -69,6 +69,14 @@ func (c *Command) Math() string {
 			A=A-1
 			M=-M
 		`
+	case "not":
+		asm = `
+			// neg
+			@SP        // *(SP-1) = -(*(SP-1))
+			A=M
+			A=A-1
+			M=!M
+		`
 	default:
 		asm = "ERROR"
 	}

@@ -24,7 +24,7 @@ func main() {
 		log.Fatalf("Unable to get destination file: %s", err)
 	}
 	cw := NewCodeWriter(destfile)
-	defer cw.close()
+	defer cw.Close()
 
 	// translate all lines in all source files
 	for _, srcfile := range srcfiles {
