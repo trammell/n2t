@@ -7,7 +7,7 @@ import (
 
 // These are all our command types
 const (
-	C_ARITHMETIC = iota
+	C_ARITHMETIC uint8 = iota
 	C_PUSH
 	C_POP
 	C_LABEL
@@ -21,12 +21,13 @@ const (
 
 type Command struct {
 	vmCommand string
-	fields []string
+	fields    []string
 }
 
 type Parser struct {
-	Source  string
-	Scanner *bufio.Scanner
+	FileName string
+	lines    []string
+	index    int
 }
 
 type CodeWriter struct {

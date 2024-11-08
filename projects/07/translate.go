@@ -1,22 +1,5 @@
 package main
 
-import (
-	"bufio"
-	"fmt"
-	"os"
-	"path"
-	"path/filepath"
-	"strings"
-)
-
-// Translate .vm source code into .asm code. Create one CodeWriter object,
-// and one Parser object for each source file.
-func Translate(file string) {
-	log.Info().Msgf(`input file/dir is "%s"`, file)
-
-	basename := path.Base(file) // get filename minus path
-	outfname := strings.TrimSuffix(basename, filepath.Ext(basename)) + ".asm"
-	log.Info().Msgf(`output file is "%s"`, outfname)
 
 	// construct output filehandle
 	out, err := os.Create(outfname)

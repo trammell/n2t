@@ -9,12 +9,12 @@ const (
 
 type Parser struct {
 	FileName string
-	lines []string
-	index int
+	lines    []string
+	index    int
 }
 
 type SymbolTable struct {
 	table map[string]int
 }
 
-type Code struct {}
+type Code struct{}

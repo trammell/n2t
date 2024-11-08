@@ -5,10 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path"
-	"path/filepath"
 	"regexp"
-	"strconv"
 	"strings"
 )
 
@@ -21,38 +18,56 @@ func main() {
 		log.Fatalf("Unable to get source files: %s", err)
 	}
 
+	// construct the codewriter object with the destination file
 	destfile, err := getDestFile(os.Args[1])
 	if err != nil {
 		log.Fatalf("Unable to get destination file: %s", err)
 	}
-	log.Printf(`Opening output file "%s"\n`, destfile)
-	file, err := os.Create(destfile)
-	if err != nil {
-		log.Fatalf(`Unable to create "%v": %s`, destfile, err)
-	}
-	defer file.Close()
-	w := bufio.NewWriter(file)
-	defer w.Flush()
+	cw := NewCodeWriter(destfile)
+	defer cw.close()
 
 	// translate all lines in all source files
 	for _, srcfile := range srcfiles {
 		log.Printf(`Translating source file "%s"\n`, srcfile)
+		cw.setFileName(srcfile)
+		p := Parser(srcfile)
+		for p.hasMoreCommands() {
+			p.advance()
+			switch ct := p.commandType(); ct {
+			case C_ARITHMETIC:
+				cw.writeArithmetic(p.currentCommand())
 
-//srcFile, err := os.Open(srcFileName)
-//		if err != nil {
-//			fmt.Println(err)
-//		}
-//
-//		scanner := bufio.NewScanner(srcFile)
-//		for scanner.Scan() {
-//			//fmt.Println(`// ` + scanner.Text())
-//			cmd := NewCommand(scanner.Text())
-//			out.WriteString(cmd.GetAsm())
-//		}
-//
-//		if err := scanner.Err(); err != nil {
-//			fmt.Println(err)
-//		}
+			case C_PUSH, C_POP:
+
+
+			romAddr++
+		case C_COMMAND:
+			romAddr++
+		case L_COMMAND:
+			sym, err := p.symbol()
+			if err != nil {
+				log.Fatalf("Error extracting symbol: %s", err)
+			}
+			log.Printf("+ Adding ROM symbol %s=%d\n", sym, romAddr)
+			st.addEntry(sym, romAddr)
+		}
+	}
+
+		//srcFile, err := os.Open(srcFileName)
+		//		if err != nil {
+		//			fmt.Println(err)
+		//		}
+		//
+		//		scanner := bufio.NewScanner(srcFile)
+		//		for scanner.Scan() {
+		//			//fmt.Println(`// ` + scanner.Text())
+		//			cmd := NewCommand(scanner.Text())
+		//			out.WriteString(cmd.GetAsm())
+		//		}
+		//
+		//		if err := scanner.Err(); err != nil {
+		//			fmt.Println(err)
+		//		}
 
 		// p := NewParser(fn)
 		// for p.Scan() {
@@ -77,28 +92,16 @@ func main() {
 	log.Println("Done.")
 }
 
-
-
 // If `src` is a directory, return all the .vm files in the directory,
 // otherwise return a single .vm filename.
 func getSourceFiles(path string) ([]string, error) {
-	stat, err := os.Stat(path)
+	info, err := os.Stat(path)
 	if err != nil {
 		return []string{}, err
 	}
 
-	// if it's a regular file, just return it back
-	if stat.IsRegular() {
-		if strings.HasSuffix(path, ".vm") {
-			err := fmt.Errorf(`"%s" is the wrong type, should be .vm`, path)
-			return []string{}, err
-		} else {
-			return []string{path}, nil
-		}
-	}
-
 	// if it's a directory, match out the .vm files
-	if stat.IsDir() {
+	if info.IsDir() {
 		log.Printf(`source file "%s" is a directory`, path)
 		f, err := os.Open(path)
 		if err != nil {
@@ -110,7 +113,7 @@ func getSourceFiles(path string) ([]string, error) {
 		}
 		var vmfiles []string
 		for _, v := range files {
-			if v.IsRegular() && strings.HasSuffix(v.Name(), ".vm") {
+			if v.Mode().IsRegular() && strings.HasSuffix(v.Name(), ".vm") {
 				vmfiles = append(vmfiles, v.Name())
 			}
 		}
@@ -119,10 +122,17 @@ func getSourceFiles(path string) ([]string, error) {
 			return []string{}, err
 		}
 		return vmfiles, nil
+	} else {
+		if strings.HasSuffix(path, ".vm") {
+			err := fmt.Errorf(`"%s" is the wrong type, should be .vm`, path)
+			return []string{}, err
+		} else {
+			return []string{path}, nil
+		}
 	}
 
-	log.Fatalf(`File "%s" is not a file or a directory.`, path)
-	return []string{}
+	err = fmt.Errorf(`File "%s" is not a file or a directory.`, path)
+	return []string{}, err
 }
 
 // If `src` is a directory, return all the .vm files in the directory,
@@ -132,20 +142,16 @@ func getDestFile(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	// input path might be a regular file
-	if stat.IsRegular() {
-		log.Printf(`"%s" is a regular file`, path)
-		if strings.HasSuffix(path, ".vm") {
-			log.Fatalf(`"%s" is the wrong type, should be .vm`, path)
-		} else {
-			return regexp.MustCompile(`.vm$`).ReplaceAllString(path, ".asm")
-		}
-	}
-
 	if stat.IsDir() {
 		log.Printf(`"%s" is a directory`, path)
-		return files, nil
+		dest := path + ".vm"
+		return dest, nil
 	}
-
+	// it must be a file
+	log.Printf(`"%s" is a regular file`, path)
+	if strings.HasSuffix(path, ".vm") {
+		dest := regexp.MustCompile(`.vm$`).ReplaceAllString(path, ".asm")
+		return dest, nil
+	}
+	return "", fmt.Errorf(`"%s" is the wrong type, should be .vm`, path)
 }

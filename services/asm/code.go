@@ -4,7 +4,7 @@ package main
 import (
 	"fmt"
 	"strings"
-) 
+)
 
 // CComp lists the possible C-instruction computations.
 var CComp = map[string]uint8{
@@ -53,22 +53,22 @@ var CJump = map[string]uint8{
 // calculate the destination bits from the `dest` part of the C instruction
 func (Code) dest(str string) (string, error) {
 	var dbits uint8 = 0
-        if strings.Contains(str, "M") {
-                dbits |= 1
-        }
-        if strings.Contains(str, "D") {
-                dbits |= 2
-        }
-        if strings.Contains(str, "A") {
-                dbits |= 4
-        }
+	if strings.Contains(str, "M") {
+		dbits |= 1
+	}
+	if strings.Contains(str, "D") {
+		dbits |= 2
+	}
+	if strings.Contains(str, "A") {
+		dbits |= 4
+	}
 	return fmt.Sprintf("%03b", dbits), nil
 }
 
 // look up the compute bits from the `comp` part of the C instruction
 func (Code) comp(str string) (string, error) {
 	if cbits, ok := CComp[str]; ok {
-	    return fmt.Sprintf("%07b", cbits), nil
+		return fmt.Sprintf("%07b", cbits), nil
 	}
 	return "", fmt.Errorf(`Lookup failed, comp="%s"`, str)
 }
@@ -76,7 +76,7 @@ func (Code) comp(str string) (string, error) {
 // look up the jump bits from the `jump` part of the c instruction
 func (Code) jump(str string) (string, error) {
 	if jbits, ok := CJump[str]; ok {
-	    return fmt.Sprintf("%03b", jbits), nil
+		return fmt.Sprintf("%03b", jbits), nil
 	}
 	return "", fmt.Errorf(`Lookup failed, jump="%s"`, str)
 }

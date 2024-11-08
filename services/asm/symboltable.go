@@ -69,7 +69,7 @@ func (st SymbolTable) String() string {
 		}
 	}
 	mysort := func(i, j int) bool {
-		return st.table[symbols[i]] < st.table[symbols[j]] 
+		return st.table[symbols[i]] < st.table[symbols[j]]
 	}
 	sort.Slice(symbols, mysort)
 	out := ""

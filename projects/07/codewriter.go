@@ -1,29 +1,44 @@
 package main
 
-// import (
-// 	"bufio"
-// 	"fmt"
-// 	"os"
+import (
+	"bufio"
+	"fmt"
+	"os"
+)
 
-// 	"github.com/rs/zerolog/log"
-// )
+// return a new CodeWriter object
+func NewCodeWriter(filename string) CodeWriter {
+	log.Info().Msgf("codewriter file: %s", filename)
 
-// // return a new Writer object
-// func NewCodeWriter(filename string) CodeWriter {
-// 	log.Info().Msgf("codewriter file: %s", filename)
-
-// 	// don't clobber output file
-// 	if _, err := os.Stat(filename); err == nil {
-// 		log.Fatal().Msgf(`%s exists already`, filename)
-// 	}
+	// don't clobber output file
+	if _, err := os.Stat(filename); err == nil {
+		log.Fatal().Msgf(`%s exists already`, filename)
+	}
+}
 
 // 	fh, _ := os.Create(filename)
 // 	return CodeWriter{bufio.NewWriter(fh)}
 // }
 
-// func (w *CodeWriter) writeComment(comment string) {
-// 	fmt.Fprintf(w.Writer, "// %s\n", comment)
-// }
+func (cw *CodeWriter) setFileName(filename string) {
+	cw.fileName = filename
+}
+
+func (cw *CodeWriter) writeArithmetic(cmd string) {
+	switch cmd {
+	case `add`:
+		asm := `// add\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=D+M`
+	case `sub`:
+
+
+
+
+	}
+}
+
+func (cw *CodeWriter) writeComment(comment string) {
+	fmt.Fprintf(w.Writer, "// %s\n", comment)
+}
 
 // func (w *CodeWriter) writeIncrementSP() {
 // 	fmt.Fprintf(w.Writer, "@SP\nM=M+1\n")
@@ -33,12 +48,6 @@ package main
 // 	fmt.Fprintf(w.Writer, "@SP\nM=M-1\n")
 // }
 
-// func (w *CodeWriter) writeArithmetic(cmd string) {
-// 	switch cmd {
-// 	case `add`:
-// 		w.writeAdd()
-// 	}
-// }
 
 // func (w *CodeWriter) writePushPop(cmd Command, segment string, index int) {
 // 	switch cmd {
@@ -59,18 +68,4 @@ package main
 // 		}
 
 // 	}
-// }
-
-// // "add"
-// func (w *CodeWriter) writeAdd() {
-// 	fmt.Fprintf(w.Writer, "@SP\n")
-// 	//@SP
-// 	//A=A-1
-// 	//D=M
-// 	//A=A-1
-// 	//M=D+M
-// 	//A=A-1
-// 	//M=D
-// 	//
-
 // }

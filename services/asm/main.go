@@ -61,7 +61,7 @@ func main() {
 	// second pass: loop through the commands printing their type
 	log.Println("Assembling.")
 	p.reset()
-	ramAddr := 16	// start address for new variables
+	ramAddr := 16 // start address for new variables
 	for p.hasMoreCommands() {
 		fmt.Printf(".")
 		p.advance()

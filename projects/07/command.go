@@ -10,7 +10,7 @@ import (
 func NewCommand(src string) Command {
 	return Command{
 		vmCommand: src,
-		fields: strings.Fields(src),
+		fields:    strings.Fields(src),
 	}
 }
 
