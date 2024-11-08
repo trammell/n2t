@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bufio"
 	"io"
+	"os"
 )
 
 // These are all our command types
@@ -19,21 +19,16 @@ const (
 	C_UNDEFINED
 )
 
-type Command struct {
-	vmCommand string
-	fields    []string
-}
-
 type Parser struct {
 	FileName string
-	lines    []string
-	index    int
+	Lines    []string
+	Index    int
 }
 
 type CodeWriter struct {
-	Writer io.Writer
-}
-
-type Translatable interface {
-	GetAsm() string
+	Infile  string     // the name of the file currently being parsed
+	Outfile string
+	File    *os.File
+	Writer  io.Writer
+	Counter int
 }

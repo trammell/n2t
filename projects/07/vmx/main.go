@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -18,77 +17,39 @@ func main() {
 		log.Fatalf("Unable to get source files: %s", err)
 	}
 
-	// construct the codewriter object with the destination file
+	// construct the codewriter object
 	destfile, err := getDestFile(os.Args[1])
 	if err != nil {
 		log.Fatalf("Unable to get destination file: %s", err)
 	}
-	cw := NewCodeWriter(destfile)
+	cw, err := NewCodeWriter(destfile)
+	if err != nil {
+		log.Fatalf("Unable to open code writer: %s", err)
+	}
 	defer cw.Close()
 
 	// translate all lines in all source files
 	for _, srcfile := range srcfiles {
 		log.Printf(`Translating source file "%s"\n`, srcfile)
 		cw.setFileName(srcfile)
-		p := Parser(srcfile)
+		p, err := NewParser(srcfile)
+		if err != nil {
+			log.Fatalf("Unable to construct parser: %s", err)
+		}
 		for p.hasMoreCommands() {
 			p.advance()
-			switch ct := p.commandType(); ct {
-			case C_ARITHMETIC:
-				cw.writeArithmetic(p.currentCommand())
-
-			case C_PUSH, C_POP:
-
-
-			romAddr++
-		case C_COMMAND:
-			romAddr++
-		case L_COMMAND:
-			sym, err := p.symbol()
+			ct, err := p.commandType()
 			if err != nil {
-				log.Fatalf("Error extracting symbol: %s", err)
+				log.Fatalf("Unknown command type: %s", err)
 			}
-			log.Printf("+ Adding ROM symbol %s=%d\n", sym, romAddr)
-			st.addEntry(sym, romAddr)
+			switch ct {
+			case C_ARITHMETIC:
+				cw.writeArithmetic(p.arg1())
+			case C_PUSH, C_POP:
+				cw.writePushPop(ct, p.arg1(), p.arg2())
+			}
 		}
 	}
-
-		//srcFile, err := os.Open(srcFileName)
-		//		if err != nil {
-		//			fmt.Println(err)
-		//		}
-		//
-		//		scanner := bufio.NewScanner(srcFile)
-		//		for scanner.Scan() {
-		//			//fmt.Println(`// ` + scanner.Text())
-		//			cmd := NewCommand(scanner.Text())
-		//			out.WriteString(cmd.GetAsm())
-		//		}
-		//
-		//		if err := scanner.Err(); err != nil {
-		//			fmt.Println(err)
-		//		}
-
-		// p := NewParser(fn)
-		// for p.Scan() {
-		// 	//cw.writeComment(p.Text())
-		// 	fmt.Println(p.Scanner.Text())
-		// 	switch p.commandType() {
-		// 	case C_ARITHMETIC:
-		// 		cw.writeComment("arithmetic: " + p.Text())
-		// 		log.Info().Msgf(`looks like arithmetic`)
-		// 		cw.writeArithmetic(p.Text())
-		// 	case C_POP, C_PUSH:
-		// 		cw.writeComment("pushpop: " + p.Text())
-		// 		log.Info().Msgf(`looks like pushpop`)
-		// 		cw.writePushPop(p.commandType(), p.arg1(), p.arg2())
-		// 	default:
-		// 		cw.writeComment("unknown: " + p.Text())
-		// 		log.Info().Msgf(`unknown type`)
-		// 	}
-		// }
-	}
-
 	log.Println("Done.")
 }
 

@@ -8,69 +8,99 @@ import (
 )
 
 // return a new CodeWriter object
-func NewCodeWriter(filename string) (CodeWriter, error) {
-	log.Printf("Writing code to file: %s", filename)
+// FIXME, init should create and save bufio object
+func NewCodeWriter(outfile string) (*CodeWriter, error) {
+	cw := new(CodeWriter)
+	cw.Outfile = outfile
 
-	// don't clobber output file
-	if _, err := os.Stat(filename); err == nil {
-		return nil, fmt.Errorf(`%s exists already`, filename)
+	// create and open the output file
+	log.Printf("Opening file: %s\n", outfile)
+	file, err := os.Create(outfile)
+	if err != nil {
+		return &CodeWriter{}, err
 	}
+	cw.File = file
+	cw.Writer = bufio.NewWriter(file)
+	return cw, nil
 }
 
 func (cw CodeWriter) Close() {
-	cw.file.Close()
-	cw.writer.Flush()
+	cw.Writer.Flush()
+	cw.File.Close()
 }
 
 func (cw *CodeWriter) setFileName(filename string) {
-	cw.fileName = filename
+	cw.Infile = filename
 }
 
-func (cw *CodeWriter) writeArithmetic(cmd string) {
+func (cw *CodeWriter) writeArithmetic(cmd string) (error) {
+	var asm string
 	switch cmd {
 	// unary operations
 	case `neg`:
-		return `// neg@SP\nA=M\nA=A-1\nM=-M`, nil
+		asm = `// neg@SP\nA=M\nA=A-1\nM=-M`
 	case `not`:
-		return `// neg@SP\nA=M\nA=A-1\nM=!M`, nil
+		asm = `// not@SP\nA=M\nA=A-1\nM=!M`
 	// binary operations
 	case `add`:
-		return `// add\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=D+M`, nil
+		asm = `// add\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=D+M`
 	case `sub`:
-		return `// sub\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M-D`, nil
+		asm = `// sub\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M-D`
 	case `and`:
-		return `// and\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M&D`, nil
+		asm = `// and\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M&D`
 	case `or`:
-		return `// or\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M|D`, nil
+		asm = `// or\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M|D`
 	// comparisons
 	case `eq`:
-		return `// FIXME\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M-D`, nil
+		cw.Counter++
+		asm = fmt.Sprintf(`// eq
+@SP
+M=M-1
+A=M
+D=M
+A=A-1
+D=D-M
+@EQ_TRUE_%[1]d
+D; JEQ
+@SP
+A=M
+M=0
+@EQ_CONTINUE_%[1]d
+0; JEQ
+(EQ_TRUE_%[1]d)
+@SP
+A=M
+M=-1
+(EQ_CONTINUE_%[1]d)
+`, cw.Counter)
+
 	case `gt`:
-		return `// FIXME\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M-D`, nil
+		asm = `// FIXME\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M-D`
 	case `lt`:
-		return `// FIXME\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M-D`, nil
+		asm = `// FIXME\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M-D`
 	default:
-		return "", fmt.Errorf(`Unrecognized command: %s`, cmd)
+		return fmt.Errorf(`Unrecognized command: %s`, cmd)
 	}
+	_, err := fmt.Fprintln(cw.Writer, asm)
+	return err
 }
 
-func (w *CodeWriter) writePushPop(cmd Command, segment string, index int) {
+func (w *CodeWriter) writePushPop(cmd uint8, segment string, index int) (error) {
 	switch cmd {
 	case C_PUSH:
 		switch segment {
 		case `constant`:
 			fmt.Fprintf(w.Writer, "@%d\nD=A\n@SP\nM=D\n", index)	// FIXME is this right?
 		default:
-			log.Fatal().Msgf(`Unrecognized segment: %s`, segment)
+			return fmt.Errorf(`Unrecognized segment: %s`, segment)
 		}
-
 	case C_POP:
 		switch segment {
 		case `constant`:
-			log.Fatal().Msgf("Can't POP to constant segment")
+			return fmt.Errorf("Can't POP to constant segment")
 		default:
-			log.Fatal().Msgf(`Unrecognized segment: %s`, segment)
+			return fmt.Errorf(`Unrecognized segment: %s`, segment)
 		}
-
 	}
+	return nil
 }

@@ -16,31 +16,31 @@ func NewParser(filename string) (*Parser, error) {
 	if err != nil {
 		return nil, err
 	}
-	p.lines = lines
-	p.index = -1
+	p.Lines = lines
+	p.Index = -1
 	return p, nil
 }
 
 func (p Parser) currentCommand() string {
-	return p.lines[p.index]
+	return p.Lines[p.Index]
 }
 
 func (p Parser) hasMoreCommands() bool {
-	return p.index < len(p.lines) - 1
+	return p.Index < len(p.Lines) - 1
 }
 
 func (p *Parser) advance() {
 	if p.hasMoreCommands() {
-		p.index += 1
+		p.Index += 1
 	}
 }
 
 func (p *Parser) reset() {
-	p.index = -1
+	p.Index = -1
 }
 
 func (p Parser) commandType() (uint8, error) {
-	cur := p.lines[p.index]
+	cur := p.Lines[p.Index]
 	if regexp.MustCompile(`^(add|sub|neg|eq|gt)\s+$`).MatchString(cur) {
 		return C_ARITHMETIC, nil
 	} else if regexp.MustCompile(`^pop\s+`).MatchString(cur) {
@@ -52,19 +52,19 @@ func (p Parser) commandType() (uint8, error) {
 }
 
 func (p *Parser) arg1() string {
-	cur := p.lines[p.index]
+	cur := p.Lines[p.Index]
 	return strings.Fields(cur)[1]
 }
 
 func (p *Parser) arg2() int {
-	cur := p.lines[p.index]
+	cur := p.Lines[p.Index]
 	fields := strings.Fields(cur)
 	arg2 := fields[2]
 	j, _ := strconv.Atoi(arg2)
 	return j
 }
 
-// read source file into `lines`
+// read source file into a slice of strings
 func readLines(src string) ([]string, error) {
 	file, err := os.Open(src)
 	if err != nil {
