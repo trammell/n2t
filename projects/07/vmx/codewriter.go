@@ -32,23 +32,26 @@ func (cw *CodeWriter) setFileName(filename string) {
 	cw.Infile = filename
 }
 
+// There are some opportunities in this function for code reuse, but I think
+// it's clearer if all the assembly code is laid out in full. Maybe if I get
+// better at reading .asm code.
 func (cw *CodeWriter) writeArithmetic(cmd string) (error) {
 	var asm string
 	switch cmd {
 	// unary operations
 	case `neg`:
-		asm = "// neg@SP\nA=M\nA=A-1\nM=-M\n"
+		asm = "// neg@SP\nA=M\nA=A-1\nM=-M\n\n"
 	case `not`:
-		asm = "// not@SP\nA=M\nA=A-1\nM=!M\n"
+		asm = "// not@SP\nA=M\nA=A-1\nM=!M\n\n"
 	// binary operations
 	case `add`:
 		asm = "// add\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=D+M\n\n"
 	case `sub`:
 		asm = "// sub\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M-D\n\n"
 	case `and`:
-		asm = "// and\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M&D"
+		asm = "// and\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M&D\n\n"
 	case `or`:
-		asm = "// or\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M|D"
+		asm = "// or\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M|D\n\n"
 	// comparisons
 	case `eq`:
 		cw.Counter++
@@ -63,20 +66,68 @@ D=D-M
 D; JEQ
 @SP
 A=M
+A=A-1
 M=0
 @EQ_CONTINUE_%[1]d
 0; JEQ
 (EQ_TRUE_%[1]d)
 @SP
 A=M
+A=A-1
 M=-1
 (EQ_CONTINUE_%[1]d)
 `, cw.Counter)
 
 	case `gt`:
-		asm = `// FIXME\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M-D`
+		cw.Counter++
+		asm = fmt.Sprintf(`// gt
+@SP
+M=M-1
+A=M
+D=M
+A=A-1
+D=M-D
+@GT_TRUE_%[1]d
+D; JGT
+@SP
+A=M
+A=A-1
+M=0
+@GT_CONT_%[1]d
+0; JEQ
+(GT_TRUE_%[1]d)
+@SP
+A=M
+A=A-1
+M=-1
+(GT_CONT_%[1]d)
+`, cw.Counter)
+
 	case `lt`:
-		asm = `// FIXME\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M-D`
+		cw.Counter++
+		asm = fmt.Sprintf(`// lt
+@SP
+M=M-1
+A=M
+D=M
+A=A-1
+D=M-D
+@LT_TRUE_%[1]d
+D; JLT
+@SP
+A=M
+A=A-1
+M=0
+@LT_CONT_%[1]d
+0; JEQ
+(LT_TRUE_%[1]d)
+@SP
+A=M
+A=A-1
+M=-1
+(LT_CONT_%[1]d)
+```
+
 	default:
 		return fmt.Errorf(`Unrecognized command: %s`, cmd)
 	}

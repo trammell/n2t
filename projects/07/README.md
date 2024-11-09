@@ -29,27 +29,71 @@ M=D+M       // save the new value
 
 ## Assembler for comparison operations like `eq`
 
-> Note that the `%[1]d` indicates where a distinguishing integer is injected
-> into the generated assembly code, this gives our labels unique names and
-> prevents collisions.
+1. First thing: false = 0, true = -1. This makes sense as in 2's complement -1
+   is all bits "on".
 
+2. Second thing: the `%[1]d` indicates where a distinguishing integer is
+   interpolated into the generated assembly code, this gives our labels unique
+   names and prevents collisions.
+
+3. Third thing: comparison operators operate in this "sense" on stack values.
+   If the stack contains `(2, 3)` the operation `LT` results in `true`, and
+   leaves the stack containing `(-1)` (which is "true").
 
 ```
 // eq
-@SP             // address the stack
-M=M-1           // shorten the stack by 1
-A=M             // fetch the address of the top stack value
-D=M             // save the top stack value in D
-A=A-1           // address the underlying stack value
-D=D-M           // subtract / test for equality
+@SP             // A=0          // address the stack
+M=M-1           // M[0]--       // shorten the stack
+A=M             // A=M[0]       // dereference SP into A
+D=M             // D=M[A]       // save the top stack value in D
+A=A-1           // A--          // address the previous stack value
+D=D-M           // D=D-M[A]     // compare
 
-@EQ_TRUE_123  // if D=0, branch to EQ_TRUE
-D; JEQ
+@EQ_TRUE_123    // A=EQ_TRUE_123
+D; JEQ          // if D=0, jump to EQ_TRUE_123
 
 // if we get here, D != 0 (we're in the FALSE branch)
-@SP
-A=M
-M=0
+@SP             // A=0
+A=M             // A=M[0]       // dereference SP, save into A
+A=A-1           // A--          // reference the data value
+M=0             // M[A]=0       // M[A]=false
+
+@EQ_CONT_123    // unconditional jump to CONTINUE
+0; JEQ
+
+// if we get here, D == 0 (we're in the TRUE branch)
+(EQ_TRUE_123)   // label
+@SP             // A=0
+A=M             // A=M[0]
+A=A-1           // A--          // reference the data value
+M=-1            // M[A]=-1      // M[A]=true
+
+(EQ_CONTINUE_123)
+```
+
+========================================================
+
+```
+// lt
+@SP             // A=0          // address the stack
+M=M-1           // M[0]--       // shorten the stack by 1
+A=M             // A=M[0]       // dereference
+D=M             // D=M[A]       // save the top stack value in D
+A=A-1           // A--          // address the next stack value
+D=M-D           // D=M[A]-D     // compare
+
+// If the stack contains (3, 5), we want the stored value to be TRUE,
+// since 3<5. At this point, D=3-5=-2, so we jump to the TRUE branch if D<0.
+
+@LT_TRUE_123    // address branch LT_TRUE_123
+D; JLT          // if D<0, branch to LT_TRUE_123
+
+// if we get here, D>=0 (we're in the FALSE branch)
+@SP             // A=0          // address the stack
+A=M             // A=M[0]       // dereference
+A=A-1           // A--          // reference the data value
+M=0             // M[A]=0       // 
+
 @EQ_CONT_123
 0; JEQ
 
@@ -61,6 +105,40 @@ M=-1
 (EQ_CONTINUE_123)
 ```
 
+
+```
+// gt
+@SP             // A=0          // address the stack
+M=M-1           // M[0]--       // shorten the stack by 1
+A=M             // A=M[0]       // dereference
+D=M             // D=M[A]       // save the top stack value in D
+A=A-1           // A--          // address the next stack value
+D=M-D           // D=M[A]-D     // compare
+
+// If the stack contains (3, 5), we want the stored value to be TRUE,
+// since 3<5. At this point, D=3-5=-2, so we jump to the TRUE branch if D<0.
+
+@LT_TRUE_123    // address branch LT_TRUE_123
+D; JLT          // if D<0, branch to LT_TRUE_123
+
+// FIXME this looks wrong
+// if we get here, D>=0 (we're in the FALSE branch)
+@SP             // A=0          // address the stack
+A=M             // A=M[0]       // dereference
+M=0             // M[A]=0       //-
+@EQ_CONT_123
+0; JEQ
+
+(EQ_TRUE_123
+@SP
+A=M
+M=-1
+
+(EQ_CONTINUE_123)
+```
+
+
+=============================================================
 
 ## Assembler for `push constant 7`
 
