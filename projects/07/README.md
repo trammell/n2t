@@ -62,7 +62,7 @@ M=-1
 ```
 
 
-## Assembler for `push constant 1`
+## Assembler for `push constant 7`
 
 1. D=1
 2. A=M[SP]      // ==M[0]
@@ -70,13 +70,17 @@ M=-1
 4. increment SP
 
 ```
-// push constant 1
-@1
+// push constant 7:
+//   1. D = 7
+//   2. A = M[0]
+//   3. M[A] = D
+//   4. M[0]++
+@7
 D=A
-@SP        // *SP = D
+@SP
 A=M
 M=D
-@SP        // SP++
+@SP
 M=M+1
 ```
 

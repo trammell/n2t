@@ -20,9 +20,6 @@ wget -O /tmp/n2t.$$ https://drive.google.com/file/d/0B9c0BdDJz6XpZUh3X2dPR1o0MUE
 
 ## Golang
 
-This repo roughly follows the [golang monorepo layout](https://earthly.dev/blog/golang-monorepo/).
-
-
 ```
 # 
 go mod tidy
@@ -35,10 +32,7 @@ go mod tidy
 
 * <https://www.nand2tetris.org/>
 * <https://www.nand2tetris.org/software>
+* <https://nand2tetris.github.io/web-ide/chip>
 * <https://github.com/golang-standards/project-layout>
-
-
-
-
-go mod tidy
+* <https://drive.google.com/file/d/1xZzcMIUETv3u3sdpM_oTJSTetpVee3KZ/view>
 

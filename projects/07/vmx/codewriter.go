@@ -8,7 +8,6 @@ import (
 )
 
 // return a new CodeWriter object
-// FIXME, init should create and save bufio object
 func NewCodeWriter(outfile string) (*CodeWriter, error) {
 	cw := new(CodeWriter)
 	cw.Outfile = outfile
@@ -38,18 +37,18 @@ func (cw *CodeWriter) writeArithmetic(cmd string) (error) {
 	switch cmd {
 	// unary operations
 	case `neg`:
-		asm = `// neg@SP\nA=M\nA=A-1\nM=-M`
+		asm = "// neg@SP\nA=M\nA=A-1\nM=-M\n"
 	case `not`:
-		asm = `// not@SP\nA=M\nA=A-1\nM=!M`
+		asm = "// not@SP\nA=M\nA=A-1\nM=!M\n"
 	// binary operations
 	case `add`:
-		asm = `// add\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=D+M`
+		asm = "// add\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=D+M\n\n"
 	case `sub`:
-		asm = `// sub\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M-D`
+		asm = "// sub\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M-D\n\n"
 	case `and`:
-		asm = `// and\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M&D`
+		asm = "// and\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M&D"
 	case `or`:
-		asm = `// or\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M|D`
+		asm = "// or\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M|D"
 	// comparisons
 	case `eq`:
 		cw.Counter++
@@ -86,11 +85,13 @@ M=-1
 }
 
 func (w *CodeWriter) writePushPop(cmd uint8, segment string, index int) (error) {
+	var asm string
 	switch cmd {
 	case C_PUSH:
 		switch segment {
 		case `constant`:
-			fmt.Fprintf(w.Writer, "@%d\nD=A\n@SP\nM=D\n", index)	// FIXME is this right?
+			asm = fmt.Sprintf("// push constant %d\n", index)
+			asm += fmt.Sprintf("@%d\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n\n", index)
 		default:
 			return fmt.Errorf(`Unrecognized segment: %s`, segment)
 		}
@@ -102,5 +103,6 @@ func (w *CodeWriter) writePushPop(cmd uint8, segment string, index int) (error) 
 			return fmt.Errorf(`Unrecognized segment: %s`, segment)
 		}
 	}
+	fmt.Fprintf(w.Writer, asm)
 	return nil
 }

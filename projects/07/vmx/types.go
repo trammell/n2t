@@ -1,7 +1,7 @@
 package main
 
 import (
-	"io"
+	"bufio"
 	"os"
 )
 
@@ -29,6 +29,6 @@ type CodeWriter struct {
 	Infile  string     // the name of the file currently being parsed
 	Outfile string
 	File    *os.File
-	Writer  io.Writer
+	Writer  *bufio.Writer
 	Counter int
 }

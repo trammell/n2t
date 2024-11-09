@@ -41,27 +41,33 @@ func (p *Parser) reset() {
 
 func (p Parser) commandType() (uint8, error) {
 	cur := p.Lines[p.Index]
-	if regexp.MustCompile(`^(add|sub|neg|eq|gt)\s+$`).MatchString(cur) {
+	if regexp.MustCompile(`^(add|sub|neg|eq|gt)$`).MatchString(cur) {
 		return C_ARITHMETIC, nil
 	} else if regexp.MustCompile(`^pop\s+`).MatchString(cur) {
 		return C_POP, nil
 	} else if regexp.MustCompile(`^push\s+`).MatchString(cur) {
 		return C_PUSH, nil
 	}
-	return C_UNDEFINED, fmt.Errorf("Unrecognized command type: %s", cur)
+	return C_UNDEFINED, fmt.Errorf(`Unrecognized command type: "%s"`, cur)
 }
 
-func (p *Parser) arg1() string {
-	cur := p.Lines[p.Index]
-	return strings.Fields(cur)[1]
-}
-
-func (p *Parser) arg2() int {
+func (p *Parser) arg1() (string, error) {
 	cur := p.Lines[p.Index]
 	fields := strings.Fields(cur)
-	arg2 := fields[2]
-	j, _ := strconv.Atoi(arg2)
-	return j
+	if len(fields) > 1 {
+		return fields[1], nil
+	}
+	return "", fmt.Errorf(`VM command "%s" has no arg1`, cur)
+}
+
+func (p *Parser) arg2() (int, error) {
+	cur := p.Lines[p.Index]
+	fields := strings.Fields(cur)
+	if len(fields) > 2 {
+		j, _ := strconv.Atoi(fields[2])
+		return j, nil
+	}
+	return -1, fmt.Errorf(`VM command "%s" has no arg2`, cur)
 }
 
 // read source file into a slice of strings
@@ -74,7 +80,8 @@ func readLines(src string) ([]string, error) {
 	var lines []string
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		txt := strings.TrimSpace(scanner.Text())
+		txt := regexp.MustCompile(`//.*`).ReplaceAllString(scanner.Text(), "")
+		txt = strings.TrimSpace(txt)
 		if txt != "" {
 			lines = append(lines, txt)
 		}
