@@ -55,7 +55,7 @@ func (cw *CodeWriter) writeArithmetic(cmd string) (error) {
 	// comparisons
 	case `eq`:
 		cw.Counter++
-		asm = fmt.Sprintf(`// eq
+		fmt = `// eq
 @SP
 M=M-1
 A=M
@@ -68,15 +68,16 @@ D; JEQ
 A=M
 A=A-1
 M=0
-@EQ_CONTINUE_%[1]d
+@EQ_CONT_%[1]d
 0; JEQ
 (EQ_TRUE_%[1]d)
 @SP
 A=M
 A=A-1
 M=-1
-(EQ_CONTINUE_%[1]d)
-`, cw.Counter)
+(EQ_CONT_%[1]d)
+`
+		asm = fmt.Sprintf(fmt, cw.Counter)
 
 	case `gt`:
 		cw.Counter++
@@ -126,8 +127,7 @@ A=M
 A=A-1
 M=-1
 (LT_CONT_%[1]d)
-```
-
+`, cw.Counter)
 	default:
 		return fmt.Errorf(`Unrecognized command: %s`, cmd)
 	}
