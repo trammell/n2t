@@ -40,22 +40,54 @@ func (cw *CodeWriter) writeArithmetic(cmd string) (error) {
 	switch cmd {
 	// unary operations
 	case `neg`:
-		asm = "// neg@SP\nA=M\nA=A-1\nM=-M\n\n"
+		asm = `// neg
+@SP
+A=M
+A=A-1
+M=-M`
 	case `not`:
-		asm = "// not@SP\nA=M\nA=A-1\nM=!M\n\n"
+		asm = `// not
+@SP
+A=M
+A=A-1
+M=!M`
 	// binary operations
 	case `add`:
-		asm = "// add\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=D+M\n\n"
+		asm = `// add
+@SP
+M=M-1
+A=M
+D=M
+A=A-1
+M=D+M`
 	case `sub`:
-		asm = "// sub\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M-D\n\n"
+		asm = `// sub
+@SP
+M=M-1
+A=M
+D=M
+A=A-1
+M=M-D`
 	case `and`:
-		asm = "// and\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M&D\n\n"
+		asm = `// and
+@SP
+M=M-1
+A=M
+D=M
+A=A-1
+M=M&D`
 	case `or`:
-		asm = "// or\n@SP\nM=M-1\nA=M\nD=M\nA=A-1\nM=M|D\n\n"
+		asm = `// or
+@SP
+M=M-1
+A=M
+D=M
+A=A-1
+M=M|D`
 	// comparisons
 	case `eq`:
 		cw.Counter++
-		fmt = `// eq
+		format := `// eq
 @SP
 M=M-1
 A=M
@@ -75,13 +107,12 @@ M=0
 A=M
 A=A-1
 M=-1
-(EQ_CONT_%[1]d)
-`
-		asm = fmt.Sprintf(fmt, cw.Counter)
+(EQ_CONT_%[1]d)`
+		asm = fmt.Sprintf(format, cw.Counter)
 
 	case `gt`:
 		cw.Counter++
-		asm = fmt.Sprintf(`// gt
+		format := `// gt
 @SP
 M=M-1
 A=M
@@ -101,12 +132,12 @@ M=0
 A=M
 A=A-1
 M=-1
-(GT_CONT_%[1]d)
-`, cw.Counter)
+(GT_CONT_%[1]d)`
+		asm = fmt.Sprintf(format, cw.Counter)
 
 	case `lt`:
 		cw.Counter++
-		asm = fmt.Sprintf(`// lt
+		format := `// lt
 @SP
 M=M-1
 A=M
@@ -126,12 +157,13 @@ M=0
 A=M
 A=A-1
 M=-1
-(LT_CONT_%[1]d)
-`, cw.Counter)
+(LT_CONT_%[1]d)`
+		asm = fmt.Sprintf(format, cw.Counter)
+
 	default:
 		return fmt.Errorf(`Unrecognized command: %s`, cmd)
 	}
-	_, err := fmt.Fprintln(cw.Writer, asm)
+	_, err := fmt.Fprintf(cw.Writer, asm + "\n\n")
 	return err
 }
 
@@ -141,8 +173,15 @@ func (w *CodeWriter) writePushPop(cmd uint8, segment string, index int) (error) 
 	case C_PUSH:
 		switch segment {
 		case `constant`:
-			asm = fmt.Sprintf("// push constant %d\n", index)
-			asm += fmt.Sprintf("@%d\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n\n", index)
+			format := `// push constant %[1]d
+@%[1]d
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1`
+			asm = fmt.Sprintf(format, index)
 		default:
 			return fmt.Errorf(`Unrecognized segment: %s`, segment)
 		}
@@ -154,6 +193,6 @@ func (w *CodeWriter) writePushPop(cmd uint8, segment string, index int) (error) 
 			return fmt.Errorf(`Unrecognized segment: %s`, segment)
 		}
 	}
-	fmt.Fprintf(w.Writer, asm)
-	return nil
+	_, err := fmt.Fprintf(w.Writer, asm + "\n\n")
+	return err
 }
