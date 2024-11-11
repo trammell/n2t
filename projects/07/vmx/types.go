@@ -26,7 +26,7 @@ type Parser struct {
 }
 
 type CodeWriter struct {
-	Infile  string     // the name of the file currently being parsed
+	VMFile  string		// the name of the VM file currently being parsed
 	Outfile string
 	File    *os.File
 	Writer  *bufio.Writer
