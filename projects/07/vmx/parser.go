@@ -41,7 +41,7 @@ func (p *Parser) reset() {
 
 func (p Parser) commandType() (uint8, error) {
 	cur := p.Lines[p.Index]
-	if regexp.MustCompile(`^(add|sub|neg|eq|gt)$`).MatchString(cur) {
+	if regexp.MustCompile(`^(neg|not|add|sub|and|or|eq|gt|lt)$`).MatchString(cur) {
 		return C_ARITHMETIC, nil
 	} else if regexp.MustCompile(`^pop\s+`).MatchString(cur) {
 		return C_POP, nil
