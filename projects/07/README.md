@@ -142,23 +142,17 @@ M=-1
 
 ## Assembler for `push constant 7`
 
-1. D=1
-2. A=M[SP]      // ==M[0]
-3. M=D
-4. increment SP
+1. Store value "7" in D
+2. Store D in the current stack pointer address
+3. increment the stack pointer
 
-```
-// push constant 7:
-//   1. D = 7
-//   2. A = M[0]
-//   3. M[A] = D
-//   4. M[0]++
-@7
-D=A
-@SP
-A=M
-M=D
-@SP
-M=M+1
+```asm
+@7          // A=7
+D=A         // D=7
+@SP         // A=0
+A=M         // A=M[0]
+M=D         // M[A]=7
+@SP         // A=0
+M=M+1       // M[0]++
 ```
 
