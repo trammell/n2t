@@ -191,6 +191,7 @@ M=D
 @SP
 M=M+1`
 		asm = fmt.Sprintf(format, index)
+
 	case `local`:
 		format := `// push local %[1]d
 @%[1]d
@@ -205,6 +206,7 @@ M=D
 @SP
 M=M+1`
 		asm = fmt.Sprintf(format, index)
+
 	case `argument`:
 		format := `// push argument %[1]d
 @%[1]d
@@ -247,19 +249,35 @@ M=D
 @SP
 M=M+1`
 		asm = fmt.Sprintf(format, index)
+
 	case `pointer`:
 		if index < 0 || index > 1 {
 			return fmt.Errorf(`Invalid command: "push pointer %d"`, index)
 		}
 		format := `// push pointer %[1]d
-@%[1]d
+@%[2]d
 D=M
 @SP
 A=M
 M=D
 @SP
 M=M+1`
-		asm = fmt.Sprintf(format, index + 3)
+		asm = fmt.Sprintf(format, index, index + 3)
+
+	case `temp`:
+		if index < 0 || index > 7 {
+			return fmt.Errorf(`Invalid command: "push temp %d"`, index)
+		}
+		format := `// push temp %[1]d
+@%[2]d
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1`
+		asm = fmt.Sprintf(format, index, index + 5)
+
 	case `static`:
 		format := `// push static %[1]d
 @%[2]s.%[1]d
@@ -278,23 +296,112 @@ M=M+1`
 }
 
 // push values from the stack to various segments
-func (w *CodeWriter) writePop(segment string, index int) (error) {
+func (cw *CodeWriter) writePop(segment string, index int) (error) {
 	var asm string
 	switch segment {
 	case `constant`:
 		return fmt.Errorf("Can't POP to constant segment")
 	case `local`:
-		format := `// pop local %[1]d`
+		format := `// pop local %[1]d
+@%[1]d
+D=A
+@LCL
+D=D+M
+@R15
+A=D
+@SP
+AM=M-1
+D=M
+@R15
+A=M
+M=D`
 		asm = fmt.Sprintf(format, index)
+
+	case `argument`:
+		format := `// pop argument %[1]d
+@%[1]d
+D=A
+@ARG
+D=D+M
+@R15
+A=D
+@SP
+AM=M-1
+D=M
+@R15
+A=M
+M=D`
+		asm = fmt.Sprintf(format, index)
+
+	case `this`:
+		format := `// pop this %[1]d
+@%[1]d
+D=A
+@THIS
+D=D+M
+@R15
+A=D
+@SP
+AM=M-1
+D=M
+@R15
+A=M
+M=D`
+		asm = fmt.Sprintf(format, index)
+
+	case `that`:
+		format := `// pop that %[1]d
+@%[1]d
+D=A
+@THAT
+D=D+M
+@R15
+A=D
+@SP
+AM=M-1
+D=M
+@R15
+A=M
+M=D`
+		asm = fmt.Sprintf(format, index)
+
+	case `pointer`:
+		// might be easier to just have separate ASM statements for cases 0, 1
+		if index < 0 || index > 1 {
+			return fmt.Errorf(`Invalid command: "pop pointer %d"`, index)
+		}
+		format := `// pop pointer %[1]d
+@%[2]d
+D=M
+@SP
+AM=M-1
+M=D`
+		asm = fmt.Sprintf(format, index, index+3)
+
+	case `temp`:
+		if index < 0 || index > 7 {
+			return fmt.Errorf(`Invalid command: "pop temp %d"`, index)
+		}
+		format := `// pop temp %[1]d
+@%[2]d
+D=M
+@SP
+AM=M-1
+M=D`
+		asm = fmt.Sprintf(format, index, index + 5)
+
+	case `static`:
+		format := `// pop static %[1]d
+@SP
+AM=M-1
+D=M
+@%[2]s.%[1]d
+M=D`
+		asm = fmt.Sprintf(format, index, cw.VMFile)
+
 	default:
 		return fmt.Errorf(`Unrecognized segment: %s`, segment)
 	}
-	_, err := fmt.Fprintf(w.Writer, asm + "\n\n")
+	_, err := fmt.Fprintf(cw.Writer, asm + "\n\n")
 	return err
 }
-
-
-
-
-
-
