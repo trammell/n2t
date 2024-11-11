@@ -342,7 +342,7 @@ D=A         // D=2
 @LCL        // A=1
 D=D+M       // D contains the address of LCL[2]
 @R15        // A=15             // prepare to fetch saved address
-A=D         // save address into R15
+M=D         // save address into R15
 // Step 2: pop the top stack value, save it into the address in R15
 @SP         // A=0              // address SP
 AM=M-1      // M[0]--,A=M[0]-1  // decrement SP, select stack address
@@ -366,7 +366,7 @@ D=A         // D=2
 @ARG        // A=1
 D=D+M       // D contains the address of ARG[2]
 @R15        // A=15             // prepare to fetch saved address
-A=D         // save address into R15
+M=D         // save address into R15
 // Step 2: pop the top stack value, save it into the address in R15
 @SP         // A=0              // address SP
 AM=M-1      // M[0]--,A=M[0]-1  // decrement SP, select stack address

@@ -308,7 +308,7 @@ D=A
 @LCL
 D=D+M
 @R15
-A=D
+M=D
 @SP
 AM=M-1
 D=M
@@ -324,7 +324,7 @@ D=A
 @ARG
 D=D+M
 @R15
-A=D
+M=D
 @SP
 AM=M-1
 D=M
@@ -340,7 +340,7 @@ D=A
 @THIS
 D=D+M
 @R15
-A=D
+M=D
 @SP
 AM=M-1
 D=M
@@ -356,7 +356,7 @@ D=A
 @THAT
 D=D+M
 @R15
-A=D
+M=D
 @SP
 AM=M-1
 D=M
@@ -376,7 +376,7 @@ D=M
 @SP
 AM=M-1
 M=D`
-		asm = fmt.Sprintf(format, index, index+3)
+		asm = fmt.Sprintf(format, index, index + 3)
 
 	case `temp`:
 		if index < 0 || index > 7 {
