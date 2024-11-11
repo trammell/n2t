@@ -54,7 +54,11 @@ func main() {
 				if err != nil {
 					log.Fatalf(`Error fetching arg2: "%s"`, err)
 				}
-				err = cw.writePushPop(ct, arg1, arg2)
+				if ct == C_PUSH {
+					err = cw.writePush(arg1, arg2)
+				} else {
+					err = cw.writePop(arg1, arg2)
+				}
 				if err != nil {
 					log.Fatalf(`Error writing arithmetic: "%s"`, err)
 				}

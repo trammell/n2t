@@ -38,7 +38,6 @@ A=A-1
 M=-1
 (EQ_CONT_1)
 
-
 // push constant 17
 @17
 D=A
@@ -78,7 +77,6 @@ A=M
 A=A-1
 M=-1
 (EQ_CONT_2)
-
 
 // push constant 16
 @16
@@ -120,7 +118,6 @@ A=A-1
 M=-1
 (EQ_CONT_3)
 
-
 // push constant 892
 @892
 D=A
@@ -160,7 +157,6 @@ A=M
 A=A-1
 M=-1
 (LT_CONT_4)
-
 
 // push constant 891
 @891
@@ -202,7 +198,6 @@ A=A-1
 M=-1
 (LT_CONT_5)
 
-
 // push constant 891
 @891
 D=A
@@ -242,7 +237,6 @@ A=M
 A=A-1
 M=-1
 (LT_CONT_6)
-
 
 // push constant 32767
 @32767
@@ -284,7 +278,6 @@ A=A-1
 M=-1
 (GT_CONT_7)
 
-
 // push constant 32766
 @32766
 D=A
@@ -324,7 +317,6 @@ A=M
 A=A-1
 M=-1
 (GT_CONT_8)
-
 
 // push constant 32766
 @32766
@@ -366,7 +358,6 @@ A=A-1
 M=-1
 (GT_CONT_9)
 
-
 // push constant 57
 @57
 D=A
@@ -402,7 +393,6 @@ D=M
 A=A-1
 M=D+M
 
-
 // push constant 112
 @112
 D=A
@@ -420,13 +410,11 @@ D=M
 A=A-1
 M=M-D
 
-
 // neg
 @SP
 A=M
 A=A-1
 M=-M
-
 
 // and
 @SP
@@ -435,7 +423,6 @@ A=M
 D=M
 A=A-1
 M=M&D
-
 
 // push constant 82
 @82
@@ -454,11 +441,9 @@ D=M
 A=A-1
 M=M|D
 
-
 // not
 @SP
 A=M
 A=A-1
 M=!M
-
 

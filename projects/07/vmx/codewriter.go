@@ -4,7 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"path/filepath"
 	"os"
+	"regexp"
+	"strings"
 )
 
 // return a new CodeWriter object
@@ -28,8 +31,15 @@ func (cw CodeWriter) Close() {
 	cw.File.Close()
 }
 
-func (cw *CodeWriter) setFileName(filename string) {
-	cw.Infile = filename
+// Set the name of the current file, minus any preceding path or file
+// extension. Needed for static segments.
+func (cw *CodeWriter) setFileName(vmfile string) {
+	suffix := filepath.Ext(vmfile)					// find the suffix
+	vmfile = filepath.Base(vmfile)					// remove path
+	vmfile = strings.TrimSuffix(vmfile, suffix)	// strip suffix
+	pattern := regexp.MustCompile(`[^A-Za-z0-9_]`)	// problematic chars pattern
+	vmfile = pattern.ReplaceAllString(vmfile, "")	// remove problematic chars
+	cw.VMFile = vmfile
 }
 
 // There are some opportunities in this function for code reuse, but I think
@@ -167,13 +177,12 @@ M=-1
 	return err
 }
 
-func (w *CodeWriter) writePushPop(cmd uint8, segment string, index int) (error) {
+// push various values on to the stack from various segments
+func (cw *CodeWriter) writePush(segment string, index int) (error) {
 	var asm string
-	switch cmd {
-	case C_PUSH:
-		switch segment {
-		case `constant`:
-			format := `// push constant %[1]d
+	switch segment {
+	case `constant`:
+		format := `// push constant %[1]d
 @%[1]d
 D=A
 @SP
@@ -181,18 +190,111 @@ A=M
 M=D
 @SP
 M=M+1`
-			asm = fmt.Sprintf(format, index)
-		default:
-			return fmt.Errorf(`Unrecognized segment: %s`, segment)
+		asm = fmt.Sprintf(format, index)
+	case `local`:
+		format := `// push local %[1]d
+@%[1]d
+D=A
+@LCL
+A=M
+A=A+D
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1`
+		asm = fmt.Sprintf(format, index)
+	case `argument`:
+		format := `// push argument %[1]d
+@%[1]d
+D=A
+@ARG
+A=M
+A=A+D
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1`
+		asm = fmt.Sprintf(format, index)
+	case `this`:
+		format := `// push this %[1]d
+@%[1]d
+D=A
+@THIS
+A=M
+A=A+D
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1`
+		asm = fmt.Sprintf(format, index)
+	case `that`:
+		format := `// push that %[1]d
+@%[1]d
+D=A
+@THAT
+A=M
+A=A+D
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1`
+		asm = fmt.Sprintf(format, index)
+	case `pointer`:
+		if index < 0 || index > 1 {
+			return fmt.Errorf(`Invalid command: "push pointer %d"`, index)
 		}
-	case C_POP:
-		switch segment {
-		case `constant`:
-			return fmt.Errorf("Can't POP to constant segment")
-		default:
-			return fmt.Errorf(`Unrecognized segment: %s`, segment)
-		}
+		format := `// push pointer %[1]d
+@%[1]d
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1`
+		asm = fmt.Sprintf(format, index + 3)
+	case `static`:
+		format := `// push static %[1]d
+@%[2]s.%[1]d
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1`
+		asm = fmt.Sprintf(format, index, cw.VMFile)
+	default:
+		return fmt.Errorf(`Unrecognized segment: %s`, segment)
+	}
+	_, err := fmt.Fprintf(cw.Writer, asm + "\n\n")
+	return err
+}
+
+// push values from the stack to various segments
+func (w *CodeWriter) writePop(segment string, index int) (error) {
+	var asm string
+	switch segment {
+	case `constant`:
+		return fmt.Errorf("Can't POP to constant segment")
+	case `local`:
+		format := `// pop local %[1]d`
+		asm = fmt.Sprintf(format, index)
+	default:
+		return fmt.Errorf(`Unrecognized segment: %s`, segment)
 	}
 	_, err := fmt.Fprintf(w.Writer, asm + "\n\n")
 	return err
 }
+
+
+
+
+
+

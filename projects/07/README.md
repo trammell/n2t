@@ -156,3 +156,174 @@ M=D         // M[A]=7
 M=M+1       // M[0]++
 ```
 
+=============================================================
+
+## Assembler for `push local 1`
+
+This pushes the second value in the local segment onto the stack.
+
+```
+// push local 1
+@1          // A=1
+D=A         // D=1
+@LCL        // A=1
+A=M         // A=M[1]   :: A is now the memory address of the local stack
+A=A+D       // A is now the memory address of local 1
+D=M         // D = local 1 (finally!)
+@SP         // A=0
+A=M         // A=M[0]   :: A is now the memory address of the stack pointer
+M=D         // M[A]=D   :: push local 1 on to the stack
+@SP         // A=0
+M=M+1       // M[0]++   :: increment the stack pointer
+```
+
+=============================================================
+
+## Assembler for `push argument 1`
+
+This pushes the second value in the argument segment on to the stack. Almost
+identical to `push local 1`.
+
+```
+// push argument 1
+@1          // A=1
+D=A         // D=1
+@ARG        // A=2
+A=M         // A=M[2]   :: A is now the memory address of the argument stack
+A=A+D       // A is now the memory address of argument 1
+D=M         // D = ARG[1]
+@SP         // A=0
+A=M         // A=M[0]   :: A is now the memory address of the stack pointer
+M=D         // M[A]=D   :: push argument 1 on to the stack
+@SP         // A=0
+M=M+1       // M[0]++   :: increment the stack pointer
+```
+
+=============================================================
+
+## Assembler for `push this 1`
+
+```
+// push this 1
+@1          // A=1
+D=A         // D=1
+@THIS       // A=3
+A=M         // A=M[3]   :: A is now the memory address of the THIS segment
+A=A+D       // A is now the memory address of this[1]
+D=M         // D = this[1] (finally!)
+@SP         // A=0
+A=M         // A=M[0]   :: A is now the memory address of the stack pointer
+M=D         // M[A]=D   :: push this[1] on to the stack
+@SP         // A=0
+M=M+1       // M[0]++   :: increment the stack pointer
+```
+
+=============================================================
+
+## Assembler for `push that 1`
+
+```
+// push that 1
+@1          // A=1
+D=A         // D=1
+@THAT       // A=4
+A=M         // A=M[1]   :: A is now the memory address of the THAT segment
+A=A+D       // A is now the memory address of THAT[1]
+D=M         // D = THAT[1]
+@SP         // A=0
+A=M         // A=M[0]   :: A is now the memory address of the stack pointer
+M=D         // M[A]=D   :: push THAT[1] on to the stack
+@SP         // A=0
+M=M+1       // M[0]++   :: increment the stack pointer
+```
+
+=============================================================
+
+## Assembler for `push pointer 1`
+
+Push the value of `pointer 1` on to the stack
+
+From TEoCS Chapter 7, page 142:
+
+> The `pointer` segment is mapped on RAM locations 3-4 (also called `THIS` and
+> `THAT`) ... Thus access to `pointer i` should be translated to assembly code
+> that addresses RAM location `3 + i` ...
+
+Another example is on page 138, VM code for
+
+
+
+Also, it appears that valid `pointer`s are only 0 and 1, so I've added that
+restriction to the code also.
+
+```
+// push pointer 1
+@4          // A=4      // calculated in code (index + 3)
+D=M         // D=M[4]   // D=POINTER[1]
+@SP         // A=0
+A=M         // A=M[0]   // A = stack pointer address
+M=D         // M[A]=D   // push POINTER[1] on to the stack
+@SP         // A=0
+M=M+1       // M[0]++   :: increment the stack pointer
+```
+
+=============================================================
+
+## Assembler for `push static 1`
+
+Push the 1-th value in the static segment to the stack.
+See documentation on TEoCS page 143.
+
+* When a new symbol is encountered for the first time by the assembler, the
+  assembler allocates a new RAM address for it, starting at address 16.
+* Exploit this by representing variable J in file F as symbol `F.J`. 
+* Depends on the filename!
+
+```
+// push static 5
+@filename.5         // address the previously defined value
+D=M                 // D = RAM[filename.5]
+@SP                 // A=0
+A=M                 // A=M[0]   // A = stack pointer address
+M=D                 // M[A]=D   // push RAM[filename.5] onto the stack
+@SP                 // A=0
+M=M+1               // M[0]++   :: increment the stack pointer
+```
+
+=============================================================
+
+## Assembler for `pop local 1`
+
+
+
+
+=============================================================
+
+## Assembler for `pop argument 1`
+
+=============================================================
+
+## Assembler for `pop this 1`
+
+=============================================================
+
+## Assembler for `pop that 1`
+
+=============================================================
+
+## Assembler for `pop local 1`
+
+
+
+
+=============================================================
+
+## Assembler for `pop argument 1`
+
+=============================================================
+
+## Assembler for `pop this 1`
+
+=============================================================
+
+## Assembler for `pop that 1`
