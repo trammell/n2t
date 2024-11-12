@@ -62,6 +62,64 @@ func main() {
 				if err != nil {
 					log.Fatalf(`Error writing arithmetic: "%s"`, err)
 				}
+			case C_LABEL:
+				arg1, err := p.arg1()
+				if err != nil {
+					log.Fatalf(`Error fetching arg1: "%s"`, err)
+				}
+				err := cw.writeLabel(arg1)
+				if err != nil {
+					log.Fatalf(`Error writing label: "%s"`, err)
+				}
+			case C_GOTO:
+				arg1, err := p.arg1()
+				if err != nil {
+					log.Fatalf(`Error fetching arg1: "%s"`, err)
+				}
+				err := cw.writeGoto(arg1)
+				if err != nil {
+					log.Fatalf(`Error writing goto: "%s"`, err)
+				}
+			case C_IF:
+				arg1, err := p.arg1()
+				if err != nil {
+					log.Fatalf(`Error fetching arg1: "%s"`, err)
+				}
+				err := cw.writeIf(arg1)
+				if err != nil {
+					log.Fatalf(`Error writing if-goto: "%s"`, err)
+				}
+			case C_FUNCTION:
+				arg1, err := p.arg1()
+				if err != nil {
+					log.Fatalf(`Error fetching arg1: "%s"`, err)
+				}
+				arg2, err := p.arg2()
+				if err != nil {
+					log.Fatalf(`Error fetching arg2: "%s"`, err)
+				}
+				err := cw.writeFunction(arg1, arg2)
+				if err != nil {
+					log.Fatalf(`Error writing if-goto: "%s"`, err)
+				}
+			case C_RETURN:
+				err := cw.writeReturn()
+				if err != nil {
+					log.Fatalf(`Error writing return: "%s"`, err)
+				}
+			case C_CALL:
+				arg1, err := p.arg1()
+				if err != nil {
+					log.Fatalf(`Error fetching arg1: "%s"`, err)
+				}
+				arg2, err := p.arg2()
+				if err != nil {
+					log.Fatalf(`Error fetching arg2: "%s"`, err)
+				}
+				err := cw.writeCall(arg1, arg2)
+				if err != nil {
+					log.Fatalf(`Error writing call: "%s"`, err)
+				}
 			}
 		}
 	}
