@@ -366,7 +366,8 @@ M=D`
 		asm = fmt.Sprintf(format, index)
 
 	case `pointer`:
-		// might be easier to just have separate ASM statements for cases 0, 1
+		// This is simple as there's no real math to do. It might be easier to
+		// just have separate ASM statements for cases 0, 1
 		if index < 0 || index > 1 {
 			return fmt.Errorf(`Invalid command: "pop pointer %d"`, index)
 		}
@@ -383,10 +384,10 @@ M=D`
 			return fmt.Errorf(`Invalid command: "pop temp %d"`, index)
 		}
 		format := `// pop temp %[1]d
-@%[2]d
-D=M
 @SP
 AM=M-1
+D=M
+@%[2]d
 M=D`
 		asm = fmt.Sprintf(format, index, index + 5)
 
