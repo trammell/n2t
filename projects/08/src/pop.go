@@ -1,8 +1,6 @@
 package main
 
-import (
-	"fmt"
-)
+import "fmt"
 
 // push values from the stack to various segments
 func (cw *CodeWriter) writePop(segment string, index int) (error) {

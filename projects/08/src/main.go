@@ -98,7 +98,7 @@ func main() {
 				if err != nil {
 					log.Fatalf(`Error fetching arg2: "%s"`, err)
 				}
-				err := cw.writeFunction(arg1, arg2)
+				err = cw.writeFunction(arg1, arg2)
 				if err != nil {
 					log.Fatalf(`Error writing if-goto: "%s"`, err)
 				}
@@ -116,7 +116,7 @@ func main() {
 				if err != nil {
 					log.Fatalf(`Error fetching arg2: "%s"`, err)
 				}
-				err := cw.writeCall(arg1, arg2)
+				err = cw.writeCall(arg1, arg2)
 				if err != nil {
 					log.Fatalf(`Error writing call: "%s"`, err)
 				}

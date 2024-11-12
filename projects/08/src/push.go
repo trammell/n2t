@@ -1,8 +1,6 @@
 package main
 
-import (
-	"fmt"
-)
+import "fmt"
 
 // push various values on to the stack from various segments
 func (cw *CodeWriter) writePush(segment string, index int) (error) {
