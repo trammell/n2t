@@ -372,10 +372,10 @@ M=D`
 			return fmt.Errorf(`Invalid command: "pop pointer %d"`, index)
 		}
 		format := `// pop pointer %[1]d
-@%[2]d
-D=M
 @SP
 AM=M-1
+D=M
+@%[2]d
 M=D`
 		asm = fmt.Sprintf(format, index, index + 3)
 
