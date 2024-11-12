@@ -67,7 +67,7 @@ func main() {
 				if err != nil {
 					log.Fatalf(`Error fetching arg1: "%s"`, err)
 				}
-				err := cw.writeLabel(arg1)
+				err = cw.writeLabel(arg1)
 				if err != nil {
 					log.Fatalf(`Error writing label: "%s"`, err)
 				}
@@ -76,7 +76,7 @@ func main() {
 				if err != nil {
 					log.Fatalf(`Error fetching arg1: "%s"`, err)
 				}
-				err := cw.writeGoto(arg1)
+				err = cw.writeGoto(arg1)
 				if err != nil {
 					log.Fatalf(`Error writing goto: "%s"`, err)
 				}
@@ -85,7 +85,7 @@ func main() {
 				if err != nil {
 					log.Fatalf(`Error fetching arg1: "%s"`, err)
 				}
-				err := cw.writeIf(arg1)
+				err = cw.writeIf(arg1)
 				if err != nil {
 					log.Fatalf(`Error writing if-goto: "%s"`, err)
 				}
