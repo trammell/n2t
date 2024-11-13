@@ -26,7 +26,7 @@ func (p Parser) currentCommand() string {
 }
 
 func (p Parser) hasMoreCommands() bool {
-	return p.Index < len(p.Lines) - 1
+	return p.Index < len(p.Lines)-1
 }
 
 func (p *Parser) advance() {
@@ -89,7 +89,7 @@ func readLines(src string) ([]string, error) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		txt := regexp.MustCompile(`//.*`).ReplaceAllString(scanner.Text(), "")
-		txt = strings.TrimSpace(txt)	// trim leading & trailing whitespace
+		txt = strings.TrimSpace(txt) // trim leading & trailing whitespace
 		if txt != "" {
 			lines = append(lines, txt)
 		}

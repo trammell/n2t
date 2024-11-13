@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 // push values from the stack to various segments
-func (cw *CodeWriter) writePop(segment string, index int) (error) {
+func (cw *CodeWriter) writePop(segment string, index int) error {
 	var asm string
 	switch segment {
 	case `constant`:
@@ -84,7 +84,7 @@ AM=M-1
 D=M
 @%[2]d
 M=D`
-		asm = fmt.Sprintf(format, index, index + 3)
+		asm = fmt.Sprintf(format, index, index+3)
 
 	case `temp`:
 		if index < 0 || index > 7 {
@@ -96,7 +96,7 @@ AM=M-1
 D=M
 @%[2]d
 M=D`
-		asm = fmt.Sprintf(format, index, index + 5)
+		asm = fmt.Sprintf(format, index, index+5)
 
 	case `static`:
 		format := `// pop static %[1]d
@@ -110,6 +110,6 @@ M=D`
 	default:
 		return fmt.Errorf(`unrecognized segment: %s`, segment)
 	}
-	_, err := fmt.Fprintf(cw.Writer, asm + "\n\n")
+	_, err := fmt.Fprintf(cw.Writer, asm+"\n\n")
 	return err
 }

@@ -1,14 +1,14 @@
 package main
 
-import "fmt"	
+import "fmt"
 
-// write assembly code equivalent to a VM label command	
-func (cw *CodeWriter) writeReturn() (error) {
+// write assembly code equivalent to a VM "return" command
+func (cw *CodeWriter) writeReturn() error {
 	asm := `// return
 
 
 
 	`
-	_, err := fmt.Fprintf(cw.Writer, asm + "\n\n")
+	_, err := fmt.Fprintf(cw.Writer, asm+"\n\n")
 	return err
 }

@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"log"
-	"path/filepath"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -34,11 +34,11 @@ func (cw CodeWriter) Close() {
 // Set the name of the current file, minus any preceding path or file
 // extension. Needed for static segments.
 func (cw *CodeWriter) setFileName(vmfile string) {
-	suffix := filepath.Ext(vmfile)					// find the suffix
-	vmfile = filepath.Base(vmfile)					// remove path
-	vmfile = strings.TrimSuffix(vmfile, suffix)	// strip suffix
-	pattern := regexp.MustCompile(`[^A-Za-z0-9_]`)	// problematic chars pattern
-	vmfile = pattern.ReplaceAllString(vmfile, "")	// remove problematic chars
+	suffix := filepath.Ext(vmfile)                 // find the suffix
+	vmfile = filepath.Base(vmfile)                 // remove path
+	vmfile = strings.TrimSuffix(vmfile, suffix)    // strip suffix
+	pattern := regexp.MustCompile(`[^A-Za-z0-9_]`) // problematic chars pattern
+	vmfile = pattern.ReplaceAllString(vmfile, "")  // remove problematic chars
 	cw.VMFile = vmfile
 }
 
@@ -54,7 +54,7 @@ func (cw *CodeWriter) setFunction(fname string) error {
 // There are some opportunities in this function for code reuse, but I think
 // it's clearer if all the assembly code is laid out in full. Maybe if I get
 // better at reading .asm code.
-func (cw *CodeWriter) writeArithmetic(cmd string) (error) {
+func (cw *CodeWriter) writeArithmetic(cmd string) error {
 	var asm string
 	switch cmd {
 	// unary operations
@@ -182,7 +182,6 @@ M=-1
 	default:
 		return fmt.Errorf(`unrecognized command: %s`, cmd)
 	}
-	_, err := fmt.Fprintf(cw.Writer, asm + "\n\n")
+	_, err := fmt.Fprintf(cw.Writer, asm+"\n\n")
 	return err
 }
-

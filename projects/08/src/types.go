@@ -26,10 +26,10 @@ type Parser struct {
 }
 
 type CodeWriter struct {
-	VMFile  string		// the name of the VM file currently being parsed
-	Outfile string
-	Function string		// the name of the function we're currently in 
-	File    *os.File
-	Writer  *bufio.Writer
-	Counter int
+	VMFile   string // the name of the VM file currently being parsed
+	Outfile  string
+	Function string // the name of the function we're currently in
+	File     *os.File
+	Writer   *bufio.Writer
+	Counter  int
 }
