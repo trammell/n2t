@@ -14,3 +14,4 @@ vmx: src/*.go
 
 lint:
 	go fmt src/*.go
+	go vet src/*.go
