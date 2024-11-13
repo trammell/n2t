@@ -9,12 +9,13 @@ import (
 // Read the instructions, resolve symbols, and emit the assembled code
 func main() {
 
+	// get the name(s) of the source VM file(s) to translate
 	srcfiles, err := getSourceFiles(os.Args[1])
 	if err != nil {
 		log.Fatalf("Unable to get source files: %s", err)
 	}
 
-	// construct the codewriter object
+	// construct the output file and the codewriter object
 	destfile, err := getDestFile(os.Args[1])
 	if err != nil {
 		log.Fatalf("Unable to get destination file: %s", err)
@@ -24,6 +25,9 @@ func main() {
 		log.Fatalf("Unable to open code writer: %s", err)
 	}
 	defer cw.Close()
+
+	// write the init block
+	cw.writeInit()
 
 	// translate all lines in all source files
 	for _, srcfile := range srcfiles {
@@ -45,7 +49,7 @@ func main() {
 				if err != nil {
 					log.Fatalf(`Error writing arithmetic: "%s"`, err)
 				}
-			case C_PUSH, C_POP:
+			case C_PUSH:
 				arg1, err := p.arg1()
 				if err != nil {
 					log.Fatalf(`Error fetching arg1: "%s"`, err)
@@ -54,13 +58,22 @@ func main() {
 				if err != nil {
 					log.Fatalf(`Error fetching arg2: "%s"`, err)
 				}
-				if ct == C_PUSH {
-					err = cw.writePush(arg1, arg2)
-				} else {
-					err = cw.writePop(arg1, arg2)
-				}
+				err = cw.writePush(arg1, arg2)
 				if err != nil {
-					log.Fatalf(`Error writing arithmetic: "%s"`, err)
+					log.Fatalf(`Error writing push: "%s"`, err)
+				}
+			case C_POP:
+				arg1, err := p.arg1()
+				if err != nil {
+					log.Fatalf(`Error fetching arg1: "%s"`, err)
+				}
+				arg2, err := p.arg2()
+				if err != nil {
+					log.Fatalf(`Error fetching arg2: "%s"`, err)
+				}
+				err = cw.writePop(arg1, arg2)
+				if err != nil {
+					log.Fatalf(`Error writing pop: "%s"`, err)
 				}
 			case C_LABEL:
 				arg1, err := p.arg1()
@@ -94,13 +107,17 @@ func main() {
 				if err != nil {
 					log.Fatalf(`Error fetching arg1: "%s"`, err)
 				}
+				err = cw.setFunction(arg1)
+				if err != nil {
+					log.Fatalf(`Error setting function name: "%s"`, err)
+				}
 				arg2, err := p.arg2()
 				if err != nil {
 					log.Fatalf(`Error fetching arg2: "%s"`, err)
 				}
 				err = cw.writeFunction(arg1, arg2)
 				if err != nil {
-					log.Fatalf(`Error writing if-goto: "%s"`, err)
+					log.Fatalf(`Error writing function: "%s"`, err)
 				}
 			case C_RETURN:
 				err := cw.writeReturn()

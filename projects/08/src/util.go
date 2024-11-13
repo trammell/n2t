@@ -34,20 +34,19 @@ func getSourceFiles(path string) ([]string, error) {
 			}
 		}
 		if len(vmfiles) == 0 {
-			err := fmt.Errorf(`No .vm files found in directory "%s"`, path)
+			err := fmt.Errorf(`no .vm files found in directory "%s"`, path)
 			return []string{}, err
 		}
 		return vmfiles, nil
-	} else {
-		if strings.HasSuffix(path, ".vm") {
-			return []string{path}, nil
-		} else {
-			err := fmt.Errorf(`"%s" is the wrong type, should be .vm`, path)
-			return []string{}, err
-		}
 	}
 
-	err = fmt.Errorf(`File "%s" is not a file or a directory.`, path)
+	// `path` is a regular file, but is it a VM file?
+	if strings.HasSuffix(path, ".vm") {
+		return []string{path}, nil
+	}
+
+	// give up
+	err = fmt.Errorf(`"%s" is the wrong type, should be .vm`, path)
 	return []string{}, err
 }
 

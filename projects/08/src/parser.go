@@ -35,10 +35,6 @@ func (p *Parser) advance() {
 	}
 }
 
-func (p *Parser) reset() {
-	p.Index = -1
-}
-
 func (p Parser) commandType() (uint8, error) {
 	cur := p.Lines[p.Index]
 	if regexp.MustCompile(`^(neg|not|add|sub|and|or|eq|gt|lt)$`).MatchString(cur) {
@@ -60,7 +56,7 @@ func (p Parser) commandType() (uint8, error) {
 	} else if regexp.MustCompile(`^call\s+`).MatchString(cur) {
 		return C_RETURN, nil
 	}
-	return C_UNDEFINED, fmt.Errorf(`Unrecognized command type: "%s"`, cur)
+	return C_UNDEFINED, fmt.Errorf(`unrecognized command type: "%s"`, cur)
 }
 
 func (p *Parser) arg1() (string, error) {

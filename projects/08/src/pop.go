@@ -7,7 +7,7 @@ func (cw *CodeWriter) writePop(segment string, index int) (error) {
 	var asm string
 	switch segment {
 	case `constant`:
-		return fmt.Errorf("Can't POP to constant segment")
+		return fmt.Errorf("can't POP to constant segment")
 	case `local`:
 		format := `// pop local %[1]d
 @%[1]d
@@ -76,7 +76,7 @@ M=D`
 		// This is simple as there's no real math to do. It might be easier to
 		// just have separate ASM statements for cases 0, 1
 		if index < 0 || index > 1 {
-			return fmt.Errorf(`Invalid command: "pop pointer %d"`, index)
+			return fmt.Errorf(`invalid command: "pop pointer %d"`, index)
 		}
 		format := `// pop pointer %[1]d
 @SP
@@ -88,7 +88,7 @@ M=D`
 
 	case `temp`:
 		if index < 0 || index > 7 {
-			return fmt.Errorf(`Invalid command: "pop temp %d"`, index)
+			return fmt.Errorf(`invalid command: "pop temp %d"`, index)
 		}
 		format := `// pop temp %[1]d
 @SP
@@ -108,7 +108,7 @@ M=D`
 		asm = fmt.Sprintf(format, index, cw.VMFile)
 
 	default:
-		return fmt.Errorf(`Unrecognized segment: %s`, segment)
+		return fmt.Errorf(`unrecognized segment: %s`, segment)
 	}
 	_, err := fmt.Fprintf(cw.Writer, asm + "\n\n")
 	return err

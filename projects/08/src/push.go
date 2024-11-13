@@ -77,7 +77,7 @@ M=M+1`
 
 	case `pointer`:
 		if index < 0 || index > 1 {
-			return fmt.Errorf(`Invalid command: "push pointer %d"`, index)
+			return fmt.Errorf(`invalid command: "push pointer %d"`, index)
 		}
 		format := `// push pointer %[1]d
 @%[2]d
@@ -91,7 +91,7 @@ M=M+1`
 
 	case `temp`:
 		if index < 0 || index > 7 {
-			return fmt.Errorf(`Invalid command: "push temp %d"`, index)
+			return fmt.Errorf(`invalid command: "push temp %d"`, index)
 		}
 		format := `// push temp %[1]d
 @%[2]d
@@ -114,7 +114,7 @@ M=D
 M=M+1`
 		asm = fmt.Sprintf(format, index, cw.VMFile)
 	default:
-		return fmt.Errorf(`Unrecognized segment: %s`, segment)
+		return fmt.Errorf(`unrecognized segment: %s`, segment)
 	}
 	_, err := fmt.Fprintf(cw.Writer, asm + "\n\n")
 	return err

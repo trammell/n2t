@@ -42,6 +42,15 @@ func (cw *CodeWriter) setFileName(vmfile string) {
 	cw.VMFile = vmfile
 }
 
+// Set the name of the current file, minus any preceding path or file
+// extension. Needed for static segments.
+func (cw *CodeWriter) setFunction(fname string) error {
+	// match and strip problematic characters
+	pattern := regexp.MustCompile(`[^A-Za-z0-9_.]`)
+	cw.Function = pattern.ReplaceAllString(fname, "")
+	return nil
+}
+
 // There are some opportunities in this function for code reuse, but I think
 // it's clearer if all the assembly code is laid out in full. Maybe if I get
 // better at reading .asm code.
@@ -171,7 +180,7 @@ M=-1
 		asm = fmt.Sprintf(format, cw.Counter)
 
 	default:
-		return fmt.Errorf(`Unrecognized command: %s`, cmd)
+		return fmt.Errorf(`unrecognized command: %s`, cmd)
 	}
 	_, err := fmt.Fprintf(cw.Writer, asm + "\n\n")
 	return err

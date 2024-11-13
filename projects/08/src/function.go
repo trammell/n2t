@@ -1,9 +1,9 @@
 package main
 
-import "fmt"
+import "fmt"	
 
-// write assembly code equivalent to a VM label command
-func (cw *CodeWriter) writeCall(fname string, nargs int) error {
+// write assembly code equivalent to a VM label command	
+func (cw *CodeWriter) writeFunction(fname string, nargs int) (error) {
 	format := `// call %[1]s %[2]d
 @RETURN_%[1]s
 
