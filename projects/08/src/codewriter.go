@@ -13,7 +13,11 @@ import (
 // return a new CodeWriter object
 func NewCodeWriter(outfile string) (*CodeWriter, error) {
 	cw := new(CodeWriter)
+
+	// reasonable initial values
 	cw.Outfile = outfile
+	cw.VMFile = "Sys"
+	cw.Function = "init"
 
 	// create and open the output file
 	log.Printf("Opening file: %s\n", outfile)
@@ -23,6 +27,7 @@ func NewCodeWriter(outfile string) (*CodeWriter, error) {
 	}
 	cw.File = file
 	cw.Writer = bufio.NewWriter(file)
+
 	return cw, nil
 }
 

@@ -4,7 +4,7 @@ usage:
 	@echo "usage: make [all|build|clean|test]"
 
 clean:
-	rm -f vmx *.out *.asm *.hack
+	rm -f vmx *.asm *.hack *.out *.zip
 	rm -rf project7
 	go clean -testcache
 
