@@ -20,7 +20,7 @@ func NewCodeWriter(outfile string) (*CodeWriter, error) {
 	cw.Function = "init"
 
 	// create and open the output file
-	log.Printf("Opening file: %s\n", outfile)
+	log.Printf("Opening output file: %s\n", outfile)
 	file, err := os.Create(outfile)
 	if err != nil {
 		return &CodeWriter{}, err

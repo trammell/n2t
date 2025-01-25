@@ -1,4 +1,4 @@
-.PHONY: clean all build run test-asm test-vmx 
+.PHONY: clean all build run
 
 usage:
 	@echo "usage: make [all|build|clean|test]"
@@ -8,18 +8,21 @@ clean:
 	rm -rf project8
 	go clean -testcache
 
-all build: vmx
+all build: VMTranslator
 
-VMTranslator: src/*.go
-	go build -o VMTranslator src/*.go
+VMTranslator: *.go
+	go build -o VMTranslator *.go
 
 lint:
-	go fmt src/*.go
-	go vet src/*.go
+	go fmt *.go
+	go vet *.go
+
+test: VMTranslator
+	./VMTranslator testfiles/ProgramFlow/BasicLoop    
 
 zip project8.zip:
 	mkdir -p project8
-	cp -a src/*.go src/go.* project8/
+	cp -a *.go project8/
 	echo "go" > project8/lang.txt
 	echo "debug" >> project8/lang.txt
 	zip -r project8.zip project8/

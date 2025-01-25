@@ -2,11 +2,10 @@ package main
 
 import "fmt"
 
-
 // write assembly code equivalent to a VM label command
 func (cw *CodeWriter) writeCall(fname string, nargs int) error {
 	cw.Counter++
-	here := fmt.Sprintf("RETURN_%s.%s.%d", cw.VMFile, cw.Function, cw.Counter) 
+	here := fmt.Sprintf("RETURN_%s.%s.%d", cw.VMFile, cw.Function, cw.Counter)
 	dest := fmt.Sprintf("%s$%s", cw.VMFile, cw.Function)
 	format := `// call %[1]s %[2]d
 @%[3]s	// push return address
