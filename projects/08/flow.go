@@ -18,11 +18,12 @@ func (cw *CodeWriter) writeGoto(label string) error {
 }
 
 // write assembly code equivalent to a VM if-goto command
+// NOTE: this modifies the stack (pops top value)
 func (cw *CodeWriter) writeIf(label string) error {
 	asm := `// if-goto %[1]s
 @SP
-A=M
-D=A
+AM=M-1
+D=M
 @%[1]s
 D; JNE`
 	_, err := fmt.Fprintf(cw.Writer, asm+"\n\n", label)
