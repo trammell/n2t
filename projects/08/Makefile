@@ -4,8 +4,11 @@ usage:
 	@echo "usage: make [all|build|clean|test]"
 
 clean:
-	rm -f VMTranslator *.asm *.hack *.out *.zip
+	rm -f testfiles/*/*/*.asm
 	rm -rf project8
+
+realclean:
+	rm -f VMTranslator *.zip
 	go clean -testcache
 
 all build: VMTranslator
