@@ -31,7 +31,8 @@ func getSourceFiles(path string) ([]string, error) {
 		var vmfiles []string
 		for _, v := range files {
 			if v.Mode().IsRegular() && strings.HasSuffix(v.Name(), ".vm") {
-				vmfiles = append(vmfiles, v.Name())
+				fullpath := filepath.Join(path, v.Name())
+				vmfiles = append(vmfiles, fullpath)
 			}
 		}
 		if len(vmfiles) == 0 {
