@@ -1,2 +1,3 @@
 VMTranslator
+__debug*
 testfiles/**/*.asm
