@@ -9,6 +9,6 @@ func (cw *CodeWriter) writeReturn() error {
 
 
 	`
-	_, err := fmt.Fprintf(cw.Writer, asm+"\n\n")
+	_, err := fmt.Fprintln(cw.Writer, asm+"\n")
 	return err
 }

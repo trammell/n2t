@@ -116,6 +116,6 @@ M=M+1`
 	default:
 		return fmt.Errorf(`unrecognized segment: %s`, segment)
 	}
-	_, err := fmt.Fprintf(cw.Writer, asm+"\n\n")
+	_, err := fmt.Fprintln(cw.Writer, asm+"\n")
 	return err
 }

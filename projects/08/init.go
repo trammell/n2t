@@ -11,6 +11,6 @@ D=A
 M=D
 @Sys.init	// call Sys.init
 0; JMP`
-	_, err := fmt.Fprintf(cw.Writer, asm+"\n\n")
+	_, err := fmt.Fprintln(cw.Writer, asm+"\n")
 	return err
 }
