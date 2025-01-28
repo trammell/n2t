@@ -136,5 +136,6 @@ M=-1
 		return fmt.Errorf(`unrecognized command: %s`, cmd)
 	}
 	_, err := fmt.Fprintln(cw.Writer, asm+"\n")
+	cw.Flush()
 	return err
 }
