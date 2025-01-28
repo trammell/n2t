@@ -5,8 +5,11 @@ import (
 	"os"
 )
 
-// The main VM translator function: reads source file name from os.Args.
-// Read the instructions, resolve symbols, and emit the assembled code
+// This is the main VM translator function. It does the follwing:
+//   1. read the source file or directory name from os.Args
+//   2. read VM instructions from source file(s)
+//   3. resolve symbols
+//   4. emit the assembled code
 func main() {
 
 	// get the name(s) of the source VM file(s) to translate
