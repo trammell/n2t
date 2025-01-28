@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -50,19 +51,21 @@ func getSourceFiles(path string) ([]string, error) {
 	return []string{}, err
 }
 
-// If `src` is a directory, return all the .vm files in the directory,
-// otherwise return a single .vm filename.
+// Construct the name of the destination .asm file. If the source path is a
+// directory, create the .asm file in the directory, e.g.
+// `/path/to/project/project.asm`.
 func getDestFile(path string) (string, error) {
 	stat, err := os.Stat(path)
 	if err != nil {
 		return "", err
 	}
+	// it's a directory
 	if stat.IsDir() {
 		log.Printf(`"%s" is a directory`, path)
-		dest := path + ".vm"
+		dest := filepath.Join(path, filepath.Base(path)+".asm")
 		return dest, nil
 	}
-	// it must be a file
+	// it's a file
 	log.Printf(`"%s" is a regular file`, path)
 	if strings.HasSuffix(path, ".vm") {
 		dest := regexp.MustCompile(`.vm$`).ReplaceAllString(path, ".asm")
